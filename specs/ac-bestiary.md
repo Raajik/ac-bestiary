@@ -28,8 +28,8 @@ the attack they need to hit it, and what it drops.
   Mudmouth (Subclassed) are Tuskers too (user, 2026-10-20). Their weenies are not in `Creature/Tusker/`.
 - Weenies with the same name are **variants** of one tile (user, 2026-10-20). For example, "Rampager" has 4.
   The default variant is the one whose level matches the ACPedia table. If none matches, use the lowest level.
-- The tile, the filters and the sort use the default variant. The level range filter also keeps a tile if any
-  of its variants is in the range.
+- The tile and the sort use the default variant. The level range and the "drops trophy" filters keep a tile
+  if any of its variants matches.
 - A name with no retail weenie gets no tile. The build prints a list of these names.
 
 ## Page

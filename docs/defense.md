@@ -59,8 +59,8 @@ not follow the emulator skill model.
 - The magic defense agrees for some creatures and is near for the others. The
   difference is the size of the attribute sum the formula divides. The
   Devastator agrees at 388. The Female Tusker is 54 against 55, the Silver
-  Tusker is 239 against 270. The attribute values of the ACPedia source must
-  be a little different.
+  Tusker is 239 against 270. The cause is **Unknown**. Maybe the ACPedia
+  source had different attribute values.
 - The melee and missile defense of the Male Tusker are lower in ACPedia than
   the formula gives. The ACPedia missile defense of 76 is even below the
   missile defense skill of the weenie, which is 84. A current skill is never
