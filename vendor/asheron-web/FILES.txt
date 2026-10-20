@@ -59,6 +59,12 @@ packages/dat-parser/src/file-types/XpTable.ts
 packages/dat-parser/src/index.ts
 packages/dat-parser/src/node/FileDatBytes.ts
 packages/dat-parser/src/streaming/DatMiss.ts
+packages/renderer/src/animation/AnimatedEntity.ts
+packages/renderer/src/animation/AnimationPlayer.ts
+packages/renderer/src/animation/MotionCommands.ts
+packages/renderer/src/animation/MotionManager.ts
+packages/renderer/src/animation/MotionTableState.ts
+packages/renderer/src/animation/SequenceFrame.ts
 packages/renderer/src/audio/WavePrefetch.ts
 packages/renderer/src/models/DegradeLod.ts
 packages/renderer/src/models/DetailTexturing.ts
@@ -79,6 +85,7 @@ packages/renderer/src/ui/ChargenSummary.ts
 packages/renderer/src/ui/CreatureViewCamera.ts
 packages/renderer/src/ui/CreatureViewRender.ts
 packages/renderer/src/utils/LruMap.ts
+packages/renderer/src/world/RemoteMotion.ts
 packages/shared/src/ace-enums.ts
 packages/shared/src/character/AttributeSystem.ts
 packages/shared/src/character/CharacterCreation.ts
