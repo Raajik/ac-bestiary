@@ -35,7 +35,7 @@ Where the creature data comes from and how the build reads it.
 - The model of a creature is the setup of the weenie, the clothes of the
   clothing table and the colours of the palette. The build reads the client
   files of every model into one bundle. The page does not read the 900 MB
-  client data. The bundle holds 174 files of 2.4 MB. **Verified** (the build
+  client data. The bundle holds 198 files of 3.2 MB. **Verified** (the build
   output, 2026-10-20).
 - The clothes of a creature come from the clothing table of the weenie, the
   property data id 7. The table holds the texture swaps of the parts and the
@@ -49,8 +49,29 @@ Where the creature data comes from and how the build reads it.
   stands in the rest pose, with the heading of 191.3679 degrees. The light and
   the camera are the ones of the examine portrait. **Verified** (the build
   output, 2026-10-20).
-- The page shows the same picture in the live view, with the same camera and
-  the same light. **Verified** (the smoke check of the page, 2026-10-20).
+- The live view of a tile uses the same camera and the same light as the
+  still of the tile. The still shows the rest pose of the model, the live
+  view plays the idle loop of the motion table. **Verified** (the smoke check
+  of the page, 2026-10-20).
+
+## The animation
+
+- The motion table of a creature is the weenie property data id 2. The table
+  holds the cycles (the substates), the links (the transitions) and the
+  modifiers. **Verified** (the Tusker weenie SQL, 2026-10-20).
+- The idle loop of the page is the ready stance of the table: the cycle of the
+  default style, the motion `Ready` (0x41000003). **Verified** (the smoke
+  check of the page, 2026-10-20).
+- A walk and a run are cycles of the table. The attack and the death are links
+  from the ready stance, and the attack links live in the combat style of the
+  table. The page plays the link and the motion table returns to the ready
+  stance by itself. **Observed** (the motion table of the Tusker, 2026-10-20).
+- The build packs the motion table of every creature and every animation it
+  plays into the model bundle, so the page can play them. **Verified** (the
+  build output, 2026-10-20).
+- The animation code is the code of asheron-web: the `MotionManager` and the
+  `AnimationPlayer` of `packages/renderer/src/animation/`, copied unchanged
+  into `vendor/asheron-web/`. **Verified** (the vendor list).
 
 ## The sparse clones
 
