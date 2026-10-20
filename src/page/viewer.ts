@@ -42,7 +42,8 @@ export class ModelViewer {
     });
     canvas.addEventListener('pointermove', (event) => {
       if (!this.dragging || !this.model) return;
-      this.model.rotation.y += (event.clientX - this.lastX) * 0.01;
+      // Minus: a drag to the right turns the front of the model to the right (the plus felt reversed, user 2026-10-20).
+      this.model.rotation.y -= (event.clientX - this.lastX) * 0.01;
       this.lastX = event.clientX;
     });
     const stop = (event: PointerEvent) => {
