@@ -22,6 +22,12 @@ import { installMirrorAwareCulling } from '../../vendor/asheron-web/packages/ren
 import type { CreatureModelSpec, CreatureModels } from '../lib/creature-model.js';
 import { attackMotion, motionButtons, type MotionButton, type MotionName } from './motions.js';
 
+/** The share of the idle pose's size added on each side of the framed box. */
+const FRAME_MARGIN = 0.12;
+
+/** From the click to standing up again: about 2 s of fall, then 3 s on the ground. */
+const DEATH_SECONDS = 5;
+
 /** The live model view. The drag turns the model, the motion table plays it. */
 export class ModelViewer {
   private readonly canvas: HTMLCanvasElement;
@@ -102,7 +108,7 @@ export class ModelViewer {
    * Play a motion once, then return to the idle.
    *
    * A walk and a run are cycles, so they play for the length of the cycle.
-   * The attack and the death are actions: the motion table plays them and
+   * The attack is an action: the motion table plays it and
    * returns to the ready stance by itself.
    */
   playMotion(name: MotionName): void {
@@ -134,8 +140,8 @@ export class ModelViewer {
       return;
     }
 
-    // The death: the fall is a link from the ready stance.
-    manager.queueAction(MotionCommand.Dead, 1.0, () => manager.setDefaultStance(1.0));
+    // The fall, then the dead pose holds until the idle timer revives it.
+    if (manager.playDeath(MotionCommand.Dead & 0xffff, 1.0)) this.idleTimer = DEATH_SECONDS;
   }
 
   /** How long the cycle of a command plays, in seconds. */
@@ -154,6 +160,8 @@ export class ModelViewer {
     const width = this.canvas.width;
     const height = this.canvas.height;
     const box = new THREE.Box3().setFromObject(this.model).expandByPoint(new THREE.Vector3(0, 0, 0));
+    // Room around the idle pose, so the arms of an attack and the fall of a death stay in the frame.
+    box.expandByVector(box.getSize(new THREE.Vector3()).multiplyScalar(FRAME_MARGIN));
     const { min, max } = threeBoxToAc(box);
 
     this.camera = buildCreatureModeCamera(
@@ -204,6 +212,7 @@ export class ModelViewer {
         this.idleTimer -= delta;
         if (this.idleTimer <= 0) {
           this.idleTimer = 0;
+          this.entity?.motionManager.revive();
           this.entity?.motionManager.setDefaultStance(1.0);
         }
       }

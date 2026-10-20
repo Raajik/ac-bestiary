@@ -57,8 +57,11 @@ the attack they need to hit it, and what it drops.
 - **Animation** (user, 2026-10-20): when the tile opens, the model plays its idle (ready stance) animation in a loop,
   from the creature's motion table in the DAT. Drag still turns it while it plays.
 - Below the model, one button for each of these motions the motion table has: Walk, Run, Attack, Death. A button
-  plays that motion once, then the model returns to idle. A motion the table does not have gets no button.
-- The grid tiles stay still images. They do not animate.
+  plays that motion once, then the model returns to idle. Death stays down for 3 seconds before it stands up. A
+  motion the table does not have gets no button.
+- The camera frames the idle pose with room around it, so the arms of an attack and the fall of a death stay in view.
+- The grid tiles stay still images. They do not animate. Each still shows the first frame of the idle, so a tile
+  and its open view show the same pose.
 - An appraisal panel, built in CSS with retail colors and fonts. It shows the name, level, and Health, Stamina
   and Mana bars. It has two tabs:
   - **Attributes**: Strength, Endurance, Coordination, Quickness, Focus, Self.
