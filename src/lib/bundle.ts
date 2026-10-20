@@ -8,11 +8,6 @@
 // Layout: the file count, then for each file the id and the length, then the
 // bytes of the files in the same order.
 
-export interface BundleEntry {
-  id: number;
-  data: Uint8Array;
-}
-
 /** Pack the files into the bundle format. */
 export function packBundle(files: Map<number, Uint8Array>): Uint8Array {
   let size = 4;

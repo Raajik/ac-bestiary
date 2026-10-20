@@ -87,18 +87,6 @@ export function currentSkill(weenie: WeenieData, skillId: number, facts: DatFact
   return base + own;
 }
 
-/** The defense skills of a weenie, the way the panel shows them. */
-export function defenseSkills(
-  weenie: WeenieData,
-  facts: DatFacts,
-): { melee: number | null; missile: number | null; magic: number | null } {
-  return {
-    melee: currentSkill(weenie, SKILL_MELEE_DEFENSE, facts),
-    missile: currentSkill(weenie, SKILL_MISSILE_DEFENSE, facts),
-    magic: currentSkill(weenie, SKILL_MAGIC_DEFENSE, facts),
-  };
-}
-
 /** A creature keeps its armor on each body part, so the armor level is their mean (ACE `weenie_properties_body_part`). */
 function meanBaseArmor(weenie: WeenieData): number {
   const armor = weenie.bodyParts.map((part) => Number(part.base_Armor ?? 0));

@@ -83,14 +83,6 @@ export const SKILL_MELEE_DEFENSE = 6;
 export const SKILL_MISSILE_DEFENSE = 7;
 export const SKILL_MAGIC_DEFENSE = 15;
 
-/** Melee weapon skills, in the order the build prefers them. */
-export const MELEE_WEAPON_SKILLS = [
-  SKILL_TWO_HANDED,
-  SKILL_HEAVY_WEAPONS,
-  SKILL_LIGHT_WEAPONS,
-  SKILL_FINESSE,
-];
-
 /** Attribute ids (ACE PropertyAttribute). */
 export const ATTRIBUTE_NAMES: Record<number, string> = {
   1: 'Strength',
@@ -101,18 +93,9 @@ export const ATTRIBUTE_NAMES: Record<number, string> = {
   6: 'Self',
 };
 
-export const ATTRIBUTE_STRENGTH = 1;
-export const ATTRIBUTE_ENDURANCE = 2;
-export const ATTRIBUTE_QUICKNESS = 3;
-export const ATTRIBUTE_COORDINATION = 4;
-export const ATTRIBUTE_FOCUS = 5;
-export const ATTRIBUTE_SELF = 6;
 
 /** PropertyInt ids the build reads. */
-export const INT_CREATURE_TYPE = 2;
 export const INT_PALETTE_TEMPLATE = 3;
-export const INT_ARMOR_TYPE = 27;
-export const INT_RESIST_MAGIC = 36;
 export const INT_WEAPON_SKILL = 48;
 export const INT_LEVEL = 25;
 export const INT_XP_OVERRIDE = 146;
@@ -122,19 +105,8 @@ export const DID_SETUP = 1;
 export const DID_PALETTE_BASE = 6;
 export const DID_CLOTHING_BASE = 7;
 export const DID_ICON = 8;
-export const DID_DEATH_TREASURE_TYPE = 35;
 
 /** PropertyFloat ids the build reads. */
-export const FLOAT_ARMOR_MOD_VS = {
-  slash: 13,
-  pierce: 14,
-  bludgeon: 15,
-  cold: 16,
-  fire: 17,
-  acid: 18,
-  electric: 19,
-} as const;
-
 export const FLOAT_SHADE = 12;
 
 export const FLOAT_RESIST = {
@@ -145,6 +117,7 @@ export const FLOAT_RESIST = {
   cold: 68,
   acid: 69,
   electric: 70,
+  nether: 166,
   healthBoost: 71,
   staminaDrain: 72,
   staminaBoost: 73,
@@ -153,19 +126,6 @@ export const FLOAT_RESIST = {
   healthDrain: 125,
 } as const;
 
-/** Damage types, in the order the panel shows them. */
-export const DAMAGE_TYPES = [
-  'slash',
-  'pierce',
-  'bludgeon',
-  'fire',
-  'cold',
-  'acid',
-  'electric',
-  'nether',
-] as const;
-
-export type DamageType = (typeof DAMAGE_TYPES)[number];
 
 /** ACE MagicSchool ids (dat-parser SpellTable). */
 export const MAGIC_SCHOOL_NAMES: Record<number, string> = {
