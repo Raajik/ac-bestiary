@@ -24,9 +24,12 @@ the attack they need to hit it, and what it drops.
 
 ## Scope rules
 
-- One tile for each retail weenie whose name is in the ACPedia "Stats" table. The "Subclassed" table is out of scope.
-- If two weenies have the same name, the tile name also shows the level, for example "Tusker Guard (Lv 80)".
-  If the level is also the same, add the weenie class id.
+- One tile for each name in the ACPedia "Stats" table that has a retail weenie. The "Subclassed" table is out
+  of scope.
+- Weenies with the same name are **variants** of one tile (user, 2026-10-20). For example, "Rampager" has 4.
+  The default variant is the one whose level matches the ACPedia table. If none matches, use the lowest level.
+- The tile, the filters and the sort use the default variant. The level range filter also keeps a tile if any
+  of its variants is in the range.
 - A name with no retail weenie gets no tile. The build prints a list of these names.
 
 ## Page
@@ -60,6 +63,8 @@ the attack they need to hit it, and what it drops.
     - Each attack skill shows the defense you need for 50% and 90% evade or resist. Each defense skill shows
       the attack you need for 50% and 90% hit. See "Hit-chance formula".
     - Spells the weenie casts go below their magic skill, each with a link to its ACPedia page.
+- If the tile has more than one variant, a **Variants** section lists each one: level, Health and weenie class
+  id. Click a variant to show its model and stats in the panel.
 - Below the tabs, always shown:
   - Armor level and the resistance for each damage type (Slash, Pierce, Bludgeon, Fire, Cold, Acid, Electric,
     and Nether if set).
@@ -94,9 +99,9 @@ chance(skill, difficulty, factor) = 1 - 1 / (1 + exp(factor * (skill - difficult
 
 ## Done when
 
-1. The page shows a tile for each Tusker type from the scope rules, in rows of 3, with scroll for more.
+1. The page shows one tile for each Tusker name from the scope rules, in rows of 3, with scroll for more.
 2. Each filter and each sort works.
-3. Opening a tile shows the live 3D model, both tabs, armor, resistances, the Wiki section and trophies with
+3. Opening a tile shows the live 3D model, the variants, both tabs, armor, resistances, the Wiki section and trophies with
    drop chances.
 4. A test checks the hit-chance formula: equal skills give 50%, and +73 (factor 0.03) gives about 90%.
 5. A test compares computed defense skills to ACPedia (Observed): Male Tusker Melee/Missile/Magic Defense
