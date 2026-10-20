@@ -12,6 +12,7 @@ export interface Variant {
   mana: number;
   xp: number;
   setup: number;
+  motionTable: number;
   palette: number;
   clothing: number;
   paletteTemplate: number;

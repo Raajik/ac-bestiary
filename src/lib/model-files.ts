@@ -6,6 +6,7 @@
 import { DatReader } from '../../vendor/asheron-web/packages/dat-parser/src/DatReader.js';
 import { ClothingTable } from '../../vendor/asheron-web/packages/dat-parser/src/file-types/ClothingTable.js';
 import { GfxObj } from '../../vendor/asheron-web/packages/dat-parser/src/file-types/GfxObj.js';
+import { MotionTable, type MotionData } from '../../vendor/asheron-web/packages/dat-parser/src/file-types/MotionTable.js';
 import { SetupModel } from '../../vendor/asheron-web/packages/dat-parser/src/file-types/SetupModel.js';
 import { Surface } from '../../vendor/asheron-web/packages/dat-parser/src/file-types/Surface.js';
 import { SurfaceTexture } from '../../vendor/asheron-web/packages/dat-parser/src/file-types/SurfaceTexture.js';
@@ -20,6 +21,8 @@ export interface ModelSpec {
   clothingTableId?: number;
   /** The palette of the body, the weenie did 6. */
   paletteId?: number;
+  /** The motion table of the body, the weenie did 2. */
+  motionTableId?: number;
 }
 
 function readSurfaceTextureLevels(db: DatDatabase, id: number): number[] {
@@ -67,6 +70,26 @@ function gfxObjFiles(db: DatDatabase, gfxObjId: number, ids: Set<number>): void 
   for (const surfaceId of gfxObj.surfaces) surfaceFiles(db, surfaceId, ids);
 }
 
+/** The file ids of a motion table and of every animation it plays. */
+function motionFiles(db: DatDatabase, motionTableId: number, ids: Set<number>): void {
+  ids.add(motionTableId);
+
+  const data = db.getFileData(motionTableId);
+  if (!data) return;
+
+  const table = new MotionTable(new DatReader(data));
+
+  const addMotion = (motion: MotionData) => {
+    for (const anim of motion.anims) ids.add(anim.animId);
+  };
+
+  for (const motion of table.cycles.values()) addMotion(motion);
+  for (const motion of table.modifiers.values()) addMotion(motion);
+  for (const links of table.links.values()) {
+    for (const motion of links.values()) addMotion(motion);
+  }
+}
+
 /** The file ids of a creature model. */
 export function collectModelFiles(db: DatDatabase, model: ModelSpec): number[] {
   const ids = new Set<number>();
@@ -79,6 +102,8 @@ export function collectModelFiles(db: DatDatabase, model: ModelSpec): number[] {
     const setup = new SetupModel(new DatReader(setupData));
     for (const partId of setup.parts) gfxObjFiles(db, partId, ids);
   }
+
+  if (model.motionTableId) motionFiles(db, model.motionTableId, ids);
 
   if (model.clothingTableId) {
     ids.add(model.clothingTableId);

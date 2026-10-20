@@ -18,6 +18,7 @@ function variant(classId: number, level: number, health = 100, trophies = 0): Va
     mana: 20,
     xp: 1000,
     setup: 0,
+    motionTable: 0,
     palette: 0,
     clothing: 0,
     paletteTemplate: 0,

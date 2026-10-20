@@ -17,6 +17,7 @@ import { collectModelFiles } from './model-files.js';
 interface VariantFile {
   classId: number;
   setup: number;
+  motionTable: number;
   palette: number;
   clothing: number;
   paletteTemplate: number;
@@ -59,6 +60,7 @@ export async function buildStills(
         paletteId: variant.palette || undefined,
         paletteTemplate: variant.paletteTemplate,
         shade: variant.shade,
+        motionTableId: variant.motionTable || undefined,
       },
     ];
   });
@@ -72,11 +74,12 @@ export async function buildStills(
       paletteId?: number;
       paletteTemplate?: number;
       shade?: number;
+      motionTableId?: number;
     }
   >();
   for (const creature of data.creatures) {
     for (const variant of creature.variants) {
-      const key = `${variant.setup}:${variant.clothing}:${variant.palette}`;
+      const key = `${variant.setup}:${variant.clothing}:${variant.palette}:${variant.motionTable}`;
       if (!modelSpecs.has(key)) {
         modelSpecs.set(key, {
           setupId: variant.setup,
@@ -84,6 +87,7 @@ export async function buildStills(
           paletteId: variant.palette || undefined,
           paletteTemplate: variant.paletteTemplate,
           shade: variant.shade,
+          motionTableId: variant.motionTable || undefined,
         });
       }
     }

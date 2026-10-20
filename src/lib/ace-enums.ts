@@ -102,6 +102,7 @@ export const INT_XP_OVERRIDE = 146;
 
 /** PropertyDataId ids the build reads. */
 export const DID_SETUP = 1;
+export const DID_MOTION_TABLE = 2;
 export const DID_PALETTE_BASE = 6;
 export const DID_CLOTHING_BASE = 7;
 export const DID_ICON = 8;
