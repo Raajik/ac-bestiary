@@ -118,6 +118,8 @@ export function readWeenie(path: string): WeenieData {
  * The retail create list has one row per item. The drop chance is in the
  * `shade` column when the destination type has the Treasure flag. A row with
  * no weenie class id is the "nothing" row that completes the chance range.
+ * A row with the Wield flag and no Contain or Treasure flag does not drop
+ * (ACE `Creature_Death.cs`).
  */
 export interface DeathDrop {
   itemClassId: number;
@@ -137,6 +139,7 @@ export function deathDrops(weenie: WeenieData): DeathDrop[] {
     const destination = num(row.destination_Type) ?? 0;
     const itemClassId = num(row.weenie_Class_Id) ?? 0;
     if (itemClassId === 0) continue;
+    if ((destination & (DESTINATION_CONTAIN | DESTINATION_TREASURE)) === 0) continue;
 
     const shade = num(row.shade) ?? 0;
     const chance = (destination & DESTINATION_TREASURE) !== 0 ? shade : 1;
