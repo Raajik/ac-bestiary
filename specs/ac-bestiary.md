@@ -53,7 +53,12 @@ the attack they need to hit it, and what it drops.
 
 ### Open tile
 
-- A live 3D view of the model. You can turn it with drag.
+- A live 3D view of the model. You can turn it with drag: a drag to the right turns the model's front to the right.
+- **Animation** (user, 2026-10-20): when the tile opens, the model plays its idle (ready stance) animation in a loop,
+  from the creature's motion table in the DAT. Drag still turns it while it plays.
+- Below the model, one button for each of these motions the motion table has: Walk, Run, Attack, Death. A button
+  plays that motion once, then the model returns to idle. A motion the table does not have gets no button.
+- The grid tiles stay still images. They do not animate.
 - An appraisal panel, built in CSS with retail colors and fonts. It shows the name, level, and Health, Stamina
   and Mana bars. It has two tabs:
   - **Attributes**: Strength, Endurance, Coordination, Quickness, Focus, Self.
@@ -106,7 +111,7 @@ chance(skill, difficulty, factor) = 1 - 1 / (1 + exp(factor * (skill - difficult
 
 1. The page shows one tile for each Tusker name from the scope rules, in rows of 3, with scroll for more.
 2. Each filter and each sort works.
-3. Opening a tile shows the live 3D model, the variants, both tabs, armor, resistances, the Wiki section and trophies with
+3. Opening a tile shows the live 3D model playing its idle loop, the motion buttons, the variants, both tabs, armor, resistances, the Wiki section and trophies with
    drop chances.
 4. A test checks the hit-chance formula: equal skills give 50%, and +73 (factor 0.03) gives about 90%.
 5. A test compares computed defense skills to ACPedia (Observed): Male Tusker Melee/Missile/Magic Defense
