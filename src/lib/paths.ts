@@ -35,4 +35,4 @@ export const PORTAL_DAT = fromEnv(
 );
 
 /** The output directory of the build. */
-export const DIST_DIR = fromEnv('AC_DIST_DIR', join(home, 'Projects/asherons-call/ac-bestiary/dist'));
+export const DIST_DIR = fromEnv('AC_DIST_DIR', join(import.meta.dirname, '../../dist'));
