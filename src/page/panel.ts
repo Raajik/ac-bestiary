@@ -31,7 +31,7 @@ const MAGIC_SKILLS: [string, string, string][] = [
   ['creatureMagic', 'Creature Magic', 'Creature Magic'],
 ];
 
-function element(tag: string, className?: string, text?: string): HTMLElement {
+function element<K extends keyof HTMLElementTagNameMap>(tag: K, className?: string, text?: string): HTMLElementTagNameMap[K] {
   const node = document.createElement(tag);
   if (className) node.className = className;
   if (text !== undefined) node.textContent = text;
@@ -133,7 +133,7 @@ export function renderPanel(
 
   const attributesBody = element('div', 'tab-body');
   const skillsBody = element('div', 'tab-body');
-  attributesBody.hidden = true;
+  skillsBody.hidden = true;
 
   const attributeRows = element('dl', 'rows');
   for (const [key, label] of ATTRIBUTE_LABELS) {
@@ -151,22 +151,16 @@ export function renderPanel(
   attackGroup.append(element('h4', undefined, 'Attack'));
 
   if (skills.meleeAttack !== undefined) {
-    const targets = [];
-    if (skills.meleeDefense !== undefined) {
-      const { even, high } = skillTargets(skills.meleeDefense, MELEE_FACTOR);
-      targets.push({ label: 'Evade 50%', value: even }, { label: 'Evade 90%', value: high });
-    }
+    const { even, high } = skillTargets(skills.meleeAttack, MELEE_FACTOR);
+    const targets = [{ label: 'Evade 50%', value: even }, { label: 'Evade 90%', value: high }];
     attackGroup.append(
       skillRow('Melee', skillNames.meleeAttack, skills.meleeAttack, targets, []),
     );
   }
 
   if (skills.missileAttack !== undefined) {
-    const targets = [];
-    if (skills.missileDefense !== undefined) {
-      const { even, high } = skillTargets(skills.missileDefense, MELEE_FACTOR);
-      targets.push({ label: 'Evade 50%', value: even }, { label: 'Evade 90%', value: high });
-    }
+    const { even, high } = skillTargets(skills.missileAttack, MELEE_FACTOR);
+    const targets = [{ label: 'Evade 50%', value: even }, { label: 'Evade 90%', value: high }];
     attackGroup.append(
       skillRow('Missile', skillNames.missileAttack, skills.missileAttack, targets, []),
     );
@@ -176,11 +170,8 @@ export function renderPanel(
     const value = skills[key];
     if (value === undefined) continue;
 
-    const targets = [];
-    if (skills.magicDefense !== undefined) {
-      const { even, high } = skillTargets(skills.magicDefense, MAGIC_FACTOR);
-      targets.push({ label: 'Resist 50%', value: even }, { label: 'Resist 90%', value: high });
-    }
+    const { even, high } = skillTargets(value, MAGIC_FACTOR);
+    const targets = [{ label: 'Resist 50%', value: even }, { label: 'Resist 90%', value: high }];
 
     const spells = variant.spells
       .filter((spell) => spell.school === school)
@@ -195,32 +186,20 @@ export function renderPanel(
   defenseGroup.append(element('h4', undefined, 'Defense'));
 
   if (skills.meleeDefense !== undefined) {
-    const targets = [];
-    if (skills.meleeAttack !== undefined) {
-      const { even, high } = skillTargets(skills.meleeAttack, MELEE_FACTOR);
-      targets.push({ label: 'Hit 50%', value: even }, { label: 'Hit 90%', value: high });
-    }
+    const { even, high } = skillTargets(skills.meleeDefense, MELEE_FACTOR);
+    const targets = [{ label: 'Hit 50%', value: even }, { label: 'Hit 90%', value: high }];
     defenseGroup.append(skillRow('Melee Defense', undefined, skills.meleeDefense, targets, []));
   }
 
   if (skills.missileDefense !== undefined) {
-    const targets = [];
-    if (skills.missileAttack !== undefined) {
-      const { even, high } = skillTargets(skills.missileAttack, MELEE_FACTOR);
-      targets.push({ label: 'Hit 50%', value: even }, { label: 'Hit 90%', value: high });
-    }
+    const { even, high } = skillTargets(skills.missileDefense, MELEE_FACTOR);
+    const targets = [{ label: 'Hit 50%', value: even }, { label: 'Hit 90%', value: high }];
     defenseGroup.append(skillRow('Missile Defense', undefined, skills.missileDefense, targets, []));
   }
 
   if (skills.magicDefense !== undefined) {
-    const targets = [];
-    for (const [key, label] of MAGIC_SKILLS) {
-      const value = skills[key];
-      if (value === undefined) continue;
-      const { even, high } = skillTargets(value, MAGIC_FACTOR);
-      targets.push({ label: `Hit 50% (${label})`, value: even });
-      targets.push({ label: `Hit 90% (${label})`, value: high });
-    }
+    const { even, high } = skillTargets(skills.magicDefense, MAGIC_FACTOR);
+    const targets = [{ label: 'Land 50%', value: even }, { label: 'Land 90%', value: high }];
     defenseGroup.append(skillRow('Magic Defense', undefined, skills.magicDefense, targets, []));
   }
 

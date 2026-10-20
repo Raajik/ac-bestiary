@@ -8,7 +8,8 @@ import { join } from 'node:path';
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 
-import { buildBestiary, type Creature } from '../src/lib/bestiary.js';
+import { buildBestiary } from '../src/lib/bestiary.js';
+import type { Creature } from '../src/lib/types.js';
 import { BASE_ROOT, PATCH_ROOT } from '../src/lib/paths.js';
 
 /** The ACPedia values, as listed on the saved page. */
