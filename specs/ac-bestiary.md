@@ -24,8 +24,8 @@ the attack they need to hit it, and what it drops.
 
 ## Scope rules
 
-- One tile for each name in the ACPedia "Stats" table that has a retail weenie. The "Subclassed" table is out
-  of scope.
+- One tile for each name in the ACPedia "Stats" and "Subclassed" tables that has a retail weenie. Imp and
+  Mudmouth (Subclassed) are Tuskers too (user, 2026-10-20). Their weenies are not in `Creature/Tusker/`.
 - Weenies with the same name are **variants** of one tile (user, 2026-10-20). For example, "Rampager" has 4.
   The default variant is the one whose level matches the ACPedia table. If none matches, use the lowest level.
 - The tile, the filters and the sort use the default variant. The level range filter also keeps a tile if any
