@@ -23,6 +23,11 @@ export default defineConfig({
   resolve: {
     alias: [
       {
+        // One three.js for the page and for the model code of asheron-web.
+        find: /^three$/,
+        replacement: resolve(import.meta.dirname, 'node_modules/three/build/three.module.js'),
+      },
+      {
         find: /^@ac\/shared$/,
         replacement: resolve(asheronWeb, 'packages/shared/src/index.ts'),
       },
