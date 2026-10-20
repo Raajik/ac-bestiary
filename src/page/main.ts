@@ -68,7 +68,11 @@ async function main(): Promise<void> {
       const button = document.createElement('button');
       button.type = 'button';
       button.textContent = motion.label;
-      button.addEventListener('click', () => viewer.playMotion(motion.name));
+      button.setAttribute('aria-pressed', String(motion.name === viewer.currentMotion));
+      button.addEventListener('click', () => {
+        viewer.playMotion(motion.name);
+        renderMotions();
+      });
       box.append(button);
     }
   }

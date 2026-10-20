@@ -7,7 +7,7 @@
 import { MotionCommand } from '../../vendor/asheron-web/packages/renderer/src/animation/MotionCommands.js';
 import type { MotionTable } from '../../vendor/asheron-web/packages/dat-parser/src/file-types/MotionTable.js';
 
-export type MotionName = 'walk' | 'run' | 'attack' | 'death';
+export type MotionName = 'idle' | 'walk' | 'run' | 'attack' | 'death';
 
 export interface MotionButton {
   name: MotionName;
@@ -74,7 +74,7 @@ export function attackMotion(table: MotionTable): { command: number; style: numb
 export function motionButtons(table: MotionTable | null): MotionButton[] {
   if (!table) return [];
 
-  const buttons: MotionButton[] = [];
+  const buttons: MotionButton[] = [{ name: 'idle', label: 'Idle' }];
 
   if (hasCycle(table, WALK) || linkStyle(table, WALK) !== null) {
     buttons.push({ name: 'walk', label: 'Walk' });

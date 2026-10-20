@@ -49,9 +49,10 @@ Where the creature data comes from and how the build reads it.
   stands in the rest pose, with the heading of 191.3679 degrees. The light and
   the camera are the ones of the examine portrait. **Verified** (the build
   output, 2026-10-20).
-- The live view of a tile uses the same camera and the same light as the
-  still of the tile. The still shows the rest pose of the model, the live
-  view plays the idle loop of the motion table. **Verified** (the smoke check
+- The live view of a tile uses the same light and heading as the still of the
+  tile. Both start in the first frame of the idle loop. The live view frames
+  the idle pose with a margin of 0.12 of its size on each side, the smallest
+  tried that keeps every Tusker's attack and death in view. **Verified** (the smoke check
   of the page, 2026-10-20).
 
 ## The animation
@@ -64,8 +65,16 @@ Where the creature data comes from and how the build reads it.
   check of the page, 2026-10-20).
 - A walk and a run are cycles of the table. The attack and the death are links
   from the ready stance, and the attack links live in the combat style of the
-  table. The page plays the link and the motion table returns to the ready
-  stance by itself. **Observed** (the motion table of the Tusker, 2026-10-20).
+  table. After an attack the motion table returns to the ready stance by
+  itself, so the page queues the attack again to loop it. **Observed** (the
+  motion table of the Tusker, 2026-10-20).
+- `setForwardMotion` needs the composite key `MotionManager.compositeKey(style,
+  motion & 0xfffff)`, as the game client passes it. With the raw command
+  (`0x45000005`) the link into the walk plays, then no cycle matches and the
+  model freezes. **Verified** (a Node trace of the Male Tusker, 2026-10-20).
+- A death that holds uses `playDeath`: the fall, then the dead pose until
+  `revive()`. As a queued action, the dead link returns to the ready stance
+  after about 2 seconds. **Verified** (headless Chromium, 2026-10-20).
 - The build packs the motion table of every creature and every animation it
   plays into the model bundle, so the page can play them. **Verified** (the
   build output, 2026-10-20).

@@ -25,9 +25,6 @@ import { attackMotion, motionButtons, type MotionButton, type MotionName } from 
 /** The share of the idle pose's size added on each side of the framed box. */
 const FRAME_MARGIN = 0.12;
 
-/** From the click to standing up again: about 2 s of fall, then 3 s on the ground. */
-const DEATH_SECONDS = 5;
-
 /** The live model view. The drag turns the model, the motion table plays it. */
 export class ModelViewer {
   private readonly canvas: HTMLCanvasElement;
@@ -37,8 +34,7 @@ export class ModelViewer {
   private model: THREE.Group | null = null;
   private entity: AnimatedEntity | null = null;
   private buttons: MotionButton[] = [];
-  /** Seconds left before the model returns to the idle. */
-  private idleTimer = 0;
+  private playing: MotionName = 'idle';
   private dragging = false;
   private lastX = 0;
   private frame = 0;
@@ -91,7 +87,7 @@ export class ModelViewer {
 
     this.entity = model ? models.animate(model, spec) : null;
     this.buttons = motionButtons(this.entity?.motionManager.activeMotionTable ?? null);
-    this.idleTimer = 0;
+    this.playing = 'idle';
 
     // The first frame of the idle, so the camera frames the pose the model
     // shows and not the rest pose.
@@ -104,53 +100,48 @@ export class ModelViewer {
     return this.buttons;
   }
 
+  /** The motion that plays now. */
+  get currentMotion(): MotionName {
+    return this.playing;
+  }
+
   /**
-   * Play a motion once, then return to the idle.
+   * Play a motion until another one is chosen (spec "Open tile").
    *
-   * A walk and a run are cycles, so they play for the length of the cycle.
-   * The attack is an action: the motion table plays it and
-   * returns to the ready stance by itself.
+   * Walk and run are cycles, so they keep going. The attack is an action, so
+   * it is queued again each time it ends. The death falls and holds the dead
+   * pose. Idle is the ready stance of the table's default style.
    */
   playMotion(name: MotionName): void {
-    const entity = this.entity;
-    if (!entity) return;
+    const manager = this.entity?.motionManager;
+    const table = manager?.activeMotionTable;
+    if (!manager || !table) return;
 
-    const manager = entity.motionManager;
-    const table = manager.activeMotionTable;
-    if (!table) return;
+    this.playing = name;
+    // Every motion starts from the ready stance, because the table only links the motions from there.
+    manager.revive();
+    manager.overrideStyleId(table.defaultStyle);
+    manager.setDefaultStance(1.0);
 
-    this.idleTimer = 0;
-
-    if (name === 'walk' || name === 'run') {
-      const command = name === 'walk' ? MotionCommand.WalkForward : MotionCommand.RunForward;
-      if (!manager.setForwardMotion(command, 1.0)) return;
-      this.idleTimer = this.cycleSeconds(command);
+    if (name === 'idle') {
       return;
-    }
-
-    if (name === 'attack') {
+    } else if (name === 'walk' || name === 'run') {
+      // The table keys its cycles by style and motion, as the game client asks for them.
+      const command = name === 'walk' ? MotionCommand.WalkForward : MotionCommand.RunForward;
+      manager.setForwardMotion(MotionManager.compositeKey(table.defaultStyle, command & 0xfffff), 1.0);
+    } else if (name === 'attack') {
       const attack = attackMotion(table);
       if (!attack) return;
       // The attack links live in the combat style of the table.
-      manager.overrideStyleId(attack.style);
-      manager.queueAction(attack.command, 1.0, () => {
-        manager.overrideStyleId(table.defaultStyle);
-        manager.setDefaultStance(1.0);
-      });
-      return;
+      const again = () => {
+        if (this.playing !== 'attack') return;
+        manager.overrideStyleId(attack.style);
+        manager.queueAction(attack.command, 1.0, again);
+      };
+      again();
+    } else {
+      manager.playDeath(MotionCommand.Dead & 0xffff, 1.0);
     }
-
-    // The fall, then the dead pose holds until the idle timer revives it.
-    if (manager.playDeath(MotionCommand.Dead & 0xffff, 1.0)) this.idleTimer = DEATH_SECONDS;
-  }
-
-  /** How long the cycle of a command plays, in seconds. */
-  private cycleSeconds(command: number): number {
-    const manager = this.entity?.motionManager;
-    if (!manager) return 0;
-    const style = manager.currentStyleId;
-    const key = MotionManager.compositeKey(style, command & 0xffff);
-    return manager.getCycleLength(key);
   }
 
   /** Point the camera at the model, the way the retail portrait does. */
@@ -207,16 +198,6 @@ export class ModelViewer {
       this.lastTime = now;
 
       this.entity?.update(delta);
-
-      if (this.idleTimer > 0) {
-        this.idleTimer -= delta;
-        if (this.idleTimer <= 0) {
-          this.idleTimer = 0;
-          this.entity?.motionManager.revive();
-          this.entity?.motionManager.setDefaultStance(1.0);
-        }
-      }
-
       this.draw();
     };
     this.frame = requestAnimationFrame(loop);

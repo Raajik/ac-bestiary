@@ -56,9 +56,10 @@ the attack they need to hit it, and what it drops.
 - A live 3D view of the model. You can turn it with drag: a drag to the right turns the model's front to the right.
 - **Animation** (user, 2026-10-20): when the tile opens, the model plays its idle (ready stance) animation in a loop,
   from the creature's motion table in the DAT. Drag still turns it while it plays.
-- Below the model, one button for each of these motions the motion table has: Walk, Run, Attack, Death. A button
-  plays that motion once, then the model returns to idle. Death stays down for 3 seconds before it stands up. A
-  motion the table does not have gets no button.
+- Below the model: an Idle button, then one button for each of these motions the motion table has: Walk, Run,
+  Attack, Death. A motion the table does not have gets no button. A button's motion loops until you click another
+  button (user, 2026-10-20). Walk and Run keep cycling, and Attack repeats. Death falls and stays down until you
+  click another button. The button of the motion that plays is shown as pressed.
 - The camera frames the idle pose with room around it, so the arms of an attack and the fall of a death stay in view.
 - The grid tiles stay still images. They do not animate. Each still shows the first frame of the idle, so a tile
   and its open view show the same pose.

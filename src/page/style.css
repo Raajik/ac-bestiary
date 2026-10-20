@@ -280,6 +280,12 @@ a:hover {
   cursor: pointer;
 }
 
+.motions button[aria-pressed='true'] {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--surface);
+}
+
 .motions button:hover {
   border-color: var(--accent);
   color: var(--accent);
