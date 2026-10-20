@@ -30,6 +30,7 @@ interface ModelJob {
   paletteId?: number;
   paletteTemplate?: number;
   shade?: number;
+  motionTableId?: number;
 }
 
 declare global {
@@ -65,6 +66,9 @@ async function run(): Promise<void> {
       await fetch(`still/${encodeURIComponent(job.name)}`, { method: 'POST', body: new Blob([]) });
       continue;
     }
+
+    // The first frame of the idle, the pose the open tile starts in.
+    models.animate(model, job)?.update(0);
 
     const scene = buildCreatureModeScene(model, EXAMINE_LIGHT_DIRECTION, EXAMINE_LIGHT_INTENSITY);
     setCellLighting(model, false, true);
