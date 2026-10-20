@@ -10,7 +10,8 @@
     "build:icons": "tsx tools/build-icons.ts",
     "build:stills": "tsx tools/build-stills.ts",
     "test": "vitest run",
-    "dev": "vite"
+    "dev": "vite",
+    "deploy": "tools/deploy.sh"
   },
   "devDependencies": {
     "@types/node": "^22.10.0",

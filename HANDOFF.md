@@ -51,7 +51,8 @@ python3 -m http.server 8000 --directory dist
 Then open `http://<the address of the box>:8000/`. The page needs the network
 address of the box, because the models and the images come from the server.
 
-Do not publish the page to the internet. It shows content from the game data.
+`npm run deploy` publishes the built site to GitHub Pages: https://raajik.github.io/ac-bestiary/ (public, the
+user's choice of 2026-10-20). The source repo stays private.
 
 ## The tests
 

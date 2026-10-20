@@ -93,8 +93,11 @@ chance(skill, difficulty, factor) = 1 - 1 / (1 + exp(factor * (skill - difficult
 ## Build and output
 
 - One build command makes a static site in `dist/`: HTML, JS, CSS, a JSON data file, the still images and
-  the icons. View it on the local network with any static file server.
-- Do not host it publicly. The page shows content from the game DAT (user decision, 2026-10-20).
+  the icons. View it locally with any static file server.
+- `npm run deploy` builds the site and publishes `dist/` to the `gh-pages` branch of the private repo
+  `Raajik/ac-bestiary`. GitHub Pages serves it publicly at https://raajik.github.io/ac-bestiary/. The user chose
+  public hosting on 2026-10-20, knowing the page shows models, renders and icons from the game DAT. The source repo
+  stays private. The build needs the DAT and the ACE data on the box, so it runs locally, not in CI.
 - Keep it small. Add no framework or dependency that asheron-web or the platform already gives.
 
 ## Done when
