@@ -22,7 +22,6 @@ import {
   DID_SETUP,
   FLOAT_RESIST,
   FLOAT_SHADE,
-  INT_ARMOR_LEVEL,
   INT_LEVEL,
   INT_PALETTE_TEMPLATE,
   INT_WEAPON_SKILL,
@@ -98,6 +97,12 @@ export function defenseSkills(
     missile: currentSkill(weenie, SKILL_MISSILE_DEFENSE, facts),
     magic: currentSkill(weenie, SKILL_MAGIC_DEFENSE, facts),
   };
+}
+
+/** A creature keeps its armor on each body part, so the armor level is their mean (ACE `weenie_properties_body_part`). */
+function meanBaseArmor(weenie: WeenieData): number {
+  const armor = weenie.bodyParts.map((part) => Number(part.base_Armor ?? 0));
+  return armor.length ? Math.round(armor.reduce((a, b) => a + b, 0) / armor.length) : 0;
 }
 
 export function buildBestiary(sources: BestiarySources = defaultSources()): BestiaryData {
@@ -218,6 +223,7 @@ export function buildBestiary(sources: BestiarySources = defaultSources()): Best
       return {
         id,
         name: fact?.name ?? `Spell ${id}`,
+        acpedia: acpediaUrl(fact?.name ?? `Spell ${id}`),
         school: MAGIC_SCHOOL_NAMES[fact?.school ?? 0] ?? 'Unknown',
         probability: Number(row.probability ?? 0),
       };
@@ -250,7 +256,7 @@ export function buildBestiary(sources: BestiarySources = defaultSources()): Best
       attributes,
       skills,
       skillNames,
-      armorLevel: weenie.ints.get(INT_ARMOR_LEVEL) ?? 0,
+      armorLevel: meanBaseArmor(weenie),
       resistances,
       spells,
       trophies,

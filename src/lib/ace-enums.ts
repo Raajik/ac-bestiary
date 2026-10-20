@@ -112,7 +112,6 @@ export const ATTRIBUTE_SELF = 6;
 export const INT_CREATURE_TYPE = 2;
 export const INT_PALETTE_TEMPLATE = 3;
 export const INT_ARMOR_TYPE = 27;
-export const INT_ARMOR_LEVEL = 28;
 export const INT_RESIST_MAGIC = 36;
 export const INT_WEAPON_SKILL = 48;
 export const INT_LEVEL = 25;

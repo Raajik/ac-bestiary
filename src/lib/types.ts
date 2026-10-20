@@ -22,7 +22,7 @@ export interface Variant {
   skillNames: Record<string, string>;
   armorLevel: number;
   resistances: Record<string, number>;
-  spells: { id: number; name: string; school: string; probability: number }[];
+  spells: { id: number; name: string; school: string; probability: number; acpedia: string }[];
   trophies: { classId: number; name: string; chance: number; icon: number | null; acpedia: string }[];
 }
 

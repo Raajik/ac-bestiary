@@ -19,8 +19,8 @@ Where the creature data comes from and how the build reads it.
   Their weenies are in `Creature/Shadow/35954 Imp.sql` and
   `Creature/Simulacrum/35940 Mudmouth.sql` of the patch database. **Observed**
   (2026-10-20).
-- The ACPedia Tusker page "Stats" table lists 40 entries, and the "Subclassed"
-  table lists 2 more. **Observed** (`~/wiki/raw/acpedia/Tusker.md`, fetched
+- The ACPedia Tusker page "Stats" table lists 38 entries, and the "Subclassed"
+  table lists 2 more, so 40 in total. **Observed** (`~/wiki/raw/acpedia/Tusker.md`, fetched
   2026-10-20).
 - The retail client data `client_portal.dat` holds the models, the icons and the
   game tables. The build reads two tables from it. The SkillTable gives the
@@ -71,6 +71,21 @@ The named trophies of a creature come from its create list. Each row holds one
 item and the drop chance in the `shade` column. A row with no weenie class id
 is the "nothing" row that completes the chance range. **Verified** (ACE
 `ACE.Server/WorldObjects/Creature_Equipment.cs`, `CreateListSelect`).
+
+A row drops on death only if its destination type has the Contain flag (1) or
+the Treasure flag (8). A row with only the Wield flag (2) stays on the
+creature, for example the Coconut a Tuskie Gunner throws. **Observed** (ACE
+`ACE.Server/WorldObjects/Creature_Death.cs`).
+
+A name in quotes can hold brackets, for example "Attunement Shard (Level
+180+)". The SQL reader reads it. **Verified** (`tests/sql.test.ts`).
+
+## The armor
+
+A creature keeps its armor on each body part, in the `base_Armor` column of
+`weenie_properties_body_part`. The Tusker weenies do not set the armor level
+property (int 28). The page shows the mean `base_Armor` of the body parts.
+**Observed** (the Tusker weenie SQL, 2026-10-20).
 
 ## The names without a retail weenie
 
