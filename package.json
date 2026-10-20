@@ -1,0 +1,26 @@
+{
+  "name": "ac-bestiary",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "license": "AGPL-3.0-or-later",
+  "scripts": {
+    "build": "tsx tools/build.ts",
+    "build:data": "tsx tools/build-data.ts",
+    "build:assets": "tsx tools/build-assets.ts",
+    "test": "vitest run",
+    "dev": "vite"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "@types/pngjs": "^6.0.5",
+    "@types/three": "^0.186.0",
+    "playwright": "^1.60.0",
+    "pngjs": "^7.0.0",
+    "three": "^0.186.1",
+    "tsx": "^4.23.15",
+    "typescript": "^5.3.3",
+    "vite": "^6.4.3",
+    "vitest": "^4.1.11"
+  }
+}
