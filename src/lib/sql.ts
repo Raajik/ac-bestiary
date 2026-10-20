@@ -96,8 +96,8 @@ export function readTable(sql: string, table: string): SqlRow[] {
     const columns = match[1].split(',').map((c) => c.trim().replace(/`/g, ''));
     const body = match[2];
 
-    for (const tuple of body.matchAll(/\(([^()]*)\)/g)) {
-      const values = splitTuple(tuple[1]);
+    for (const tuple of valueTuples(body)) {
+      const values = splitTuple(tuple);
       if (values.length !== columns.length) continue;
       const row: SqlRow = {};
       columns.forEach((column, i) => {
@@ -108,6 +108,39 @@ export function readTable(sql: string, table: string): SqlRow[] {
   }
 
   return rows;
+}
+
+/**
+ * Find the text of each value tuple in a VALUES body. A bracket in a quoted
+ * string, for example a name like "Shard (Level 180+)", does not end a tuple.
+ * The reader skips the comments after each row.
+ */
+export function valueTuples(body: string): string[] {
+  const tuples: string[] = [];
+  let start = -1;
+  let inString = false;
+
+  for (let i = 0; i < body.length; i++) {
+    const c = body[i];
+
+    if (inString) {
+      if (c === '\\') i++;
+      else if (c === "'" && body[i + 1] === "'") i++;
+      else if (c === "'") inString = false;
+    } else if (c === '/' && body[i + 1] === '*') {
+      const end = body.indexOf('*/', i + 2);
+      i = end < 0 ? body.length : end + 1;
+    } else if (c === "'") {
+      inString = true;
+    } else if (c === '(' && start < 0) {
+      start = i + 1;
+    } else if (c === ')' && start >= 0) {
+      tuples.push(body.slice(start, i));
+      start = -1;
+    }
+  }
+
+  return tuples;
 }
 
 /** Read the class id of a weenie SQL file, from the `weenie` table. */
