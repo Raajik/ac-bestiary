@@ -23,12 +23,34 @@ Where the creature data comes from and how the build reads it.
   table lists 2 more. **Observed** (`~/wiki/raw/acpedia/Tusker.md`, fetched
   2026-10-20).
 - The retail client data `client_portal.dat` holds the models, the icons and the
-  game tables. The build reads two tables from it: the SkillTable, which gives
-  the attribute formula of each skill, and the SpellTable, which gives the
-  names of the spells. **Verified** (`tools/probe-dat.ts` reads both).
+  game tables. The build reads two tables from it. The SkillTable gives the
+  attribute formula of each skill. The SpellTable gives the names of the spells.
+  **Verified** (the build reads both).
 - ACE uses `1 - 1 / (1 + exp(factor * (skill - difficulty)))` for skill checks.
   The factor is 0.03, or 0.07 for magic. **Observed** (ACE
   `ACE.Server/WorldObjects/SkillCheck.cs`).
+
+## The models
+
+- The model of a creature is the setup of the weenie, the clothes of the
+  clothing table and the colours of the palette. The build reads the client
+  files of every model into one bundle. The page does not read the 900 MB
+  client data. The bundle holds 174 files of 2.4 MB. **Verified** (the build
+  output, 2026-10-20).
+- The clothes of a creature come from the clothing table of the weenie, the
+  property data id 7. The table holds the texture swaps of the parts and the
+  palettes of the colours. **Observed** (ACE
+  `ACE.Server/WorldObjects/WorldObject_Networking.cs`, `CalculateObjDesc`).
+- The colours of a body are the palette of the weenie, the property data id 6,
+  with the ranges of the clothing palette over it. The palette template of the
+  weenie, the property int 3, picks the ranges. **Observed** (the same place
+  in ACE).
+- The still images of the tiles are the retail examine picture. The model
+  stands in the rest pose, with the heading of 191.3679 degrees. The light and
+  the camera are the ones of the examine portrait. **Verified** (the build
+  output, 2026-10-20).
+- The page shows the same picture in the live view, with the same camera and
+  the same light. **Verified** (the smoke check of the page, 2026-10-20).
 
 ## The sparse clones
 

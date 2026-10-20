@@ -121,6 +121,7 @@ export const INT_XP_OVERRIDE = 146;
 /** PropertyDataId ids the build reads. */
 export const DID_SETUP = 1;
 export const DID_PALETTE_BASE = 6;
+export const DID_CLOTHING_BASE = 7;
 export const DID_ICON = 8;
 export const DID_DEATH_TREASURE_TYPE = 35;
 
@@ -134,6 +135,8 @@ export const FLOAT_ARMOR_MOD_VS = {
   acid: 18,
   electric: 19,
 } as const;
+
+export const FLOAT_SHADE = 12;
 
 export const FLOAT_RESIST = {
   slash: 64,

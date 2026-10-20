@@ -7,7 +7,8 @@
   "scripts": {
     "build": "tsx tools/build.ts",
     "build:data": "tsx tools/build-data.ts",
-    "build:assets": "tsx tools/build-assets.ts",
+    "build:icons": "tsx tools/build-icons.ts",
+    "build:stills": "tsx tools/build-stills.ts",
     "test": "vitest run",
     "dev": "vite"
   },
@@ -15,7 +16,7 @@
     "@types/node": "^22.10.0",
     "@types/pngjs": "^6.0.5",
     "@types/three": "^0.186.0",
-    "playwright": "^1.60.0",
+    "playwright": "1.60.0",
     "pngjs": "^7.0.0",
     "three": "^0.186.1",
     "tsx": "^4.23.15",

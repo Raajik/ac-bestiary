@@ -16,12 +16,15 @@ import { join, relative } from 'node:path';
 import { readAcpediaPage, acpediaUrl, type AcpediaEntry } from './acpedia.js';
 import {
   ATTRIBUTE_NAMES,
+  DID_CLOTHING_BASE,
   DID_ICON,
   DID_PALETTE_BASE,
   DID_SETUP,
   FLOAT_RESIST,
+  FLOAT_SHADE,
   INT_ARMOR_LEVEL,
   INT_LEVEL,
+  INT_PALETTE_TEMPLATE,
   INT_WEAPON_SKILL,
   INT_XP_OVERRIDE,
   MAGIC_SCHOOL_NAMES,
@@ -39,52 +42,12 @@ import { openPortalDat, readDatFacts, type DatFacts } from './dat-facts.js';
 import { ACPEDIA_PAGE, BASE_ROOT, DIST_DIR, PATCH_ROOT, PORTAL_DAT } from './paths.js';
 import { deathDrops, readWeenie, wieldedItems, type WeenieData } from './weenie.js';
 import { indexWeenies } from './weenie-index.js';
+import type { BestiaryData, Creature, Variant } from './types.js';
 
 const MELEE_SKILLS = [41, 44, 45, 46, 1, 4, 5, 9, 10, 11];
 const UNARMED_COMBAT = 13;
 const MISSILE_SKILLS = [2, 3, 8, 12, 47];
 const MAGIC_SKILLS = [SKILL_WAR_MAGIC, SKILL_VOID_MAGIC, SKILL_LIFE_MAGIC, SKILL_CREATURE_ENCHANTMENT];
-
-export interface Variant {
-  classId: number;
-  name: string;
-  level: number;
-  health: number;
-  stamina: number;
-  mana: number;
-  xp: number;
-  setup: number;
-  palette: number;
-  attributes: Record<string, number>;
-  skills: Record<string, number>;
-  /** The name of the attack skill, for example "Light Weapons". */
-  skillNames: Record<string, string>;
-  armorLevel: number;
-  resistances: Record<string, number>;
-  spells: { id: number; name: string; school: string; probability: number }[];
-  trophies: { classId: number; name: string; chance: number; icon: number | null; acpedia: string }[];
-}
-
-export interface Creature {
-  name: string;
-  acpedia: string;
-  subclassed: boolean;
-  acpediaLevel: number | null;
-  acpediaXp: number | null;
-  acpediaHealth: number | null;
-  acpediaLoot: number | null;
-  acpediaDefense: { melee: number | null; missile: number | null; magic: number | null };
-  defaultVariant: number;
-  variants: Variant[];
-}
-
-export interface BestiaryData {
-  generatedAt: string;
-  sources: Record<string, string>;
-  creatures: Creature[];
-  /** ACPedia names that have no retail weenie. */
-  missing: string[];
-}
 
 export interface BestiarySources {
   /** Roots that hold the patched retail weenie SQL. */
@@ -281,6 +244,9 @@ export function buildBestiary(sources: BestiarySources = defaultSources()): Best
       xp: weenie.ints.get(INT_XP_OVERRIDE) ?? 0,
       setup: weenie.dids.get(DID_SETUP) ?? 0,
       palette: weenie.dids.get(DID_PALETTE_BASE) ?? 0,
+      clothing: weenie.dids.get(DID_CLOTHING_BASE) ?? 0,
+      paletteTemplate: weenie.ints.get(INT_PALETTE_TEMPLATE) ?? 0,
+      shade: weenie.floats.get(FLOAT_SHADE) ?? 0,
       attributes,
       skills,
       skillNames,
