@@ -4,7 +4,7 @@ import { defineConfig } from 'vite';
 // The page and the build time page share the model code of asheron-web, so
 // both need its path aliases. The target picks which of the two pages the
 // build makes.
-const asheronWeb = resolve(import.meta.dirname, '../../asheron-web');
+const asheronWeb = resolve(import.meta.dirname, 'vendor/asheron-web');
 const target = process.env.AC_VITE_TARGET === 'builder' ? 'builder' : 'page';
 
 export default defineConfig({

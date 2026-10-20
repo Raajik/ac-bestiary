@@ -3,15 +3,15 @@
 // The page must not read the 900 MB client data. The build walks the model
 // graph of every creature and puts the files into one bundle.
 
-import { DatReader } from '../../../../asheron-web/packages/dat-parser/src/DatReader.js';
-import { ClothingTable } from '../../../../asheron-web/packages/dat-parser/src/file-types/ClothingTable.js';
-import { GfxObj } from '../../../../asheron-web/packages/dat-parser/src/file-types/GfxObj.js';
-import { SetupModel } from '../../../../asheron-web/packages/dat-parser/src/file-types/SetupModel.js';
-import { Surface } from '../../../../asheron-web/packages/dat-parser/src/file-types/Surface.js';
-import { SurfaceTexture } from '../../../../asheron-web/packages/dat-parser/src/file-types/SurfaceTexture.js';
-import { PaletteSet } from '../../../../asheron-web/packages/dat-parser/src/file-types/PaletteSet.js';
-import { Texture } from '../../../../asheron-web/packages/dat-parser/src/file-types/Texture.js';
-import type { DatDatabase } from '../../../../asheron-web/packages/dat-parser/src/DatDatabase.js';
+import { DatReader } from '../../vendor/asheron-web/packages/dat-parser/src/DatReader.js';
+import { ClothingTable } from '../../vendor/asheron-web/packages/dat-parser/src/file-types/ClothingTable.js';
+import { GfxObj } from '../../vendor/asheron-web/packages/dat-parser/src/file-types/GfxObj.js';
+import { SetupModel } from '../../vendor/asheron-web/packages/dat-parser/src/file-types/SetupModel.js';
+import { Surface } from '../../vendor/asheron-web/packages/dat-parser/src/file-types/Surface.js';
+import { SurfaceTexture } from '../../vendor/asheron-web/packages/dat-parser/src/file-types/SurfaceTexture.js';
+import { PaletteSet } from '../../vendor/asheron-web/packages/dat-parser/src/file-types/PaletteSet.js';
+import { Texture } from '../../vendor/asheron-web/packages/dat-parser/src/file-types/Texture.js';
+import type { DatDatabase } from '../../vendor/asheron-web/packages/dat-parser/src/DatDatabase.js';
 
 export interface ModelSpec {
   /** The setup of the body, the weenie did 1. */

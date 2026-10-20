@@ -7,11 +7,11 @@
 //
 // The DAT reader is reused from asheron-web, which is not edited.
 
-import { DatDatabase } from '../../../../asheron-web/packages/dat-parser/src/DatDatabase.js';
-import { FileDatBytes } from '../../../../asheron-web/packages/dat-parser/src/node/FileDatBytes.js';
-import { DatReader } from '../../../../asheron-web/packages/dat-parser/src/DatReader.js';
-import { SkillTable } from '../../../../asheron-web/packages/dat-parser/src/file-types/SkillTable.js';
-import { SpellTable } from '../../../../asheron-web/packages/dat-parser/src/file-types/SpellTable.js';
+import { DatDatabase } from '../../vendor/asheron-web/packages/dat-parser/src/DatDatabase.js';
+import { FileDatBytes } from '../../vendor/asheron-web/packages/dat-parser/src/node/FileDatBytes.js';
+import { DatReader } from '../../vendor/asheron-web/packages/dat-parser/src/DatReader.js';
+import { SkillTable } from '../../vendor/asheron-web/packages/dat-parser/src/file-types/SkillTable.js';
+import { SpellTable } from '../../vendor/asheron-web/packages/dat-parser/src/file-types/SpellTable.js';
 
 const SKILL_TABLE_ID = 0x0e000004;
 const SPELL_TABLE_ID = 0x0e00000e;

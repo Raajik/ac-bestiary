@@ -6,17 +6,17 @@
 
 import * as THREE from 'three';
 
-import { DatReader } from '../../../../asheron-web/packages/dat-parser/src/DatReader.js';
-import { ClothingTable } from '../../../../asheron-web/packages/dat-parser/src/file-types/ClothingTable.js';
-import { Palette } from '../../../../asheron-web/packages/dat-parser/src/file-types/Palette.js';
-import { PaletteSet } from '../../../../asheron-web/packages/dat-parser/src/file-types/PaletteSet.js';
-import { DatFileSubset } from '../../../../asheron-web/packages/dat-parser/src/RangedDat.js';
-import type { DatDatabase } from '../../../../asheron-web/packages/dat-parser/src/DatDatabase.js';
-import { MaterialFactory } from '../../../../asheron-web/packages/renderer/src/models/MaterialFactory.js';
-import { ModelRenderer } from '../../../../asheron-web/packages/renderer/src/models/ModelRenderer.js';
-import { SetupModelRenderer } from '../../../../asheron-web/packages/renderer/src/models/SetupModelRenderer.js';
-import { PLACEMENT_RESTING } from '../../../../asheron-web/packages/renderer/src/models/SetupModelGroup.js';
-import { TextureManager } from '../../../../asheron-web/packages/renderer/src/models/TextureManager.js';
+import { DatReader } from '../../vendor/asheron-web/packages/dat-parser/src/DatReader.js';
+import { ClothingTable } from '../../vendor/asheron-web/packages/dat-parser/src/file-types/ClothingTable.js';
+import { Palette } from '../../vendor/asheron-web/packages/dat-parser/src/file-types/Palette.js';
+import { PaletteSet } from '../../vendor/asheron-web/packages/dat-parser/src/file-types/PaletteSet.js';
+import { DatFileSubset } from '../../vendor/asheron-web/packages/dat-parser/src/RangedDat.js';
+import type { DatDatabase } from '../../vendor/asheron-web/packages/dat-parser/src/DatDatabase.js';
+import { MaterialFactory } from '../../vendor/asheron-web/packages/renderer/src/models/MaterialFactory.js';
+import { ModelRenderer } from '../../vendor/asheron-web/packages/renderer/src/models/ModelRenderer.js';
+import { SetupModelRenderer } from '../../vendor/asheron-web/packages/renderer/src/models/SetupModelRenderer.js';
+import { PLACEMENT_RESTING } from '../../vendor/asheron-web/packages/renderer/src/models/SetupModelGroup.js';
+import { TextureManager } from '../../vendor/asheron-web/packages/renderer/src/models/TextureManager.js';
 
 export interface CreatureModelSpec {
   /** The setup of the body, the weenie did 1. */

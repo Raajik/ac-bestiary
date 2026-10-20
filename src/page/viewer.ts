@@ -2,7 +2,7 @@
 
 import * as THREE from 'three';
 
-import { buildCreatureModeScene } from '../../../../asheron-web/packages/renderer/src/ui/CreatureViewRender.js';
+import { buildCreatureModeScene } from '../../vendor/asheron-web/packages/renderer/src/ui/CreatureViewRender.js';
 import {
   buildCreatureModeCamera,
   CREATURE_MODE_FOV_DEGREES,
@@ -12,9 +12,9 @@ import {
   examineCameraPosition,
   headingToModelYaw,
   threeBoxToAc,
-} from '../../../../asheron-web/packages/renderer/src/ui/CreatureViewCamera.js';
-import { setCellLighting } from '../../../../asheron-web/packages/renderer/src/models/RetailLighting.js';
-import { installMirrorAwareCulling } from '../../../../asheron-web/packages/renderer/src/scene/WorldMirror.js';
+} from '../../vendor/asheron-web/packages/renderer/src/ui/CreatureViewCamera.js';
+import { setCellLighting } from '../../vendor/asheron-web/packages/renderer/src/models/RetailLighting.js';
+import { installMirrorAwareCulling } from '../../vendor/asheron-web/packages/renderer/src/scene/WorldMirror.js';
 
 import type { CreatureModelSpec, CreatureModels } from '../lib/creature-model.js';
 

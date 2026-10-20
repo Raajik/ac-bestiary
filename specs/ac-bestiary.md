@@ -17,9 +17,12 @@ the attack they need to hit it, and what it drops.
 - **Type list, descriptions, links**: the ACPedia Tusker page, saved one time at `~/wiki/raw/acpedia/Tusker.md`.
   Use the "Stats" table only. Do not fetch acpedia.org again. A community friend pays to host it.
 - **Models and icons**: `~/Games/AsheronsCall/Client/client_portal.dat` (and `client_cell_1.dat` if needed).
-- **Renderer and DAT reader**: reuse `~/Projects/asheron-web` (`packages/dat-parser`, `packages/renderer`,
-  for example `models/SetupModelRenderer.ts`, `ui/examine/CreatureAppraisalText.ts`). Do not edit asheron-web.
-  asheron-web is AGPL-3.0, so ac-bestiary is AGPL-3.0 too.
+- **Renderer and DAT reader**: the files of `~/Projects/asheron-web` (`packages/dat-parser`, `packages/renderer`,
+  `packages/shared`) that ac-bestiary reaches are copied to `vendor/asheron-web/`, unchanged, with asheron-web's
+  LICENSE and NOTICE. asheron-web is AGPL-3.0, so ac-bestiary is AGPL-3.0 too. The repo `Raajik/ac-bestiary` is
+  public and the page footer links to it, because the public page ships this code and the AGPL asks that its full
+  source is available (user, 2026-10-20). asheron-web itself stays private. To update the copy, run
+  `tools/vendor.sh` (it copies the same file list again from asheron-web).
 - Credit ACPedia and the ACE World project on the page.
 
 ## Scope rules
@@ -94,10 +97,9 @@ chance(skill, difficulty, factor) = 1 - 1 / (1 + exp(factor * (skill - difficult
 
 - One build command makes a static site in `dist/`: HTML, JS, CSS, a JSON data file, the still images and
   the icons. View it locally with any static file server.
-- `npm run deploy` builds the site and publishes `dist/` to the `gh-pages` branch of the private repo
+- `npm run deploy` builds the site and publishes `dist/` to the `gh-pages` branch of the public repo
   `Raajik/ac-bestiary`. GitHub Pages serves it publicly at https://raajik.github.io/ac-bestiary/. The user chose
-  public hosting on 2026-10-20, knowing the page shows models, renders and icons from the game DAT. The source repo
-  stays private. The build needs the DAT and the ACE data on the box, so it runs locally, not in CI.
+  public hosting on 2026-10-20, knowing the page shows models, renders and icons from the game DAT. The build needs the DAT and the ACE data on the box, so it runs locally, not in CI.
 - Keep it small. Add no framework or dependency that asheron-web or the platform already gives.
 
 ## Done when

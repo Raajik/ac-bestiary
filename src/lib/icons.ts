@@ -7,10 +7,10 @@ import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { PNG } from 'pngjs';
 
-import { DatReader } from '../../../../asheron-web/packages/dat-parser/src/DatReader.js';
-import { Palette } from '../../../../asheron-web/packages/dat-parser/src/file-types/Palette.js';
-import { SurfacePixelFormat, Texture } from '../../../../asheron-web/packages/dat-parser/src/file-types/Texture.js';
-import type { DatDatabase } from '../../../../asheron-web/packages/dat-parser/src/DatDatabase.js';
+import { DatReader } from '../../vendor/asheron-web/packages/dat-parser/src/DatReader.js';
+import { Palette } from '../../vendor/asheron-web/packages/dat-parser/src/file-types/Palette.js';
+import { SurfacePixelFormat, Texture } from '../../vendor/asheron-web/packages/dat-parser/src/file-types/Texture.js';
+import type { DatDatabase } from '../../vendor/asheron-web/packages/dat-parser/src/DatDatabase.js';
 
 import { openPortalDat } from './dat-facts.js';
 
