@@ -2,6 +2,9 @@
 
 import * as THREE from 'three';
 
+import { AnimatedEntity } from '../../vendor/asheron-web/packages/renderer/src/animation/AnimatedEntity.js';
+import { MotionCommand } from '../../vendor/asheron-web/packages/renderer/src/animation/MotionCommands.js';
+import { MotionManager } from '../../vendor/asheron-web/packages/renderer/src/animation/MotionManager.js';
 import { buildCreatureModeScene } from '../../vendor/asheron-web/packages/renderer/src/ui/CreatureViewRender.js';
 import {
   buildCreatureModeCamera,
@@ -17,17 +20,23 @@ import { setCellLighting } from '../../vendor/asheron-web/packages/renderer/src/
 import { installMirrorAwareCulling } from '../../vendor/asheron-web/packages/renderer/src/scene/WorldMirror.js';
 
 import type { CreatureModelSpec, CreatureModels } from '../lib/creature-model.js';
+import { attackMotion, motionButtons, type MotionButton, type MotionName } from './motions.js';
 
-/** The live model view. The drag turns the model. */
+/** The live model view. The drag turns the model, the motion table plays it. */
 export class ModelViewer {
   private readonly canvas: HTMLCanvasElement;
   private readonly renderer: THREE.WebGLRenderer;
   private scene = new THREE.Scene();
   private camera = new THREE.PerspectiveCamera(CREATURE_MODE_FOV_DEGREES, 1, 0.1, 200);
   private model: THREE.Group | null = null;
+  private entity: AnimatedEntity | null = null;
+  private buttons: MotionButton[] = [];
+  /** Seconds left before the model returns to the idle. */
+  private idleTimer = 0;
   private dragging = false;
   private lastX = 0;
   private frame = 0;
+  private lastTime = 0;
 
   constructor(canvas: HTMLCanvasElement) {
     this.canvas = canvas;
@@ -69,10 +78,73 @@ export class ModelViewer {
     this.scene.background = null;
   }
 
-  /** Build a model of a creature from the bundle. */
+  /** Build a model of a creature from the bundle, and let it play its idle. */
   setCreature(models: CreatureModels, spec: CreatureModelSpec): void {
-    this.setModel(models.build(spec));
+    const model = models.build(spec);
+    this.setModel(model);
+
+    this.entity = model ? models.animate(model, spec) : null;
+    this.buttons = motionButtons(this.entity?.motionManager.activeMotionTable ?? null);
+    this.idleTimer = 0;
+
+    // The first frame of the idle, so the camera frames the pose the model
+    // shows and not the rest pose.
+    this.entity?.update(0);
     this.frameModel();
+  }
+
+  /** The buttons the motion table of the creature gives. */
+  get motionButtonList(): MotionButton[] {
+    return this.buttons;
+  }
+
+  /**
+   * Play a motion once, then return to the idle.
+   *
+   * A walk and a run are cycles, so they play for the length of the cycle.
+   * The attack and the death are actions: the motion table plays them and
+   * returns to the ready stance by itself.
+   */
+  playMotion(name: MotionName): void {
+    const entity = this.entity;
+    if (!entity) return;
+
+    const manager = entity.motionManager;
+    const table = manager.activeMotionTable;
+    if (!table) return;
+
+    this.idleTimer = 0;
+
+    if (name === 'walk' || name === 'run') {
+      const command = name === 'walk' ? MotionCommand.WalkForward : MotionCommand.RunForward;
+      if (!manager.setForwardMotion(command, 1.0)) return;
+      this.idleTimer = this.cycleSeconds(command);
+      return;
+    }
+
+    if (name === 'attack') {
+      const attack = attackMotion(table);
+      if (!attack) return;
+      // The attack links live in the combat style of the table.
+      manager.overrideStyleId(attack.style);
+      manager.queueAction(attack.command, 1.0, () => {
+        manager.overrideStyleId(table.defaultStyle);
+        manager.setDefaultStance(1.0);
+      });
+      return;
+    }
+
+    // The death: the fall is a link from the ready stance.
+    manager.queueAction(MotionCommand.Dead, 1.0, () => manager.setDefaultStance(1.0));
+  }
+
+  /** How long the cycle of a command plays, in seconds. */
+  private cycleSeconds(command: number): number {
+    const manager = this.entity?.motionManager;
+    if (!manager) return 0;
+    const style = manager.currentStyleId;
+    const key = MotionManager.compositeKey(style, command & 0xffff);
+    return manager.getCycleLength(key);
   }
 
   /** Point the camera at the model, the way the retail portrait does. */
@@ -118,8 +190,24 @@ export class ModelViewer {
 
   /** Draw the model on every frame, until the viewer is closed. */
   start(): void {
+    this.lastTime = performance.now();
     const loop = () => {
       this.frame = requestAnimationFrame(loop);
+
+      const now = performance.now();
+      const delta = Math.min((now - this.lastTime) / 1000, 0.1);
+      this.lastTime = now;
+
+      this.entity?.update(delta);
+
+      if (this.idleTimer > 0) {
+        this.idleTimer -= delta;
+        if (this.idleTimer <= 0) {
+          this.idleTimer = 0;
+          this.entity?.motionManager.setDefaultStance(1.0);
+        }
+      }
+
       this.draw();
     };
     this.frame = requestAnimationFrame(loop);

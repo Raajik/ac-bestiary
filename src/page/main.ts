@@ -50,12 +50,27 @@ async function main(): Promise<void> {
           paletteId: variant.palette || undefined,
           paletteTemplate: variant.paletteTemplate,
           shade: variant.shade,
+          motionTableId: variant.motionTable || undefined,
         });
+        renderMotions();
         viewer.start();
       })
       .catch((error) => {
         need<HTMLElement>('#viewer-hint').textContent = `The model did not load: ${error}`;
       });
+  }
+
+  function renderMotions(): void {
+    const box = need<HTMLElement>('#motions');
+    box.textContent = '';
+
+    for (const motion of viewer.motionButtonList) {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.textContent = motion.label;
+      button.addEventListener('click', () => viewer.playMotion(motion.name));
+      box.append(button);
+    }
   }
 
   function open(creature: Creature): void {

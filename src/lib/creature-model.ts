@@ -12,6 +12,7 @@ import { Palette } from '../../vendor/asheron-web/packages/dat-parser/src/file-t
 import { PaletteSet } from '../../vendor/asheron-web/packages/dat-parser/src/file-types/PaletteSet.js';
 import { DatFileSubset } from '../../vendor/asheron-web/packages/dat-parser/src/RangedDat.js';
 import type { DatDatabase } from '../../vendor/asheron-web/packages/dat-parser/src/DatDatabase.js';
+import { AnimatedEntity } from '../../vendor/asheron-web/packages/renderer/src/animation/AnimatedEntity.js';
 import { MaterialFactory } from '../../vendor/asheron-web/packages/renderer/src/models/MaterialFactory.js';
 import { ModelRenderer } from '../../vendor/asheron-web/packages/renderer/src/models/ModelRenderer.js';
 import { SetupModelRenderer } from '../../vendor/asheron-web/packages/renderer/src/models/SetupModelRenderer.js';
@@ -29,6 +30,8 @@ export interface CreatureModelSpec {
   paletteTemplate?: number;
   /** The shade of the body, the weenie property float 12. */
   shade?: number;
+  /** The motion table of the body, the weenie did 2. */
+  motionTableId?: number;
 }
 
 /** The model builder of one bundle. */
@@ -148,6 +151,22 @@ export class CreatureModels {
     return {
       perPartTextureOverrides: perPartTextureOverrides.size ? perPartTextureOverrides : undefined,
     };
+  }
+
+  /**
+   * The animation of a creature model, playing the idle of its motion table.
+   * Null when the weenie has no motion table.
+   */
+  animate(group: THREE.Group, spec: CreatureModelSpec): AnimatedEntity | null {
+    if (!spec.motionTableId) return null;
+
+    // The animation code only reads the file data, so the bundle stands in
+    // for the client data.
+    const db = this.files as unknown as DatDatabase;
+
+    const entity = new AnimatedEntity(group, db);
+    entity.initFromMotionTable(spec.motionTableId);
+    return entity;
   }
 
   /** The model of a creature, in the rest pose. */

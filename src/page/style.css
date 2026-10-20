@@ -262,6 +262,29 @@ a:hover {
   cursor: grabbing;
 }
 
+.motions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: center;
+}
+
+.motions button {
+  padding: 5px 12px;
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.motions button:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
 .hint {
   margin: 0;
   font-size: 12px;
