@@ -1,0 +1,11 @@
+#!/bin/bash
+# Commit hook (testkit pattern 6): a change under src/ needs a change under tests/ in the same commit.
+# The box's global hook dispatcher runs it for this repo; on another machine link .git/hooks/commit-msg to it.
+# Docs and config pass. Put [skip-tests] in the message for a change that truly needs no test.
+set -euo pipefail
+staged=$(git diff --cached --name-only)
+grep -q '^src/' <<<"$staged" || exit 0
+grep -q '^tests/' <<<"$staged" && exit 0
+grep -qi '\[skip-tests\]' "$1" && exit 0
+echo "BLOCKED: src/ changed but nothing under tests/ did. Add a test, or put [skip-tests] in the message." >&2
+exit 1
