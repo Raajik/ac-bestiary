@@ -111,6 +111,22 @@ chance(skill, difficulty, factor) = 1 - 1 / (1 + exp(factor * (skill - difficult
   public hosting on 2026-10-20, knowing the page shows models, renders and icons from the game DAT. The build needs the DAT and the ACE data on the box, so it runs locally, not in CI.
 - Keep it small. Add no framework or dependency that asheron-web or the platform already gives.
 
+## Tests and tools
+
+- `tools/deploy.sh` runs the test suite (`npx vitest run`) first, and stops when a test fails. Nothing is pushed
+  then. The flag `--no-gate` skips the suite. It prints a loud warning that says the push is untested and names
+  `--no-gate`, and it writes a line to `.agent-log/deploy.log`.
+- `tests/defense-vs-acpedia.test.ts` reads outside inputs: the retail SQL trees under
+  `~/Projects/asherons-call/_refs`, the saved ACPedia page and `client_portal.dat` (paths in `src/lib/paths.ts`).
+  When one is missing, the suite skips, and the reason names `tools/fetch-refs.sh`. On CI (the `CI` variable is
+  set) a missing input fails the run. `tools/fetch-refs.sh` fetches or links what it can, and prints what the user
+  must supply.
+- The commit hook `tools/githooks/commit-msg` refuses a commit that changes `src/` with no change under `tests/`,
+  unless the message holds `[skip-tests]`. The repo sets no `core.hooksPath`: the box's global hook dispatcher
+  runs a Raajik repo's tracked `tools/githooks/<name>` (`~/specs/git-syncthing-hook.md`). On another machine,
+  link `.git/hooks/commit-msg` to it (`docs/testing.md`).
+- Each new check is made to fail once on purpose before it is trusted (testkit pattern 10).
+
 ## Done when
 
 1. The page shows one tile for each Tusker name from the scope rules, in rows of 3, with scroll for more.
