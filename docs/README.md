@@ -1,3 +1,5 @@
+https://raajik.github.io/ac-bestiary/
+
 # Facts index
 
 One file for each area. Tag each fact **Verified**, **Observed** or **Unknown**. See `~/specs/fact-docs.md`.
