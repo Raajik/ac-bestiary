@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { clearWhiteOutline } from '../src/lib/icons.js';
+import { clearWhiteOutline } from '../src/lib/icon-pixels.js';
 
 // Tiny icons: T transparent, W pure white, R the item.
 const T = [0, 0, 0, 0];
