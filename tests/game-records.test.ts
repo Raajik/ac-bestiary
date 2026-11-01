@@ -96,6 +96,19 @@ describe('appraisalRows', () => {
     ]);
   });
 
+  it('marks spells the game names differently, ignoring "Self"', () => {
+    const fist = { ...bow, spells: ['Aura of Defender Self IV', 'Aura of Blood Drinker Self V', 'Aura of Swift Killer Self IV', 'Aura of Heart Seeker Self VI'] };
+    const rows = appraisalRows({ Spells: '[[Aura of Defender IV]], [[Aura of Blood Drinker V]], [[Aura of Swift Killer IV]], [[Aura of Heart Seeker V]]' }, fist);
+    expect(rows[0].differs).toBe(true);
+    const same = appraisalRows({ Spells: '[[Aura of Swift Killer IV]], [[Aura of Defender IV]], [[Aura of Blood Drinker V]]' }, bow);
+    expect(same[0].differs).toBe(false);
+  });
+
+  it('keeps the fraction of a damage minimum, as the wiki writes it', () => {
+    const dagger = { ...bow, values: { damage: 22, damageVariance: 0.6 } };
+    expect(appraisalRows({ Damage: '8.8 - 22' }, dagger)[0]).toEqual({ label: 'Damage', wiki: '8.8 - 22', game: '8.8 - 22', differs: false });
+  });
+
   it('shows the template values alone when no weenie matched', () => {
     expect(appraisalRows({ Value: '2,000' }, null)).toEqual([{ label: 'Value', wiki: '2,000', game: null, differs: false }]);
   });

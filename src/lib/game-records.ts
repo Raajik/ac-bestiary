@@ -154,7 +154,8 @@ function gameValue(label: string, wiki: string, v: GameValues): { nums: number[]
       return plain(v.weaponTime);
     case 'Damage': {
       if (!v.damage) return null;
-      const min = Math.round(v.damage * (1 - (v.damageVariance ?? 0)));
+      // Not rounded: 22 with variance 0.6 is "8.8 - 22", as the wiki writes it.
+      const min = Math.round(v.damage * (1 - (v.damageVariance ?? 0)) * 100) / 100;
       return { nums: [min, v.damage], text: `${min} - ${v.damage}` };
     }
     case 'Damage Modifier':
@@ -170,6 +171,18 @@ function gameValue(label: string, wiki: string, v: GameValues): { nums: number[]
     default:
       return null;
   }
+}
+
+/** A spell name as the comparison sees it: the game says "Aura of Defender Self IV" where the wiki says "Aura of Defender IV". */
+function spellKey(name: string): string {
+  return name.replace(/\bSelf\b/gi, '').replace(/\s+/g, ' ').trim().toLowerCase();
+}
+
+/** Whether the wiki and the game list the same spells, in any order. */
+function sameSpells(wiki: string[], game: string[]): boolean {
+  const a = wiki.map(spellKey).filter((s) => s !== '').sort();
+  const b = game.map(spellKey).sort();
+  return a.length === b.length && a.every((s, i) => s === b[i]);
 }
 
 /** Wikitext as the panel shows it: links as their text. */
@@ -189,10 +202,9 @@ export function appraisalRows(params: Record<string, string>, variant: ItemVaria
     const wiki = wikiText(raw);
 
     if (label === 'Spells') {
-      // The game names self spells "Aura of Defender Self IV", the wiki "Aura of Defender IV": compare the count.
       const game = variant && variant.spells.length > 0 ? variant.spells.join(', ') : null;
-      const wikiCount = wiki.split(',').filter((s) => s.trim() !== '').length;
-      rows.push({ label, wiki, game, differs: game !== null && wikiCount !== variant!.spells.length });
+      const differs = game !== null && !sameSpells(wiki.split(','), variant!.spells);
+      rows.push({ label, wiki, game, differs });
       continue;
     }
 

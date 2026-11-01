@@ -18,7 +18,6 @@ import { INFOBOX_KINDS, type Infobox } from '../src/lib/wikitext.js';
 
 const sources = defaultSources();
 const db = openSnapshot(join(SNAPSHOT_DIR, 'wiki.sqlite'));
-resetGameRecords(db);
 
 // Every retail weenie by name. A patch file wins over the base file of the same class.
 const paths = indexWeenies(sources.baseRoots);
@@ -36,7 +35,7 @@ const facts = readDatFacts(openPortalDat(sources.portalDat));
 const spellName = (id: number) => facts.spells.get(id)?.name ?? `Spell ${id}`;
 
 const pages = db.prepare('select title, infoboxes from pages').all() as { title: string; infoboxes: string }[];
-const putItem = db.prepare('insert into items (title, data) values (?, ?)');
+const itemRows: [string, string][] = [];
 let items = 0;
 const unmatched: string[] = [];
 for (const page of pages) {
@@ -48,7 +47,7 @@ for (const page of pages) {
     continue;
   }
   const record: ItemRecord = { title: page.title, variants: weenies.map((w) => itemVariant(w, spellName)) };
-  putItem.run(page.title, JSON.stringify(record));
+  itemRows.push([page.title, JSON.stringify(record)]);
   items++;
 }
 console.log(`item pages with weenies: ${items}; without: ${unmatched.join(', ') || 'none'}`);
@@ -58,11 +57,20 @@ const bestiary = JSON.parse(readFileSync(join(DIST_DIR, 'data.json'), 'utf8')) a
 const creaturePages = new Set(
   pages.filter((p) => (JSON.parse(p.infoboxes) as Infobox[]).some((b) => INFOBOX_KINDS[b.template] === 'creature')).map((p) => p.title),
 );
-const putCreature = db.prepare('insert into creatures (title, data) values (?, ?)');
+const creatureRows: [string, string][] = [];
 let creatures = 0;
 for (const creature of bestiary.creatures) {
   if (!creaturePages.has(creature.name)) continue;
-  putCreature.run(creature.name, JSON.stringify(creature));
+  creatureRows.push([creature.name, JSON.stringify(creature)]);
   creatures++;
 }
 console.log(`creature pages with records: ${creatures} of ${creaturePages.size}`);
+
+// Replace the tables only now that every input was read, in one transaction: a failed build keeps the old records.
+db.exec('begin');
+resetGameRecords(db);
+const putItem = db.prepare('insert into items (title, data) values (?, ?)');
+for (const [title, data] of itemRows) putItem.run(title, data);
+const putCreature = db.prepare('insert into creatures (title, data) values (?, ?)');
+for (const [title, data] of creatureRows) putCreature.run(title, data);
+db.exec('commit');
