@@ -241,6 +241,8 @@ mod tests {
         let conn = open_snapshot(&path).unwrap();
         let attach = conn.execute("attach database ?1 as other", [other.to_string_lossy()]);
         assert!(attach.is_err(), "attach should fail");
+        // Windows does not delete a file SQLite holds open.
+        drop(conn);
         fs::remove_dir_all(&dir).unwrap();
     }
 
@@ -251,6 +253,7 @@ mod tests {
         fs::write(dir.join("images").join("A b.png"), b"png").unwrap();
         fs::write(dir.join("secret.txt"), b"no").unwrap();
         // On Windows `images.join("C:secret.txt")` leaves the images folder; on Linux it is a file name, so make it.
+        #[cfg(not(windows))]
         fs::write(dir.join("images").join("C:secret.txt"), b"no").unwrap();
         let get = |path: &str| {
             let request = http::Request::builder().uri(format!("snap://localhost/{path}")).body(Vec::new()).unwrap();
