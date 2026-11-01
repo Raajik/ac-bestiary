@@ -132,3 +132,12 @@ The build prints these names, and the page gives them no tile:
 - Which of the same-name weenies spawn in the retail world.
 - The page has no spawn places, because the landblock data is not in the
   sparse clones.
+
+## Icon outline
+
+- The retail item icon textures carry opaque pure white (255,255,255,255) pixels where the item meets the
+  transparent background; the client draws icons over an underlay that hides them. Icon 11626 had 76 pure white
+  pixels, 17 of them on the edge. **Observed:** `dist/icons/11626.png`, 2026-10-31.
+- The icon writer clears the pure white pixels that reach the transparent background or the border through pure
+  white only; enclosed white stays. After it, icon 11626 has none left and its bright centre is unchanged.
+  **Verified:** `tests/icons.test.ts`; rebuilt icons checked by eye, 2026-10-31.
