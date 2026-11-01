@@ -1,4 +1,4 @@
-import { mkdtempSync, readdirSync } from 'node:fs';
+import { mkdtempSync, readdirSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
@@ -105,6 +105,44 @@ describe('runSnapshot, against changes on the wiki', () => {
     const result = await runSnapshot(api, db, SEED, options);
     expect(result.images).toBe(1);
     expect(api.calls.filter(isFetch)).toHaveLength(1);
+  });
+
+  it('downloads an image again when its file is gone', async () => {
+    const { db, options } = setup();
+    await runSnapshot(new FakeWikiApi(), db, SEED, options);
+    rmSync(join(options.imagesDir, 'Bow_of_the_Quiddity_Icon.png'));
+
+    const api = new FakeWikiApi();
+    const result = await runSnapshot(api, db, SEED, options);
+    expect(result.images).toBe(1);
+    expect(readdirSync(options.imagesDir)).toContain('Bow_of_the_Quiddity_Icon.png');
+  });
+
+  it('drops a page the wiki says is gone, and its search row', async () => {
+    const { db, options } = setup();
+    await runSnapshot(new FakeWikiApi(), db, SEED, options);
+
+    const api = new FakeWikiApi();
+    const query = { action: 'query', prop: 'info', redirects: '1', titles: 'Aura of Defender IV|Crafter of Bows|Enhanced Bow of the Quiddity' };
+    const reply = api.reply(query) as { query: { pages: { title: string; ns: number; missing?: boolean; lastrevid?: number }[] } };
+    reply.query.pages = reply.query.pages.map((p) => (p.title === 'Crafter of Bows' ? { title: p.title, ns: 0, missing: true } : p));
+    api.override(query, reply);
+    await runSnapshot(api, db, SEED, options);
+
+    expect(db.prepare("select title from pages where title = 'Crafter of Bows'").all()).toEqual([]);
+    expect(db.prepare("select title from search where title = 'Crafter of Bows'").all()).toEqual([]);
+  });
+
+  it('stores a page and its search row together, so a failed write is fetched again on the next run', async () => {
+    const { db, options } = setup();
+    const broken = new FakeWikiApi();
+    // A text that is a number stores, then fails the search text: between the page write and the search write.
+    broken.override(CRAFTER_PARSE, { parse: { ...(broken.reply(CRAFTER_PARSE) as { parse: object }).parse, text: 123 } });
+    await expect(runSnapshot(broken, db, SEED, options)).rejects.toThrow();
+    expect(db.prepare("select title from pages where title = 'Crafter of Bows'").all()).toEqual([]);
+
+    await runSnapshot(new FakeWikiApi(), db, SEED, options);
+    expect(db.prepare("select count(*) as n from search where title = 'Crafter of Bows'").get()).toEqual({ n: 1 });
   });
 
   it('follows a redirect chain to its page, and stores the final target', async () => {

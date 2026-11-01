@@ -1,7 +1,7 @@
 // The wiki snapshot: the pages of the slice, read from the wiki API into one
 // SQLite file plus an images folder (spec wiki-app.md, "The snapshot").
 
-import { mkdirSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
 
@@ -125,6 +125,18 @@ function plainHtml(html: string): string {
     .trim();
 }
 
+/** Run `write` as one transaction, so a failure leaves none of its writes. */
+function inTransaction(db: DatabaseSync, write: () => void): void {
+  db.exec('begin');
+  try {
+    write();
+    db.exec('commit');
+  } catch (error) {
+    db.exec('rollback');
+    throw error;
+  }
+}
+
 /** The file name an image is saved under: the wiki's name, safe for every file system. */
 export function imageFileName(name: string): string {
   return name.replace(/[\\/:*?"<>|]/g, '_');
@@ -193,19 +205,30 @@ export async function runSnapshot(
         }
         return to;
       };
-      for (const from of redirectTo.keys()) {
-        putRedirect.run(from, finalTarget(from));
-        // A title that is a redirect now is no page of its own any more.
-        dropPage.run(from);
-        dropSearch.run(from);
-      }
+      inTransaction(db, () => {
+        for (const from of redirectTo.keys()) {
+          putRedirect.run(from, finalTarget(from));
+          // A title that is a redirect now is no page of its own any more.
+          dropPage.run(from);
+          dropSearch.run(from);
+        }
+      });
       const levelOf = new Map<string, number>();
       for (const title of batch) {
         const to = finalTarget(target.get(title) ?? title);
         levelOf.set(to, Math.min(levelOf.get(to) ?? Infinity, level.get(title)!));
       }
       for (const page of reply.query?.pages ?? []) {
-        if (page.missing || page.invalid || page.ns !== 0 || !page.lastrevid) continue;
+        if (page.missing && page.ns === 0) {
+          // The wiki says the page is gone: so is its copy.
+          inTransaction(db, () => {
+            dropPage.run(page.title);
+            dropSearch.run(page.title);
+            dropRedirect.run(page.title);
+          });
+          continue;
+        }
+        if (page.invalid || page.ns !== 0 || !page.lastrevid) continue;
         const pageLevel = levelOf.get(page.title);
         if (pageLevel === undefined || seen.has(page.title)) continue;
         seen.add(page.title);
@@ -252,20 +275,22 @@ export async function runSnapshot(
           infoboxes = readInfoboxes(parse.wikitext);
           images = parse.images;
 
-          putPage.run(
-            page.title,
-            parse.pageid,
-            parse.revid,
-            parse.text,
-            parse.wikitext,
-            JSON.stringify(parse.categories.map((c) => c.category.replace(/_/g, ' '))),
-            JSON.stringify(links),
-            JSON.stringify(images),
-            JSON.stringify(infoboxes),
-            now,
-          );
-          dropSearch.run(page.title);
-          putSearch.run(page.title, plainHtml(parse.text));
+          inTransaction(db, () => {
+            putPage.run(
+              page.title,
+              parse.pageid,
+              parse.revid,
+              parse.text,
+              parse.wikitext,
+              JSON.stringify(parse.categories.map((c) => c.category.replace(/_/g, ' '))),
+              JSON.stringify(links),
+              JSON.stringify(images),
+              JSON.stringify(infoboxes),
+              now,
+            );
+            dropSearch.run(page.title);
+            putSearch.run(page.title, plainHtml(parse.text));
+          });
           result.fetched++;
           log(`page ${page.title} (rev ${parse.revid})`);
         }
@@ -280,7 +305,7 @@ export async function runSnapshot(
   }
 
   // 3. The images the pages use: ask the wiki for each one's sha1 (50 to a call), and fetch the new and changed ones.
-  const storedImage = db.prepare('select sha1 from images where name = ?');
+  const storedImage = db.prepare('select sha1, file from images where name = ?');
   const putImage = db.prepare('insert or replace into images (name, file, sha1, fetched) values (?, ?, ?, ?)');
   const names = [...usedImages].sort();
 
@@ -300,8 +325,8 @@ export async function runSnapshot(
         const name = byTitle.get(page.title);
         const info = page.imageinfo?.[0];
         if (!name || page.missing || !info?.url) return;
-        const stored = storedImage.get(name) as { sha1: string } | undefined;
-        if (stored && stored.sha1 === info.sha1) return;
+        const stored = storedImage.get(name) as { sha1: string; file: string } | undefined;
+        if (stored && stored.sha1 === info.sha1 && existsSync(join(options.imagesDir, stored.file))) return;
         try {
           const bytes = await api.download(info.url);
           mkdirSync(options.imagesDir, { recursive: true });
