@@ -19,13 +19,26 @@ export interface Infobox {
   params: Record<string, string>;
 }
 
-/** Split on a separator that is not inside `[[...]]` or `{{...}}`. */
+/** The length of a `<nowiki>...</nowiki>` region that starts at `i`, or 0. Its text is literal. */
+function nowikiAt(text: string, i: number): number {
+  if (!text.startsWith('<nowiki>', i)) return 0;
+  const end = text.indexOf('</nowiki>', i);
+  return end < 0 ? text.length - i : end + '</nowiki>'.length - i;
+}
+
+/** Split on a separator that is not inside `[[...]]`, `{{...}}` or `<nowiki>`. */
 function splitOutside(text: string, separator: string): string[] {
   const parts: string[] = [];
   let depth = 0;
   let current = '';
 
   for (let i = 0; i < text.length; i++) {
+    const literal = nowikiAt(text, i);
+    if (literal > 0) {
+      current += text.slice(i, i + literal);
+      i += literal - 1;
+      continue;
+    }
     const pair = text.slice(i, i + 2);
     if (pair === '[[' || pair === '{{') {
       depth++;
@@ -65,6 +78,11 @@ function topTemplates(wikitext: string): string[] {
   let start = 0;
 
   for (let i = 0; i < wikitext.length - 1; i++) {
+    const literal = nowikiAt(wikitext, i);
+    if (literal > 0) {
+      i += literal - 1;
+      continue;
+    }
     const pair = wikitext.slice(i, i + 2);
     if (pair === '{{') {
       if (depth === 0) start = i + 2;
@@ -84,7 +102,9 @@ function topTemplates(wikitext: string): string[] {
 export function readInfoboxes(wikitext: string): Infobox[] {
   const boxes: Infobox[] = [];
 
-  for (const inner of topTemplates(wikitext)) {
+  // A comment is not part of the page: it hides templates and parameters.
+  const text = wikitext.replace(/<!--[\s\S]*?(-->|$)/g, '');
+  for (const inner of topTemplates(text)) {
     const [rawName, ...parts] = splitOutside(inner, '|');
     const template = templateName(rawName);
     if (!(template in INFOBOX_KINDS)) continue;

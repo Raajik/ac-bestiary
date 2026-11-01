@@ -28,13 +28,16 @@ create table if not exists pages (
   fetched text not null
 );
 create table if not exists redirects (source text primary key, target text not null);
-create table if not exists images (name text primary key, file text not null, fetched text not null);
+create table if not exists images (name text primary key, file text not null, sha1 text not null, fetched text not null);
 create virtual table if not exists search using fts5(title, body);
 `;
 
 export function openSnapshot(path: string): DatabaseSync {
   const db = new DatabaseSync(path);
   db.exec(SCHEMA);
+  // A snapshot made before images kept their sha1 gets the column; its images fetch once more.
+  const columns = db.prepare('pragma table_info(images)').all() as { name: string }[];
+  if (!columns.some((c) => c.name === 'sha1')) db.exec("alter table images add column sha1 text not null default ''");
   return db;
 }
 
@@ -80,7 +83,7 @@ interface ParseReply {
 interface ImageInfoReply {
   query?: {
     normalized?: { from: string; to: string }[];
-    pages?: { title: string; missing?: boolean; imageinfo?: { url: string }[] }[];
+    pages?: { title: string; missing?: boolean; imageinfo?: { url: string; sha1: string }[] }[];
   };
 }
 
@@ -142,6 +145,8 @@ export async function runSnapshot(
   );
   const dropSearch = db.prepare('delete from search where title = ?');
   const putSearch = db.prepare('insert into search (title, body) values (?, ?)');
+  const dropPage = db.prepare('delete from pages where title = ?');
+  const dropRedirect = db.prepare('delete from redirects where source = ?');
 
   const seen = new Set<string>();
   const usedImages = new Set<string>();
@@ -167,12 +172,26 @@ export async function runSnapshot(
       // A title goes through MediaWiki's spelling fix, then through a redirect, to the page it opens.
       const target = new Map<string, string>();
       for (const fix of reply.query?.normalized ?? []) target.set(fix.from, fix.to);
-      for (const redirect of reply.query?.redirects ?? []) putRedirect.run(redirect.from, redirect.to);
       const redirectTo = new Map((reply.query?.redirects ?? []).map((r) => [r.from, r.to]));
+      // A redirect can lead to another redirect; follow it to the end (a loop stops at the first repeat).
+      const finalTarget = (title: string): string => {
+        const passed = new Set<string>();
+        let to = title;
+        while (redirectTo.has(to) && !passed.has(to)) {
+          passed.add(to);
+          to = redirectTo.get(to)!;
+        }
+        return to;
+      };
+      for (const from of redirectTo.keys()) {
+        putRedirect.run(from, finalTarget(from));
+        // A title that is a redirect now is no page of its own any more.
+        dropPage.run(from);
+        dropSearch.run(from);
+      }
       const levelOf = new Map<string, number>();
       for (const title of batch) {
-        const spelled = target.get(title) ?? title;
-        const to = redirectTo.get(spelled) ?? spelled;
+        const to = finalTarget(target.get(title) ?? title);
         levelOf.set(to, Math.min(levelOf.get(to) ?? Infinity, level.get(title)!));
       }
       for (const page of reply.query?.pages ?? []) {
@@ -180,6 +199,8 @@ export async function runSnapshot(
         const pageLevel = levelOf.get(page.title);
         if (pageLevel === undefined || seen.has(page.title)) continue;
         seen.add(page.title);
+        // A title that is a page now is no redirect any more.
+        dropRedirect.run(page.title);
         current.push({ title: page.title, revid: page.lastrevid, level: pageLevel });
       }
     }
@@ -248,17 +269,16 @@ export async function runSnapshot(
     frontier = next;
   }
 
-  // 3. The images the pages use that the snapshot does not have yet.
-  const haveImage = db.prepare('select 1 from images where name = ?');
-  const putImage = db.prepare('insert or replace into images (name, file, fetched) values (?, ?, ?)');
-  const missing = [...usedImages].filter((name) => !haveImage.get(name)).sort();
-  if (missing.length > 0) mkdirSync(options.imagesDir, { recursive: true });
+  // 3. The images the pages use: ask the wiki for each one's sha1 (50 to a call), and fetch the new and changed ones.
+  const storedImage = db.prepare('select sha1 from images where name = ?');
+  const putImage = db.prepare('insert or replace into images (name, file, sha1, fetched) values (?, ?, ?, ?)');
+  const names = [...usedImages].sort();
 
-  for (const batch of chunks(missing, BATCH)) {
+  for (const batch of chunks(names, BATCH)) {
     const reply = (await api.get({
       action: 'query',
       prop: 'imageinfo',
-      iiprop: 'url',
+      iiprop: 'url|sha1',
       titles: batch.map((name) => `File:${name}`).join('|'),
     })) as ImageInfoReply;
     // The reply names a file as MediaWiki spells it ("File:A b.png"); the pages name it "A_b.png".
@@ -268,13 +288,16 @@ export async function runSnapshot(
     await Promise.all(
       (reply.query?.pages ?? []).map(async (page) => {
         const name = byTitle.get(page.title);
-        const url = page.imageinfo?.[0]?.url;
-        if (!name || page.missing || !url) return;
+        const info = page.imageinfo?.[0];
+        if (!name || page.missing || !info?.url) return;
+        const stored = storedImage.get(name) as { sha1: string } | undefined;
+        if (stored && stored.sha1 === info.sha1) return;
         try {
-          const bytes = await api.download(url);
+          const bytes = await api.download(info.url);
+          mkdirSync(options.imagesDir, { recursive: true });
           const file = imageFileName(name);
           writeFileSync(join(options.imagesDir, file), bytes);
-          putImage.run(name, file, now);
+          putImage.run(name, file, info.sha1, now);
           result.images++;
         } catch (error) {
           result.failed.push(`image ${name}: ${error}`);

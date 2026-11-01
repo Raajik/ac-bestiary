@@ -22,6 +22,9 @@ Facts about the ACCPP Wiki on lohk as `tools/wiki-snapshot.ts` reads it (spec: `
 - The first run from the seeds Quiddity Weapons and Tusker took 304 pages and 5,554 images in 333 s, with 2
   requests at a time: 13 MB of SQLite and 122 MB of images. Many images come from spell tables and maps on the
   linked pages. **Observed:** `npm run snapshot` on zahir, 2026-10-31.
-- A rerun with nothing changed fetched no page and no image, in 2 s. **Observed:** the same, run twice;
-  **Verified:** `tests/snapshot.test.ts`.
+- A rerun with nothing changed fetched no page and no image, in 7 s: it asks for the revision ids and the images'
+  sha1 (`prop=imageinfo&iiprop=url|sha1`, 50 to a call) and downloads only what differs. **Observed:** the same,
+  run twice; **Verified:** `tests/snapshot.test.ts`.
+- A redirect can point to another redirect; the snapshot stores each source with its final page. **Verified:**
+  `tests/snapshot.test.ts`.
 - The snapshot lives in `data/snapshot/` (`wiki.sqlite`, `images/`). Git ignores it; Syncthing shares it.

@@ -16,7 +16,20 @@ function setup() {
   return { dir, db, options };
 }
 
-const isFetch = (call: string) => call.includes('action=parse') || call.startsWith('download ') || call.includes('prop=imageinfo');
+const isFetch = (call: string) => call.includes('action=parse') || call.startsWith('download ');
+const CRAFTER_PARSE = {
+  action: 'parse',
+  page: 'Crafter of Bows',
+  prop: 'text|wikitext|links|images|categories|revid',
+  disableeditsection: '1',
+  disablelimitreport: '1',
+};
+const IMAGE_QUERY = {
+  action: 'query',
+  prop: 'imageinfo',
+  iiprop: 'url|sha1',
+  titles: 'File:Bow_of_the_Quiddity_Icon.png|File:Enhanced_Bow_of_the_Quiddity_Icon.png',
+};
 
 describe('runSnapshot', () => {
   it('takes the seed, its links, and one more step only from item pages', async () => {
@@ -76,6 +89,72 @@ describe('runSnapshot', () => {
     ]);
     // The search index holds the page once, not twice.
     expect(db.prepare("select count(*) as n from search where title = 'Crafter of Bows'").get()).toEqual({ n: 1 });
+  });
+});
+
+describe('runSnapshot, against changes on the wiki', () => {
+  it('downloads an image again when its sha1 changed', async () => {
+    const { db, options } = setup();
+    await runSnapshot(new FakeWikiApi(), db, SEED, options);
+
+    const api = new FakeWikiApi();
+    const reply = api.reply(IMAGE_QUERY) as { query: { pages: { title: string; imageinfo: { sha1: string }[] }[] } };
+    reply.query.pages[0].imageinfo[0].sha1 = 'changed';
+    api.override(IMAGE_QUERY, reply);
+
+    const result = await runSnapshot(api, db, SEED, options);
+    expect(result.images).toBe(1);
+    expect(api.calls.filter(isFetch)).toHaveLength(1);
+  });
+
+  it('follows a redirect chain to its page, and stores the final target', async () => {
+    const { db, options } = setup();
+    const api = new FakeWikiApi();
+    const crafter = api.reply({ action: 'query', prop: 'info', redirects: '1', titles: 'Aura of Defender IV|Crafter of Bows|Enhanced Bow of the Quiddity' }) as {
+      query: { pages: { title: string }[] };
+    };
+    api.override(
+      { action: 'query', prop: 'info', redirects: '1', titles: 'A' },
+      {
+        batchcomplete: true,
+        query: {
+          redirects: [
+            { from: 'A', to: 'B' },
+            { from: 'B', to: 'Crafter of Bows' },
+          ],
+          pages: [crafter.query.pages.find((p) => p.title === 'Crafter of Bows')],
+        },
+      },
+    );
+    api.override(CRAFTER_PARSE, { parse: { ...(api.reply(CRAFTER_PARSE) as { parse: object }).parse, links: [] } });
+
+    const result = await runSnapshot(api, db, ['A'], options);
+    expect(result.fetched).toBe(1);
+    expect(db.prepare('select source, target from redirects order by source').all()).toEqual([
+      { source: 'A', target: 'Crafter of Bows' },
+      { source: 'B', target: 'Crafter of Bows' },
+    ]);
+  });
+
+  it('drops a redirect whose title became a page, and a page whose title became a redirect', async () => {
+    const { db, options } = setup();
+    await runSnapshot(new FakeWikiApi(), db, SEED, options);
+    db.prepare("insert into redirects (source, target) values ('Crafter of Bows', 'Somewhere')").run();
+
+    const api = new FakeWikiApi();
+    const query = { action: 'query', prop: 'info', redirects: '1', titles: 'Aura of Defender IV|Crafter of Bows|Enhanced Bow of the Quiddity' };
+    const reply = api.reply(query) as { query: { redirects: { from: string; to: string }[] } };
+    // Enhanced Bow of the Quiddity now redirects to Defender (Spell).
+    reply.query.redirects.push({ from: 'Enhanced Bow of the Quiddity', to: 'Defender (Spell)' });
+    api.override(query, reply);
+    // Then only the Bow's icon is in use.
+    const images = api.reply(IMAGE_QUERY) as { query: { pages: { title: string }[] } };
+    images.query.pages = images.query.pages.filter((p) => p.title === 'File:Bow of the Quiddity Icon.png');
+    api.override({ ...IMAGE_QUERY, titles: 'File:Bow_of_the_Quiddity_Icon.png' }, images);
+    await runSnapshot(api, db, SEED, options);
+
+    expect(db.prepare("select * from redirects where source = 'Crafter of Bows'").all()).toEqual([]);
+    expect(db.prepare("select title from pages where title = 'Enhanced Bow of the Quiddity'").all()).toEqual([]);
   });
 });
 

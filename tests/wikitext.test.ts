@@ -36,4 +36,10 @@ describe('readInfoboxes', () => {
     expect(box.template).toBe('Missile Weapon');
     expect(box.params).toEqual({ '1': 'first', Name: 'X' });
   });
+
+  it('keeps a <nowiki> region whole, and ignores comments', () => {
+    const [box] = readInfoboxes('{{Item|Notes=<nowiki>a|b=c</nowiki>|Name=Tusker<!-- |Name=Wrong -->|Level=5}}');
+    expect(box.params).toEqual({ Notes: '<nowiki>a|b=c</nowiki>', Name: 'Tusker', Level: '5' });
+    expect(readInfoboxes('<!-- {{Creature|Name=Wrong}} -->')).toEqual([]);
+  });
 });
