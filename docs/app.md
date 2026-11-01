@@ -37,3 +37,17 @@ Facts about the AC wiki app's shell (spec: `specs/wiki-app.md`).
 - `tools/app-check.ts` runs the pages in headless Chromium against the real snapshot and DAT, with the Rust side's
   calls answered from Node, and checks the first slice's "done when" items a browser can see. It passed 13 of 13
   on zahir. **Verified:** `.agent-log/app-check/2026-11-01T04-16-42-271Z/result.json`.
+
+## Windows build
+
+- zahir cross-compiles the app for Windows with `tools/build-windows.sh`: the `x86_64-pc-windows-gnu` target,
+  `cargo-zigbuild`, and zig 0.17 from PyPI (`ziglang`) in `~/.cache/ac-wiki-zig`. A release build takes about
+  30 s once the crates are built. **Observed:** a run on zahir, 2026-10-31.
+- Tauri's Windows resources need a resource compiler: `embed-resource` takes `RC`, and probes it with `-V /?` for
+  "GNU windres" or "Resource Converter". `zig rc` answers neither, so `tools/zig-rc-as-llvm-rc` answers the probe
+  and maps the llvm-rc flags (`/no-preprocess` to `/:no-preprocess`, `/C` to `/c`), with COFF output.
+  **Observed:** `embed-resource` 3.0.12 source, and the build.
+- The exe imports `WebView2Loader.dll`; the build puts it next to the exe, and the zip ships it. **Observed:** the
+  exe's import table (pefile), 2026-10-31.
+- A non-bundled exe finds the snapshot in `snapshot/` beside it (Tauri's resource folder on Windows is the exe's
+  folder). **Unknown:** not yet run on Windows.

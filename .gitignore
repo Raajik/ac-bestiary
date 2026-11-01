@@ -4,3 +4,4 @@ dist/
 data/snapshot/
 dist-app/
 .agent-log/app-check/
+dist-win/

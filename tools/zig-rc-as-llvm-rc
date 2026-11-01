@@ -1,0 +1,13 @@
+#!/bin/bash
+# Lets embed-resource (Tauri's Windows resources) use `zig rc` when cross-compiling ac-wiki from Linux.
+# It answers embed-resource's probe as an LLVM-style "Resource Converter" and maps llvm-rc's flags to zig rc's.
+case " $* " in *" -V "*|*" /? "*) echo "OVERVIEW: Resource Converter (zig rc, llvm-rc flags)"; echo "  /no-preprocess"; exit 0 ;; esac
+args=()
+for a in "$@"; do
+  case "$a" in
+    /no-preprocess) args+=("/:no-preprocess") ;;
+    /C) args+=("/c") ;;
+    *) args+=("$a") ;;
+  esac
+done
+exec "${ZIG_PYTHON:?set ZIG_PYTHON to the python that has ziglang}" -m ziglang rc /:output-format coff /:target x64 "${args[@]}"
