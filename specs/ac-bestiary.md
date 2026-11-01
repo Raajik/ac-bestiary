@@ -3,6 +3,9 @@
 Prototype page: the Tusker family. Each Tusker type gets a tile with its in-game model. Opening a tile shows
 its stats as an in-game appraisal panel. Design agreed with the user on 2026-10-20 in a grilling round.
 
+The desktop AC wiki app grows out of this repo (`specs/wiki-app.md`, 2026-10-31). This public page keeps working as it
+is until the user decides otherwise: it does not read the lohk wiki or its snapshot.
+
 ## Goal
 
 A player can find a Tusker type fast and see the defense they need against it. The player can also see
@@ -14,11 +17,8 @@ the attack they need to hit it, and what it drops.
   `~/Projects/asherons-call/_refs/ACE-World-16PY-Patches`. Tusker weenies are in
   `Database/Patches/9 WeenieDefaults/Creature/Tusker/`. Some names on the list are in other `Creature/` folders.
   Use `git sparse-checkout add` to get them.
-- **Type list, levels, lore, trophy names**: the Tusker page of the ACCPP Wiki, read at build time (see
-  "The wiki"). Use its "Stats" and "Subclassed" tables and its "Lore" quote. acpedia.org is down since
-  2026-10-31, and the ACCPP Wiki on lohk is a full offline copy of ACPedia plus the pages only Fandom had
-  (`~/specs/accpp-wiki-lohk.md`). Do not fetch acpedia.org. The page saved one time at
-  `~/wiki/raw/acpedia/Tusker.md` is no longer read.
+- **Type list, descriptions, links**: the ACPedia Tusker page, saved one time at `~/wiki/raw/acpedia/Tusker.md`.
+  Use the "Stats" table only. Do not fetch acpedia.org again. A community friend pays to host it.
 - **Models and icons**: `~/Games/AsheronsCall/Client/client_portal.dat` (and `client_cell_1.dat` if needed).
 - **Renderer and DAT reader**: the files of `~/Projects/asheron-web` (`packages/dat-parser`, `packages/renderer`,
   `packages/shared`) that ac-bestiary reaches are copied to `vendor/asheron-web/`, unchanged, with asheron-web's
@@ -26,35 +26,14 @@ the attack they need to hit it, and what it drops.
   public and the page footer links to it, because the public page ships this code and the AGPL asks that its full
   source is available (user, 2026-10-20). asheron-web itself stays private. To update the copy, run
   `tools/vendor.sh` (it copies the same file list again from asheron-web).
-- Credit the ACCPP Wiki, ACPedia and the Fandom wiki contributors, and the ACE World project, on the page.
-
-## The wiki
-
-- The build reads the ACCPP Wiki through its MediaWiki API, `http://10.0.0.10:8095/wiki/api.php` (LAN only;
-  `AC_WIKI_API` changes it). It reads two things: the wikitext of the family page (`action=parse`), and which
-  page each creature, spell and trophy name opens (`action=query&redirects`, 50 names per call). A redirect
-  gives its target page; a name with no page gets no link. That is a few calls per build. The page itself never
-  calls the wiki.
-- **Cache**: what the build read is kept in the repo, in `data/wiki/<Family>.json` (the wikitext, the name-to-page
-  map and the fetch date). The build asks the wiki first. When the wiki answers, its answer wins and the build
-  rewrites the cache. When it does not answer within 5 seconds, the build prints a warning and uses the cache.
-  `AC_WIKI_OFFLINE=1` skips the wiki and uses the cache. The tests read the cache only and never call the wiki.
-  Commit a cache change with the code or data it goes with.
-- **Links**: one build setting, `AC_WIKI_LINKS`, is the base of every creature, spell and trophy link:
-  `<base>/<Page>`, spaces as `_`. The default is `https://acpedia.org/wiki`, so a plain build and the GitHub Pages
-  build (`tools/deploy.sh`) link to ACPedia: public links that work again when acpedia.org is back. Pages that
-  only Fandom had may not exist there. `none` gives no links. `npm run build:lohk` sets it to
-  `http://10.0.0.10:8095/wiki`, so a lohk build opens the local wiki.
-- `tools/deploy.sh` builds with `AC_WIKI_LINKS` unset, so with the default, and stops before the push when any
-  file in `dist/` holds `10.0.0.10`. The public site never links to the LAN.
-- The "Lore" quote of the family page shows below the page title, as plain text.
+- Credit ACPedia and the ACE World project on the page.
 
 ## Scope rules
 
-- One tile for each name in the wiki's "Stats" and "Subclassed" tables that has a retail weenie. Imp and
+- One tile for each name in the ACPedia "Stats" and "Subclassed" tables that has a retail weenie. Imp and
   Mudmouth (Subclassed) are Tuskers too (user, 2026-10-20). Their weenies are not in `Creature/Tusker/`.
 - Weenies with the same name are **variants** of one tile (user, 2026-10-20). For example, "Rampager" has 4.
-  The default variant is the one whose level matches the wiki table. If none matches, use the lowest level.
+  The default variant is the one whose level matches the ACPedia table. If none matches, use the lowest level.
 - The tile and the sort use the default variant. The level range and the "drops trophy" filters keep a tile
   if any of its variants matches.
 - A name with no retail weenie gets no tile. The build prints a list of these names.
@@ -98,15 +77,15 @@ the attack they need to hit it, and what it drops.
     - Defense: Melee Defense, Missile Defense, Magic Defense.
     - Each attack skill shows the defense you need for 50% and 90% evade or resist. Each defense skill shows
       the attack you need for 50% and 90% hit. See "Hit-chance formula".
-    - Spells the weenie casts go below their magic skill, each with a link to its wiki page (see "The wiki").
+    - Spells the weenie casts go below their magic skill, each with a link to its ACPedia page.
 - If the tile has more than one variant, a **Variants** section lists each one: level, Health and weenie class
   id. Click a variant to show its model and stats in the panel.
 - Below the tabs, always shown:
   - Armor level and the resistance for each damage type (Slash, Pierce, Bludgeon, Fire, Cold, Acid, Electric,
     and Nether if set).
   - A "Wiki" section in a different color, for data the retail panel does not show: XP award, spawn places
-    (if the data has them), a link to the wiki page.
-  - Trophies: icon from the DAT, name, drop chance from the weenie's death treasure list, link to its wiki
+    (if the data has them), a link to the ACPedia page.
+  - Trophies: icon from the DAT, name, drop chance from the weenie's death treasure list, link to its ACPedia
     page.
 
 ### Theme
@@ -141,7 +120,7 @@ chance(skill, difficulty, factor) = 1 - 1 / (1 + exp(factor * (skill - difficult
   then. The flag `--no-gate` skips the suite. It prints a loud warning that says the push is untested and names
   `--no-gate`, and it writes a line to `.agent-log/deploy.log`.
 - `tests/defense-vs-acpedia.test.ts` reads outside inputs: the retail SQL trees under
-  `~/Projects/asherons-call/_refs` and `client_portal.dat`, plus the wiki cache in the repo (paths in `src/lib/paths.ts`).
+  `~/Projects/asherons-call/_refs`, the saved ACPedia page and `client_portal.dat` (paths in `src/lib/paths.ts`).
   When one is missing, the suite skips, and the reason names `tools/fetch-refs.sh`. On CI (the `CI` variable is
   set) a missing input fails the run. `tools/fetch-refs.sh` fetches or links what it can, and prints what the user
   must supply.
@@ -158,12 +137,9 @@ chance(skill, difficulty, factor) = 1 - 1 / (1 + exp(factor * (skill - difficult
 3. Opening a tile shows the live 3D model playing its idle loop, the motion buttons, the variants, both tabs, armor, resistances, the Wiki section and trophies with
    drop chances.
 4. A test checks the hit-chance formula: equal skills give 50%, and +73 (factor 0.03) gives about 90%.
-5. A test compares computed defense skills to ACPedia, as the wiki table lists them (Observed): Male Tusker Melee/Missile/Magic Defense
+5. A test compares computed defense skills to ACPedia (Observed): Male Tusker Melee/Missile/Magic Defense
    83/76/63, and Tusker Guard 417/350/268. If a value does not match, record why in `docs/`.
-6. The Tusker page builds from the wiki with the same 40 names as the saved ACPedia page. A test checks the
-   wikitext table reader and the link base setting. A lohk build's links open the local wiki, and the public
-   build holds no `10.0.0.10`.
-7. Claude reviews the work against this spec and runs the `code-review` skill.
+6. Claude reviews the work against this spec and runs the `code-review` skill.
 
 ## Later (not in this prototype)
 
