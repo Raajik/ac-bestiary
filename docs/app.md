@@ -20,7 +20,9 @@ Facts about the AC wiki app's shell (spec: `specs/wiki-app.md`).
 - It has four commands (`snapshot_query`, `read_dat_range`, `install_folder`, `set_install_folder`) and the `snap`
   protocol for the snapshot's images (`snap://localhost/<file>` on Linux, `http://snap.localhost/<file>` on
   Windows; `convertFileSrc(file, 'snap')` gives the right one). **Observed:** `src-tauri/src/lib.rs`, Tauri docs.
-- The snapshot opens read-only, and `snapshot_query` refuses a statement SQLite does not call read-only.
+- The snapshot opens read-only, and `snapshot_query` refuses a statement SQLite does not call read-only. SQLite
+  calls `ATTACH` read-only, so the connection's attached-database limit is 0. **Verified:** `cargo test` in
+  `src-tauri`; the case came from the Codex adversarial review, 2026-10-31.
 - The bundled SQLite of rusqlite 0.37 has FTS5 and `json_each`. **Verified:** `cargo test` in `src-tauri`.
 - The image protocol serves plain file names of the images folder only (no `/`, `\` or leading `.` after
   decoding). **Verified:** `cargo test` in `src-tauri`.

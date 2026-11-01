@@ -5,10 +5,10 @@
 
 use std::fs::{self, File};
 use std::io::{Read, Seek, SeekFrom};
-use std::path::{Path, PathBuf};
+use std::path::{Component, Path, PathBuf};
 use std::sync::Mutex;
 
-use rusqlite::{Connection, OpenFlags, types::ValueRef};
+use rusqlite::{Connection, OpenFlags, limits::Limit, types::ValueRef};
 use serde_json::{Map, Value};
 use tauri::{Manager, State, http};
 
@@ -111,15 +111,21 @@ fn json_of(value: ValueRef) -> Value {
     }
 }
 
+/// The snapshot, read-only. SQLite calls ATTACH read-only too, so no other database may be attached.
+fn open_snapshot(path: &Path) -> Result<Connection, String> {
+    let conn = Connection::open_with_flags(path, OpenFlags::SQLITE_OPEN_READ_ONLY | OpenFlags::SQLITE_OPEN_NO_MUTEX)
+        .map_err(|e| format!("the snapshot {} did not open: {e}", path.display()))?;
+    conn.set_limit(Limit::SQLITE_LIMIT_ATTACHED, 0).map_err(|e| e.to_string())?;
+    Ok(conn)
+}
+
 /// Run one read-only statement on the snapshot and give its rows as objects.
 #[tauri::command]
 fn snapshot_query(state: State<AppState>, sql: String, params: Vec<Value>) -> Result<Vec<Map<String, Value>>, String> {
     let mut db = state.db.lock().unwrap();
     if db.is_none() {
         let path = state.snapshot_dir.join("wiki.sqlite");
-        let conn = Connection::open_with_flags(&path, OpenFlags::SQLITE_OPEN_READ_ONLY | OpenFlags::SQLITE_OPEN_NO_MUTEX)
-            .map_err(|e| format!("the snapshot {} did not open: {e}", path.display()))?;
-        *db = Some(conn);
+        *db = Some(open_snapshot(&path)?);
     }
     let conn = db.as_ref().unwrap();
 
@@ -170,8 +176,10 @@ fn serve_image(images: &Path, request: &http::Request<Vec<u8>>) -> http::Respons
     let raw = request.uri().path().trim_start_matches('/');
     let name = percent_encoding::percent_decode_str(raw).decode_utf8_lossy().into_owned();
     let missing = || http::Response::builder().status(404).body(Vec::new()).unwrap();
-    // Only a plain file name: no folder, no way out of the images folder.
-    if name.is_empty() || name.contains(['/', '\\']) || name.starts_with('.') {
+    // Only a plain file name: no folder, no drive (`C:x` on Windows), no way out of the images folder.
+    let mut parts = Path::new(&name).components();
+    let plain = matches!((parts.next(), parts.next()), (Some(Component::Normal(_)), None));
+    if !plain || name.contains(['/', '\\', ':']) || name.starts_with('.') {
         return missing();
     }
     match fs::read(images.join(&name)) {
@@ -222,11 +230,28 @@ mod tests {
     }
 
     #[test]
+    fn the_snapshot_refuses_to_attach_another_database() {
+        let dir = std::env::temp_dir().join(format!("ac-wiki-attach-{}", std::process::id()));
+        fs::create_dir_all(&dir).unwrap();
+        let path = dir.join("wiki.sqlite");
+        Connection::open(&path).unwrap().execute_batch("create table pages (title text);").unwrap();
+        let other = dir.join("other.sqlite");
+        Connection::open(&other).unwrap().execute_batch("create table secret (x text);").unwrap();
+
+        let conn = open_snapshot(&path).unwrap();
+        let attach = conn.execute("attach database ?1 as other", [other.to_string_lossy()]);
+        assert!(attach.is_err(), "attach should fail");
+        fs::remove_dir_all(&dir).unwrap();
+    }
+
+    #[test]
     fn serve_image_gives_only_files_of_the_images_folder() {
         let dir = std::env::temp_dir().join(format!("ac-wiki-images-{}", std::process::id()));
         fs::create_dir_all(dir.join("images")).unwrap();
         fs::write(dir.join("images").join("A b.png"), b"png").unwrap();
         fs::write(dir.join("secret.txt"), b"no").unwrap();
+        // On Windows `images.join("C:secret.txt")` leaves the images folder; on Linux it is a file name, so make it.
+        fs::write(dir.join("images").join("C:secret.txt"), b"no").unwrap();
         let get = |path: &str| {
             let request = http::Request::builder().uri(format!("snap://localhost/{path}")).body(Vec::new()).unwrap();
             serve_image(&dir.join("images"), &request)
@@ -234,7 +259,7 @@ mod tests {
         let ok = get("A%20b.png");
         assert_eq!(ok.status(), 200);
         assert_eq!(ok.headers()["Content-Type"], "image/png");
-        for bad in ["..%2Fsecret.txt", "%2E%2E%5Csecret.txt", ".hidden", "", "missing.png"] {
+        for bad in ["..%2Fsecret.txt", "%2E%2E%5Csecret.txt", "C%3Asecret.txt", ".hidden", "", "missing.png"] {
             assert_eq!(get(bad).status(), 404, "{bad}");
         }
         fs::remove_dir_all(&dir).unwrap();
