@@ -2,10 +2,9 @@
 
 import { unpackBundle } from '../lib/bundle.js';
 import { CreatureModels } from '../lib/creature-model.js';
-import type { BestiaryData, Creature, Variant } from '../lib/types.js';
+import type { BestiaryData, Creature } from '../lib/types.js';
 import { defaultVariant, readFilters, renderGrid, visibleCreatures } from './grid.js';
-import { renderPanel } from './panel.js';
-import { ModelViewer } from './viewer.js';
+import { OpenView } from './open-view.js';
 
 function need<T extends Element>(selector: string): T {
   const node = document.querySelector<T>(selector);
@@ -21,70 +20,32 @@ async function main(): Promise<void> {
   const form = need<HTMLFormElement>('#filters');
   const count = need<HTMLElement>('#count');
   const detail = need<HTMLElement>('#detail');
-  const panel = need<HTMLElement>('#panel');
-  const canvas = need<HTMLCanvasElement>('#model-canvas');
   const close = need<HTMLButtonElement>('#close');
 
-  const viewer = new ModelViewer(canvas);
-
   // The model bundle holds the client files of every creature model.
-  let models: CreatureModels | null = null;
   const modelsPromise = fetch('models.bin')
     .then((res) => res.arrayBuffer())
     .then((buffer) => new CreatureModels(unpackBundle(buffer)));
 
-  function showVariant(creature: Creature, variant: Variant): void {
-    renderPanel(panel, creature, variant, (next) => showVariant(creature, next));
-
-    // A new panel starts at the top of the box.
-    const box = need<HTMLElement>('.detail-inner');
-    box.scrollTop = 0;
-
-    modelsPromise
-      .then((loaded) => {
-        models = loaded;
-        viewer.resize();
-        viewer.setCreature(loaded, {
-          setupId: variant.setup,
-          clothingTableId: variant.clothing || undefined,
-          paletteId: variant.palette || undefined,
-          paletteTemplate: variant.paletteTemplate,
-          shade: variant.shade,
-          motionTableId: variant.motionTable || undefined,
-        });
-        renderMotions();
-        viewer.start();
-      })
-      .catch((error) => {
-        need<HTMLElement>('#viewer-hint').textContent = `The model did not load: ${error}`;
-      });
-  }
-
-  function renderMotions(): void {
-    const box = need<HTMLElement>('#motions');
-    box.textContent = '';
-
-    for (const motion of viewer.motionButtonList) {
-      const button = document.createElement('button');
-      button.type = 'button';
-      button.textContent = motion.label;
-      button.setAttribute('aria-pressed', String(motion.name === viewer.currentMotion));
-      button.addEventListener('click', () => {
-        viewer.playMotion(motion.name);
-        renderMotions();
-      });
-      box.append(button);
-    }
-  }
+  const view = new OpenView(
+    {
+      canvas: need<HTMLCanvasElement>('#model-canvas'),
+      motions: need<HTMLElement>('#motions'),
+      hint: need<HTMLElement>('#viewer-hint'),
+      panel: need<HTMLElement>('#panel'),
+      scrollBox: need<HTMLElement>('.detail-inner'),
+    },
+    () => modelsPromise,
+  );
 
   function open(creature: Creature): void {
     detail.hidden = false;
-    showVariant(creature, defaultVariant(creature));
+    view.show(creature, defaultVariant(creature));
   }
 
   function closeDetail(): void {
     detail.hidden = true;
-    viewer.stop();
+    view.stop();
   }
 
   function applyFilters(): void {

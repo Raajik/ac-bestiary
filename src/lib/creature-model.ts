@@ -42,13 +42,17 @@ export class CreatureModels {
   private readonly models: ModelRenderer;
   private readonly setups: SetupModelRenderer;
 
-  constructor(files: Map<number, Uint8Array>) {
-    const buffers = new Map<number, ArrayBuffer>();
-    for (const [id, data] of files) {
-      buffers.set(id, data.buffer.slice(data.byteOffset, data.byteOffset + data.byteLength) as ArrayBuffer);
+  /** The files of a bundle, or a subset the caller keeps filling (the app adds each model's files before it builds). */
+  constructor(files: Map<number, Uint8Array> | DatFileSubset) {
+    if (files instanceof DatFileSubset) {
+      this.files = files;
+    } else {
+      const buffers = new Map<number, ArrayBuffer>();
+      for (const [id, data] of files) {
+        buffers.set(id, data.buffer.slice(data.byteOffset, data.byteOffset + data.byteLength) as ArrayBuffer);
+      }
+      this.files = new DatFileSubset(buffers);
     }
-
-    this.files = new DatFileSubset(buffers);
 
     // The model classes only read the file data, so the bundle stands in for
     // the client data.

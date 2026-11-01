@@ -82,6 +82,10 @@ export function renderGrid(
   grid: HTMLElement,
   creatures: Creature[],
   onOpen: (creature: Creature) => void,
+  /** Sets a tile's still; the wiki app renders its stills at run time. */
+  still: (variant: Variant, image: HTMLImageElement) => void = (variant, image) => {
+    image.src = `stills/${variant.classId}.png`;
+  },
 ): void {
   grid.textContent = '';
 
@@ -93,9 +97,9 @@ export function renderGrid(
     tile.className = 'tile';
 
     const image = document.createElement('img');
-    image.src = `stills/${variant.classId}.png`;
     image.alt = creature.name;
     image.loading = 'lazy';
+    still(variant, image);
     tile.append(image);
 
     const name = document.createElement('div');
