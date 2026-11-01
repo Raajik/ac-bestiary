@@ -58,15 +58,32 @@ e6cfed8 that wrote it into `ac-bestiary.md`.
   - Risk: on Linux the webview is WebKitGTK, whose WebGL is weaker than Chromium's. **The first step is a spike:** the
     bestiary's open view (one Tusker, turning and animating) in a bare Tauri window on zahir. If it fails or runs
     badly, stop and report to Wren before building more. On Windows the webview is WebView2 (Chromium).
-- **First run:** asks for the AC install folder, checks `client_portal.dat` is there, and remembers it.
+    Result: the user ran the spike on zahir on 2026-10-31, and it works (the model animates, turns and plays its
+    motions).
+  - The Rust side gives the pages four things: one read-only SQL statement on the snapshot at a time, a byte range
+    of `client_portal.dat` (the vendored `RangedDat` reads the files a model needs through it), the install folder
+    setting, and the snapshot's images by file name. The page logic (search, page kinds, sanitizer) stays in
+    TypeScript, so the tests run it.
+  - The snapshot ships inside the app as a resource; `AC_SNAPSHOT_DIR` points a run at another copy.
+- **Game records in the snapshot:** a build step on zahir (`tools/build-app-data.ts`; it needs the ACE world SQL and
+  the DAT, like the bestiary build) writes the records the pages need into the snapshot's SQLite file:
+  - for each item page, the weenies of the same name (not creatures) as variants, lowest class id first and default:
+    model ids, icon id and the values the appraisal panel compares;
+  - for each creature page, the bestiary's creature record (the same build code). First slice: the Tusker family
+    only, so other creature pages show their text only.
+- **First run:** asks for the AC install folder (a text box for the path), checks `client_portal.dat` is there, and
+  remembers it in the app's config folder.
 - **Search:** one box, titles first, then full text, from the snapshot.
 - **A page:** the wiki's text in the app's own AC style (the bestiary's dark panels and retail fonts), with, beside it:
   - **an item page** (a page with a weapon, armor or item template): its 3D model you can turn, its icon, and its
     stats as the in-game appraisal panel, from the template's values. Where the weenie gives a value too, the panel
     shows the weenie's and marks a difference;
   - **a creature page:** the bestiary's open view (model with its motions, the appraisal panel, the hit-chance numbers);
-  - **a set or list page** (such as Quiddity Weapons): its tables, with each linked item drawn as its icon, and a grid
-    of the items' models like the bestiary's grid;
+  - **a set or list page** (such as Quiddity Weapons, or Tusker for a creature family): a page with no item or
+    creature template that links to at least 3 pages with game records. Its tables show as the wiki draws them (the
+    wiki's own icon images), and below them a grid of the linked items' or creatures' models like the bestiary's
+    grid. The app renders each tile's still at run time with one WebGL renderer. Opening a creature tile shows the
+    bestiary's open view; an item tile opens the item's page;
   - any other page: the text only.
 - Credits: the ACCPP Wiki, ACPedia and Fandom contributors, and the ACE World project. The app does not ship the
   game's files; it reads the user's install.
