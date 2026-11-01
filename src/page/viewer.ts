@@ -95,6 +95,28 @@ export class ModelViewer {
     this.frameModel();
   }
 
+  /**
+   * Stand a flat item up (the wiki app's item pages). A weapon's rest pose lies flat, so the examine camera sees it
+   * edge-on: turn the model about its longest axis until its thinnest side is the depth, then frame it again.
+   */
+  standUpFlat(): void {
+    if (!this.model) return;
+    const yaw = this.model.rotation.y;
+    this.model.rotation.set(0, 0, 0);
+    this.model.updateMatrixWorld(true);
+    const size = new THREE.Box3().setFromObject(this.model).getSize(new THREE.Vector3());
+    // Three.js has Y up. Lying flat means the height is the thinnest side.
+    if (size.y < size.x && size.y < size.z) {
+      // Yaw last, so a drag still turns the model about the up axis.
+      this.model.rotation.order = 'YXZ';
+      if (size.x >= size.z) this.model.rotation.x = Math.PI / 2;
+      else this.model.rotation.z = Math.PI / 2;
+    }
+    this.model.rotation.y = yaw;
+    this.model.updateMatrixWorld(true);
+    this.frameModel();
+  }
+
   /** The buttons the motion table of the creature gives. */
   get motionButtonList(): MotionButton[] {
     return this.buttons;

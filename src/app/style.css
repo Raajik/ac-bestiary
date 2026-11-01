@@ -1,0 +1,241 @@
+/* The wiki app: the bestiary's theme and panels, plus the wiki text and the page layout. */
+
+@import '../page/style.css';
+
+.app-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: var(--gap);
+  padding: 10px var(--gap);
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+
+.brand {
+  font-family: var(--font-display);
+  font-size: 22px;
+  color: var(--accent);
+}
+
+#search-form {
+  flex: 1 1 auto;
+  max-width: 520px;
+}
+
+#search,
+.setup input {
+  width: 100%;
+  padding: 7px 10px;
+  background: var(--bg);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  font: inherit;
+}
+
+#search:focus,
+.setup input:focus {
+  border-color: var(--accent);
+  outline: none;
+}
+
+#view {
+  padding: var(--gap);
+}
+
+.home,
+.setup,
+.search-results,
+.missing {
+  max-width: 760px;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-display);
+  font-weight: 400;
+  color: var(--accent);
+}
+
+.setup form {
+  display: flex;
+  gap: 10px;
+}
+
+.setup button {
+  padding: 7px 14px;
+  background: var(--surface-raised);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  font: inherit;
+  cursor: pointer;
+}
+
+.setup button:hover {
+  border-color: var(--accent);
+}
+
+.setup-note {
+  color: var(--health);
+}
+
+.text-hits li,
+.title-hits li {
+  margin-bottom: 8px;
+}
+
+.snippet {
+  margin: 2px 0 0;
+  color: var(--text-dim);
+  font-size: 13px;
+}
+
+mark {
+  background: none;
+  color: var(--accent);
+}
+
+/* A page: the wiki text, with the item or creature side beside it. */
+
+.page-layout {
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
+}
+
+.wiki-text {
+  flex: 1 1 auto;
+  min-width: 0;
+  max-width: 900px;
+}
+
+.side {
+  position: sticky;
+  top: 70px;
+  flex: 0 0 420px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  max-height: calc(100vh - 90px);
+  overflow: auto;
+  padding: 14px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+}
+
+.side .viewer {
+  flex: none;
+}
+
+@media (max-width: 1000px) {
+  .page-layout {
+    flex-direction: column-reverse;
+  }
+  .side {
+    position: static;
+    width: 100%;
+    max-height: none;
+  }
+}
+
+/* The wiki's own tables, in the app's dark panels. */
+
+.wiki-text table {
+  border-collapse: collapse;
+  margin: 8px 0;
+  background: var(--surface);
+  color: var(--text);
+  max-width: 100%;
+}
+
+.wiki-text td,
+.wiki-text th {
+  padding: 4px 8px;
+  border: 1px solid var(--border-soft);
+  vertical-align: top;
+}
+
+.wiki-text th {
+  background: var(--surface-raised);
+  color: var(--accent);
+  font-weight: 400;
+}
+
+.wiki-text img {
+  max-width: 100%;
+  height: auto;
+  vertical-align: middle;
+}
+
+.wiki-text figure {
+  margin: 8px 0;
+}
+
+.wiki-text figcaption {
+  font-size: 13px;
+  color: var(--text-dim);
+}
+
+/* The item panel */
+
+.item-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.item-icon {
+  width: 32px;
+  height: 32px;
+  image-rendering: pixelated;
+}
+
+.item-description {
+  color: var(--text-dim);
+  font-style: italic;
+}
+
+.appraisal-rows dd .game {
+  margin-left: 6px;
+  font-size: 12px;
+  color: var(--text-dim);
+}
+
+.appraisal-rows dd .game.differs {
+  color: var(--health);
+  font-weight: 700;
+}
+
+.source {
+  font-size: 12px;
+  color: var(--wiki);
+}
+
+/* The list page's grid */
+
+.list-grid .grid {
+  padding: var(--gap) 0;
+}
+
+a.tile {
+  text-decoration: none;
+}
+
+.app-credit {
+  padding: var(--gap);
+}
+
+/* The hidden canvas the grid stills are drawn on. */
+.still-canvas {
+  position: fixed;
+  left: -10000px;
+  top: 0;
+  width: 280px;
+  height: 280px;
+}

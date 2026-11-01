@@ -2,3 +2,5 @@ node_modules/
 dist/
 .builder/
 data/snapshot/
+dist-app/
+.agent-log/app-check/

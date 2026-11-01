@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>AC Wiki</title>
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <header class="app-header">
+      <a class="brand" href="#/">AC Wiki</a>
+      <form id="search-form" role="search">
+        <input type="search" id="search" placeholder="Search the wiki" autocomplete="off" aria-label="Search the wiki" />
+      </form>
+    </header>
+
+    <main id="view"></main>
+
+    <div class="detail" id="detail" hidden>
+      <div class="detail-inner">
+        <button class="close" id="close" type="button" aria-label="Close">×</button>
+        <div class="viewer">
+          <canvas id="model-canvas"></canvas>
+          <div class="motions" id="motions"></div>
+          <p class="hint" id="viewer-hint">Drag to turn the model.</p>
+        </div>
+        <div class="panel" id="panel"></div>
+      </div>
+    </div>
+
+    <footer class="credit app-credit">
+      Text from the ACCPP Wiki, with ACPedia and Fandom contributors. Stats from the AC Emulator world database. Models
+      and icons from your own Asheron's Call install; the app does not ship the game's files.
+    </footer>
+
+    <script type="module" src="./main.ts"></script>
+  </body>
+</html>

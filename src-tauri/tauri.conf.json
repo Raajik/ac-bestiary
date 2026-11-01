@@ -4,7 +4,10 @@
   "version": "0.1.0",
   "identifier": "io.github.raajik.acwiki",
   "build": {
-    "frontendDist": "../dist"
+    "frontendDist": "../dist-app",
+    "devUrl": "http://localhost:5174",
+    "beforeDevCommand": "npm run dev:app",
+    "beforeBuildCommand": "npm run build:app"
   },
   "app": {
     "windows": [
@@ -32,6 +35,9 @@
     ],
     "android": {
       "debugApplicationIdSuffix": ".debug"
+    },
+    "resources": {
+      "../data/snapshot/": "snapshot/"
     }
   }
 }
