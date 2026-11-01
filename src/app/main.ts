@@ -132,8 +132,9 @@ function showHome(): void {
   view.append(box);
 }
 
-async function showSearch(words: string): Promise<void> {
+async function showSearch(words: string, current: () => boolean): Promise<void> {
   const hits = await search(query, words);
+  if (!current()) return;
   view.textContent = '';
   const box = element('section', 'search-results');
   box.append(element('h1', undefined, `Search: ${words}`));
@@ -213,8 +214,9 @@ function renderCreatureSide(side: HTMLElement, creature: Creature): () => void {
   return () => view.stop();
 }
 
-async function showPage(title: string): Promise<void> {
+async function showPage(title: string, current: () => boolean): Promise<void> {
   const page = await loadPage(query, title);
+  if (!current()) return;
   view.textContent = '';
   if (!page) {
     view.append(element('section', 'missing', `The snapshot has no page "${title}".`));
@@ -241,7 +243,12 @@ async function showPage(title: string): Promise<void> {
   document.title = `${page.title} – AC Wiki`;
 }
 
+/** Counts the routes, so a page that loads after a newer route does not replace it. */
+let routed = 0;
+
 async function route(): Promise<void> {
+  const id = ++routed;
+  const current = () => id === routed;
   leaveView();
   leaveView = () => {};
   closeOverlay();
@@ -251,11 +258,11 @@ async function route(): Promise<void> {
   const arg = decodeURIComponent(rest.join('/'));
   try {
     if (kind === 'setup') showSetup();
-    else if (kind === 'page' && arg) await showPage(arg);
-    else if (kind === 'search' && arg) await showSearch(arg);
+    else if (kind === 'page' && arg) await showPage(arg, current);
+    else if (kind === 'search' && arg) await showSearch(arg, current);
     else showHome();
   } catch (error) {
-    view.textContent = `This page did not load: ${error}`;
+    if (current()) view.textContent = `This page did not load: ${error}`;
   }
 }
 
