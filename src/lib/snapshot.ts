@@ -169,6 +169,7 @@ export async function runSnapshot(
   const putSearch = db.prepare('insert into search (title, body) values (?, ?)');
   const dropPage = db.prepare('delete from pages where title = ?');
   const dropRedirect = db.prepare('delete from redirects where source = ?');
+  const dropRedirectsTo = db.prepare('delete from redirects where target = ?');
 
   const seen = new Set<string>();
   const usedImages = new Set<string>();
@@ -225,6 +226,7 @@ export async function runSnapshot(
             dropPage.run(page.title);
             dropSearch.run(page.title);
             dropRedirect.run(page.title);
+            dropRedirectsTo.run(page.title);
           });
           continue;
         }
@@ -271,7 +273,8 @@ export async function runSnapshot(
             return;
           }
           const parse = reply.parse;
-          links = parse.links.filter((link) => link.ns === 0 && link.exists).map((link) => link.title);
+          // Red links too: a page deleted since the last run is then asked for, found missing, and dropped.
+          links = parse.links.filter((link) => link.ns === 0).map((link) => link.title);
           infoboxes = readInfoboxes(parse.wikitext);
           images = parse.images;
 

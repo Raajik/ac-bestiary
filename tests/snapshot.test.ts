@@ -133,6 +133,31 @@ describe('runSnapshot, against changes on the wiki', () => {
     expect(db.prepare("select title from search where title = 'Crafter of Bows'").all()).toEqual([]);
   });
 
+  it('drops a page whose link turned red, and the redirects to it', async () => {
+    const { db, options } = setup();
+    await runSnapshot(new FakeWikiApi(), db, SEED, options);
+    db.prepare("insert into redirects (source, target) values ('Old Crafter', 'Crafter of Bows')").run();
+
+    const api = new FakeWikiApi();
+    // The Bow has a new revision whose parse marks Crafter of Bows as a red link, and the wiki reports it missing.
+    const bowInfo = { action: 'query', prop: 'info', redirects: '1', titles: 'Bow of the Quiddity' };
+    const info = api.reply(bowInfo) as { query: { pages: { lastrevid: number }[] } };
+    info.query.pages[0].lastrevid += 1;
+    api.override(bowInfo, info);
+    const bowParse = { ...CRAFTER_PARSE, page: 'Bow of the Quiddity' };
+    const parse = api.reply(bowParse) as { parse: { links: { title: string; exists: boolean }[] } };
+    parse.parse.links = parse.parse.links.map((l) => (l.title === 'Crafter of Bows' ? { ...l, exists: false } : l));
+    api.override(bowParse, parse);
+    const query = { action: 'query', prop: 'info', redirects: '1', titles: 'Aura of Defender IV|Crafter of Bows|Enhanced Bow of the Quiddity' };
+    const reply = api.reply(query) as { query: { pages: { title: string; ns: number; missing?: boolean }[] } };
+    reply.query.pages = reply.query.pages.map((p) => (p.title === 'Crafter of Bows' ? { title: p.title, ns: 0, missing: true } : p));
+    api.override(query, reply);
+    await runSnapshot(api, db, SEED, options);
+
+    expect(db.prepare("select title from pages where title = 'Crafter of Bows'").all()).toEqual([]);
+    expect(db.prepare("select source from redirects where target = 'Crafter of Bows'").all()).toEqual([]);
+  });
+
   it('stores a page and its search row together, so a failed write is fetched again on the next run', async () => {
     const { db, options } = setup();
     const broken = new FakeWikiApi();
