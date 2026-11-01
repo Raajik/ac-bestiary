@@ -7,7 +7,8 @@ spec, `specs/wiki-app.md`. Implement to them. If a spec is wrong, change the spe
   docs, comments and commit messages.
 - Facts go in `docs/` (see `docs/README.md`), tagged Verified, Observed or Unknown, in the same commit as the
   code that uses them. Commit subject: `Area: one fact as a sentence`. Keep commits small.
-- Do not fetch acpedia.org. The public page uses `~/wiki/raw/acpedia/Tusker.md`.
+- Do not fetch acpedia.org. The public page uses `~/wiki/raw/ingested/acpedia/Tusker.md` (the wiki's
+  daily ingest moved it there from `~/wiki/raw/acpedia/`). Do not copy it into this public repo.
 - Only `tools/wiki-snapshot` reads the ACCPP Wiki on lohk (`10.0.0.10`), gently: build time only, at most 2 requests
   at a time. Tests use fixtures, never the LAN. Never put a `10.0.0.10` link in the public build.
 - Do not edit `~/Projects/asheron-web`. Import from it.

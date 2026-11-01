@@ -3,6 +3,7 @@
 // Every path can be set with an environment variable, so the build also runs
 // on another machine.
 
+import { existsSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { join } from 'node:path';
 
@@ -25,8 +26,15 @@ export const BASE_ROOT = fromEnv(
   join(home, 'Projects/asherons-call/_refs/ACE-World-16PY/Database/3-Core/9 WeenieDefaults/SQL'),
 );
 
-/** The saved ACPedia page. The build never fetches acpedia.org. */
-export const ACPEDIA_PAGE = fromEnv('AC_ACPEDIA_PAGE', join(home, 'wiki/raw/acpedia/Tusker.md'));
+/**
+ * The saved ACPedia page. The build never fetches acpedia.org. The wiki's daily ingest moves raw files into
+ * raw/ingested, so that path comes first and the old one is the fallback.
+ */
+const INGESTED_ACPEDIA = join(home, 'wiki/raw/ingested/acpedia/Tusker.md');
+export const ACPEDIA_PAGE = fromEnv(
+  'AC_ACPEDIA_PAGE',
+  existsSync(INGESTED_ACPEDIA) ? INGESTED_ACPEDIA : join(home, 'wiki/raw/acpedia/Tusker.md'),
+);
 
 /** The retail client data. Holds the models, the icons and the game tables. */
 export const PORTAL_DAT = fromEnv(

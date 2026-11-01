@@ -10,7 +10,7 @@ The build needs the sources below. They are on this box already.
 | Source | Where |
 | --- | --- |
 | The retail weenie SQL | `~/Projects/asherons-call/_refs/ACE-World-16PY-Patches` and `~/Projects/asherons-call/_refs/ACE-World-16PY` |
-| The saved ACPedia page | `~/wiki/raw/acpedia/Tusker.md` |
+| The saved ACPedia page | `~/wiki/raw/ingested/acpedia/Tusker.md` (moved there by the wiki's ingest) |
 | The retail client data | `~/Games/AsheronsCall/Client/client_portal.dat` |
 | The model code | `vendor/asheron-web/`, copied from `~/Projects/asheron-web` (read only) |
 

@@ -25,7 +25,8 @@ a fight.
 
 ## The comparison with ACPedia
 
-The ACPedia page is a second source, saved once at `~/wiki/raw/acpedia/Tusker.md`.
+The ACPedia page is a second source, saved once at `~/wiki/raw/acpedia/Tusker.md`; the wiki's daily ingest moved it to
+`~/wiki/raw/ingested/acpedia/Tusker.md` (**Observed**, 2026-10-31).
 It lists a Melee, Missile and Magic Defense for some creatures.
 
 **Observed** (the saved ACPedia page, 2026-10-20):

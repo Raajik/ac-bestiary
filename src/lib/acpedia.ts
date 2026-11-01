@@ -1,6 +1,7 @@
 // Read the saved ACPedia creature page.
 //
-// The page is a MediaWiki dump, saved once at ~/wiki/raw/acpedia/Tusker.md.
+// The page is a MediaWiki dump, saved once at ~/wiki/raw/acpedia/Tusker.md; the wiki's ingest
+// moved it to ~/wiki/raw/ingested/acpedia/Tusker.md (src/lib/paths.ts reads either).
 // The build must not fetch acpedia.org again. The "Stats" and "Subclassed"
 // tables give the creature list, the level, the XP award, the health, the
 // defense values ACPedia lists and the trophies.

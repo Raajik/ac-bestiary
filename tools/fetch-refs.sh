@@ -7,7 +7,10 @@ set -euo pipefail
 home="${HOME:?}"
 patch_root="${AC_PATCH_ROOT:-$home/Projects/asherons-call/_refs/ACE-World-16PY-Patches/Database/Patches/9 WeenieDefaults}"
 base_root="${AC_BASE_ROOT:-$home/Projects/asherons-call/_refs/ACE-World-16PY/Database/3-Core/9 WeenieDefaults/SQL}"
-acpedia="${AC_ACPEDIA_PAGE:-$home/wiki/raw/acpedia/Tusker.md}"
+# The wiki's daily ingest moves raw files into raw/ingested; the old path is the fallback.
+acpedia_default="$home/wiki/raw/ingested/acpedia/Tusker.md"
+[ -e "$acpedia_default" ] || acpedia_default="$home/wiki/raw/acpedia/Tusker.md"
+acpedia="${AC_ACPEDIA_PAGE:-$acpedia_default}"
 dat="${AC_PORTAL_DAT:-$home/Games/AsheronsCall/Client/client_portal.dat}"
 missing=0
 

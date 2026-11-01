@@ -17,7 +17,9 @@ the attack they need to hit it, and what it drops.
   `~/Projects/asherons-call/_refs/ACE-World-16PY-Patches`. Tusker weenies are in
   `Database/Patches/9 WeenieDefaults/Creature/Tusker/`. Some names on the list are in other `Creature/` folders.
   Use `git sparse-checkout add` to get them.
-- **Type list, descriptions, links**: the ACPedia Tusker page, saved one time at `~/wiki/raw/acpedia/Tusker.md`.
+- **Type list, descriptions, links**: the ACPedia Tusker page, saved one time at `~/wiki/raw/ingested/acpedia/Tusker.md`
+  (the wiki's daily ingest moves raw files into `raw/ingested`; the build falls back to the old
+  `~/wiki/raw/acpedia/Tusker.md`).
   Use the "Stats" table only. Do not fetch acpedia.org again. A community friend pays to host it.
 - **Models and icons**: `~/Games/AsheronsCall/Client/client_portal.dat` (and `client_cell_1.dat` if needed).
 - **Renderer and DAT reader**: the files of `~/Projects/asheron-web` (`packages/dat-parser`, `packages/renderer`,

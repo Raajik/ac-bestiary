@@ -20,7 +20,7 @@ Where the creature data comes from and how the build reads it.
   `Creature/Simulacrum/35940 Mudmouth.sql` of the patch database. **Observed**
   (2026-10-20).
 - The ACPedia Tusker page "Stats" table lists 38 entries, and the "Subclassed"
-  table lists 2 more, so 40 in total. **Observed** (`~/wiki/raw/acpedia/Tusker.md`, fetched
+  table lists 2 more, so 40 in total. **Observed** (`~/wiki/raw/ingested/acpedia/Tusker.md`, saved first under `raw/acpedia/`, fetched
   2026-10-20).
 - The retail client data `client_portal.dat` holds the models, the icons and the
   game tables. The build reads two tables from it. The SkillTable gives the
