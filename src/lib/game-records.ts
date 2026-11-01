@@ -173,9 +173,12 @@ function gameValue(label: string, wiki: string, v: GameValues): { nums: number[]
   }
 }
 
-/** A spell name as the comparison sees it: the game says "Aura of Defender Self IV" where the wiki says "Aura of Defender IV". */
+/**
+ * A spell name as the comparison sees it. The game says "Aura of Defender Self IV" where the wiki says "Aura of
+ * Defender IV", or the older item spell name "Defender IV".
+ */
 function spellKey(name: string): string {
-  return name.replace(/\bSelf\b/gi, '').replace(/\s+/g, ' ').trim().toLowerCase();
+  return name.replace(/\bSelf\b/gi, '').replace(/^\s*Aura of\b/i, '').replace(/\s+/g, ' ').trim().toLowerCase();
 }
 
 /** Whether the wiki and the game list the same spells, in any order. */

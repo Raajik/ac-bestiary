@@ -29,6 +29,7 @@ for (const path of paths.values()) {
   const key = matchKey(weenie.name);
   byName.set(key, [...(byName.get(key) ?? []), weenie]);
 }
+if (paths.size === 0) throw new Error('no retail weenie SQL found: run tools/fetch-refs.sh (the snapshot keeps its old records)');
 console.log(`weenies: ${paths.size}`);
 
 const facts = readDatFacts(openPortalDat(sources.portalDat));

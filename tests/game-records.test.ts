@@ -102,6 +102,9 @@ describe('appraisalRows', () => {
     expect(rows[0].differs).toBe(true);
     const same = appraisalRows({ Spells: '[[Aura of Swift Killer IV]], [[Aura of Defender IV]], [[Aura of Blood Drinker V]]' }, bow);
     expect(same[0].differs).toBe(false);
+    // The older item spell names, as on Blade of the Quiddity's page.
+    const old = appraisalRows({ Spells: '[[Defender IV]], [[Blood Drinker V]], [[Swift Killer IV]]' }, bow);
+    expect(old[0].differs).toBe(false);
   });
 
   it('keeps the fraction of a damage minimum, as the wiki writes it', () => {
