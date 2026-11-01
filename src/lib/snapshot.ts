@@ -41,6 +41,16 @@ export function openSnapshot(path: string): DatabaseSync {
   return db;
 }
 
+/** Empty the game record tables that tools/build-app-data.ts fills (spec wiki-app.md, "Game records in the snapshot"). */
+export function resetGameRecords(db: DatabaseSync): void {
+  db.exec(`
+    drop table if exists items;
+    drop table if exists creatures;
+    create table items (title text primary key, data text not null);       -- JSON: ItemRecord
+    create table creatures (title text primary key, data text not null);   -- JSON: the bestiary's Creature
+  `);
+}
+
 export interface SnapshotOptions {
   /** The images folder. */
   imagesDir: string;

@@ -10,7 +10,7 @@ import { defaultSources } from '../src/lib/bestiary.js';
 import { openPortalDat, readDatFacts } from '../src/lib/dat-facts.js';
 import { itemVariant, matchKey, matchWeenies, type ItemRecord } from '../src/lib/game-records.js';
 import { DIST_DIR, SNAPSHOT_DIR } from '../src/lib/paths.js';
-import { openSnapshot } from '../src/lib/snapshot.js';
+import { openSnapshot, resetGameRecords } from '../src/lib/snapshot.js';
 import type { BestiaryData } from '../src/lib/types.js';
 import { readWeenie, type WeenieData } from '../src/lib/weenie.js';
 import { indexWeenies } from '../src/lib/weenie-index.js';
@@ -18,12 +18,7 @@ import { INFOBOX_KINDS, type Infobox } from '../src/lib/wikitext.js';
 
 const sources = defaultSources();
 const db = openSnapshot(join(SNAPSHOT_DIR, 'wiki.sqlite'));
-db.exec(`
-  drop table if exists items;
-  drop table if exists creatures;
-  create table items (title text primary key, data text not null);       -- JSON: ItemRecord
-  create table creatures (title text primary key, data text not null);   -- JSON: the bestiary's Creature
-`);
+resetGameRecords(db);
 
 // Every retail weenie by name. A patch file wins over the base file of the same class.
 const paths = indexWeenies(sources.baseRoots);
