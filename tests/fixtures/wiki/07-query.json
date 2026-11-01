@@ -1,0 +1,31 @@
+{
+ "batchcomplete": true,
+ "query": {
+  "pages": [
+   {
+    "pageid": 25558,
+    "ns": 0,
+    "title": "Quiddity Weapons",
+    "contentmodel": "wikitext",
+    "pagelanguage": "en",
+    "pagelanguagehtmlcode": "en",
+    "pagelanguagedir": "ltr",
+    "touched": "2012-03-02T22:29:24Z",
+    "lastrevid": 165858,
+    "length": 1604
+   },
+   {
+    "pageid": 36096,
+    "ns": 0,
+    "title": "Weapon Upgrade Kit",
+    "contentmodel": "wikitext",
+    "pagelanguage": "en",
+    "pagelanguagehtmlcode": "en",
+    "pagelanguagedir": "ltr",
+    "touched": "2015-04-18T20:26:38Z",
+    "lastrevid": 232830,
+    "length": 1033
+   }
+  ]
+ }
+}

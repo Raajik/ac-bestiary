@@ -1,0 +1,45 @@
+{
+ "batchcomplete": true,
+ "query": {
+  "normalized": [
+   {
+    "fromencoded": false,
+    "from": "File:Bow_of_the_Quiddity_Icon.png",
+    "to": "File:Bow of the Quiddity Icon.png"
+   },
+   {
+    "fromencoded": false,
+    "from": "File:Enhanced_Bow_of_the_Quiddity_Icon.png",
+    "to": "File:Enhanced Bow of the Quiddity Icon.png"
+   }
+  ],
+  "pages": [
+   {
+    "pageid": 55099,
+    "ns": 6,
+    "title": "File:Enhanced Bow of the Quiddity Icon.png",
+    "imagerepository": "local",
+    "imageinfo": [
+     {
+      "url": "http://10.0.0.10:8095/wiki/images/d/d8/Enhanced_Bow_of_the_Quiddity_Icon.png",
+      "descriptionurl": "http://10.0.0.10:8095/wiki/File:Enhanced_Bow_of_the_Quiddity_Icon.png",
+      "descriptionshorturl": "http://10.0.0.10:8095/wiki/index.php?curid=55099"
+     }
+    ]
+   },
+   {
+    "pageid": 98047,
+    "ns": 6,
+    "title": "File:Bow of the Quiddity Icon.png",
+    "imagerepository": "local",
+    "imageinfo": [
+     {
+      "url": "http://10.0.0.10:8095/wiki/images/8/8f/Bow_of_the_Quiddity_Icon.png",
+      "descriptionurl": "http://10.0.0.10:8095/wiki/File:Bow_of_the_Quiddity_Icon.png",
+      "descriptionshorturl": "http://10.0.0.10:8095/wiki/index.php?curid=98047"
+     }
+    ]
+   }
+  ]
+ }
+}

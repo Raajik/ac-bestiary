@@ -1,0 +1,43 @@
+{
+ "parse": {
+  "title": "Bow of the Quiddity",
+  "pageid": 6534,
+  "revid": 36797,
+  "text": "<div class=\"mw-parser-output\"><table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" style=\"float:none; width:100%; padding: 0px 0px 5px 0px;\">\n<tbody><tr>\n<td align=\"left\">\n<table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" class=\"toccolours\" style=\"float:none; width:100%; padding: 6px 6px 6px 6px;\">\n<tbody><tr>\n<td>\n<table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" style=\"background-color:#F9F9F9\">\n\n<tbody><tr valign=\"top\">\n<td align=\"left\"><b><font color=\"#606060\">Introduced:&#160;</font></b>\n</td>\n<td align=\"left\"><a href=\"/wiki/Lost_in_the_New_Horizon\" title=\"Lost in the New Horizon\">Lost in the New Horizon</a>\n</td>\n<td width=\"8\">\n</td>\n<td align=\"left\"><b><font color=\"#606060\">Related&#160;Quests:&#160;</font></b>\n</td>\n<td align=\"left\"><a href=\"/wiki/Quiddity_Weapons_Quest\" title=\"Quiddity Weapons Quest\">Quiddity Weapons Quest</a>, <a href=\"/wiki/Weapon_Upgrade_Kit\" title=\"Weapon Upgrade Kit\">Weapon Upgrade Kit</a>\n</td>\n<td width=\"8\">\n</td>\n<td align=\"left\"><b><font color=\"#606060\">Updated:&#160;</font></b>\n</td>\n<td align=\"left\"><a href=\"/wiki/Master_of_Arms\" title=\"Master of Arms\">Master of Arms</a>\n</td></tr></tbody></table>\n</td>\n<td align=\"right\">\n</td>\n<td align=\"right\">\n</td>\n<td align=\"right\">\n</td></tr></tbody></table>\n</td></tr></tbody></table>\n<table border=\"0\" cellpadding=\"0\" cellspacing=\"3\" style=\"width:100%\">\n\n<tbody><tr valign=\"top\">\n<td>\n<table border=\"1\" cellspacing=\"0\" cellpadding=\"5\" width=\"300\" style=\"background:#F0F0F0\">\n<tbody><tr>\n<th colspan=\"2\">Bow of the Quiddity\n</th></tr>\n<tr>\n<td align=\"center\">Value: 2,000<br />550 Burden Units\n</td>\n<td width=\"40\" align=\"center\"><span class=\"mw-default-size\" typeof=\"mw:File\"><a href=\"/wiki/File:Bow_of_the_Quiddity_Icon.png\" class=\"mw-file-description\"><img src=\"/wiki/images/8/8f/Bow_of_the_Quiddity_Icon.png\" decoding=\"async\" width=\"32\" height=\"32\" class=\"mw-file-element\" /></a></span>\n</td></tr>\n<tr>\n<td colspan=\"2\">\n<p>A weapon made of a strange pulsating energy.<br /><br />Skill: Missile Weapons (Bow)<br />Damage Bonus: 0<b><font color=\"green\"> (16)</font></b><br />Damage Modifier: +113%<br />Speed: Slow (50)<b><font color=\"green\"> (10)</font></b><br />Range: 75 yds<br />Uses arrows as ammunition.<br />Bonus to Melee Defense: +0%<b><font color=\"green\"> (+10.0%)</font></b><br /><br />Casts the following spells: <a href=\"/wiki/Aura_of_Defender_IV\" class=\"mw-redirect\" title=\"Aura of Defender IV\">Aura of Defender IV</a>, <a href=\"/wiki/Aura_of_Blood_Drinker_V\" class=\"mw-redirect\" title=\"Aura of Blood Drinker V\">Aura of Blood Drinker V</a>, <a href=\"/wiki/Aura_of_Swift_Killer_IV\" class=\"mw-redirect\" title=\"Aura of Swift Killer IV\">Aura of Swift Killer IV</a><br /><br />Activation Requirements: Arcane Lore: 50<br /><br />Spellcraft: 400<br />Mana: 1000<br />Mana Cost: 1 point per 40 seconds.<br />\n</p>\n</td></tr>\n</tbody></table>\n</td>\n<td width=\"20\">\n</td>\n<td>\n<figure class=\"mw-halign-right\" typeof=\"mw:File/Frame\"><a href=\"/wiki/File:Bow_of_the_Quiddity_Live.jpg\" class=\"mw-file-description\"><img src=\"/wiki/images/7/72/Bow_of_the_Quiddity_Live.jpg\" decoding=\"async\" width=\"201\" height=\"534\" class=\"mw-file-element\" /></a><figcaption>Bow of the Quiddity</figcaption></figure>\n</td></tr></tbody></table>\n<h2><span class=\"mw-headline\" id=\"Notes\">Notes</span></h2>\n<ul><li>Obtained by handing a <a href=\"/wiki/Quiddity_Ingot\" title=\"Quiddity Ingot\">Quiddity Ingot</a> to the <a href=\"/wiki/Crafter_of_Bows\" title=\"Crafter of Bows\">Crafter of Bows</a>.</li>\n<li>Can be upgraded to an <a href=\"/wiki/Enhanced_Bow_of_the_Quiddity\" title=\"Enhanced Bow of the Quiddity\">Enhanced Bow of the Quiddity</a> by using a <a href=\"/wiki/Weapon_Upgrade_Kit\" title=\"Weapon Upgrade Kit\">Weapon Upgrade Kit</a> on it.</li>\n<li>During the <a href=\"/wiki/Master_of_Arms\" title=\"Master of Arms\">Master of Arms</a> event, the skill was changed from Bow to <a href=\"/wiki/Missile_Weapons\" title=\"Missile Weapons\">Missile Weapons</a>, the requirement of Arcane Lore:1 &amp; Bow:200 was changed to Arcane Lore:50</li></ul></div>",
+  "categories": [
+   {
+    "sortkey": "",
+    "category": "Weapon"
+   },
+   {
+    "sortkey": "",
+    "category": "Missile_Weapon"
+   },
+   {
+    "sortkey": "",
+    "category": "Bow"
+   }
+  ],
+  "links": [
+   {
+    "ns": 0,
+    "title": "Aura of Defender IV",
+    "exists": true
+   },
+   {
+    "ns": 0,
+    "title": "Crafter of Bows",
+    "exists": true
+   },
+   {
+    "ns": 0,
+    "title": "Enhanced Bow of the Quiddity",
+    "exists": true
+   }
+  ],
+  "images": [
+   "Bow_of_the_Quiddity_Icon.png"
+  ],
+  "wikitext": "{{Intro\n | Patch Introduced = [[Lost in the New Horizon]]\n |   Related Quests = [[Quiddity Weapons Quest]], [[Weapon Upgrade Kit]]\n |          Updated = [[Master of Arms]]\n}}\n{{Missile Weapon\n |            Weapon Type = Bow\n |           Weapon Skill = Missile Weapons\n |                   Name = Bow of the Quiddity\n |             Icon Image = Bow of the Quiddity Icon.png\n |             Live Image = Bow of the Quiddity Live.jpg\n |     Live Image Caption = Bow of the Quiddity\n | \n |                  Value = 2,000\n |                 Burden = 550\n |            Description = A weapon made of a strange pulsating energy.\n |     Special Properties = \n | \n |           Damage Bonus = 0\n |    Buffed Damage Bonus = 16\n | Elemental Damage Bonus = \n |                Element = \n |        Damage Modifier = 113\n | Buffed Damage Modifier = \n |                  Speed = Slow (50)\n |           Buffed Speed = 10\n |                  Range = 75\n |           Buffed Range = \n |             Ammunition = arrows\n |       Bonus to Defense = 0\n |         Buffed Defense = 10.0\n |       Bonus to Missile = \n |         Bonus to Magic = \n | \n |         Player Attuned = \n |              Level Req = \n |        Base Weapon Req = \n |      Buffed Weapon Req = \n |            Special Req = \n | \n |                 Spells = [[Aura of Defender IV]], [[Aura of Blood Drinker V]], [[Aura of Swift Killer IV]]\n |        Activation Reqs = Arcane Lore: 50\n |             Spellcraft = 400\n |                   Mana = 1000\n |              Mana Cost = 40\n |         Cannot Be Sold = False\n}}\n== Notes ==\n* Obtained by handing a [[Quiddity Ingot]] to the [[Crafter of Bows]].\n* Can be upgraded to an [[Enhanced Bow of the Quiddity]] by using a [[Weapon Upgrade Kit]] on it.\n* During the [[Master of Arms]] event, the skill was changed from Bow to [[Missile Weapons]], the requirement of Arcane Lore:1 & Bow:200 was changed to Arcane Lore:50"
+ }
+}

@@ -1,0 +1,53 @@
+{
+ "parse": {
+  "title": "Weapon Upgrade Kit",
+  "pageid": 36096,
+  "revid": 232830,
+  "text": "<div class=\"mw-parser-output\"><table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" style=\"float:none; width:100%; padding: 0px 0px 5px 0px;\">\n<tbody><tr>\n<td align=\"left\">\n<table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" class=\"toccolours\" style=\"float:none; width:100%; padding: 6px 6px 6px 6px;\">\n<tbody><tr>\n<td>\n<table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" style=\"background-color:#F9F9F9\">\n\n<tbody><tr valign=\"top\">\n<td align=\"left\"><b><font color=\"#606060\">Introduced:&#160;</font></b>\n</td>\n<td align=\"left\"><a href=\"/wiki/Gaining_Ground\" title=\"Gaining Ground\">Gaining Ground</a>\n</td>\n<td width=\"8\">\n</td>\n<td align=\"left\"><b><font color=\"#606060\">Related&#160;Quests:&#160;</font></b>\n</td>\n<td align=\"left\"><a href=\"/wiki/Assault_Weapons\" title=\"Assault Weapons\">Assault Weapons</a>, <a href=\"/wiki/Singularity_Weapons\" title=\"Singularity Weapons\">Singularity Weapons</a>, <a href=\"/wiki/Quiddity_Weapons\" title=\"Quiddity Weapons\">Quiddity Weapons</a>, <a href=\"/wiki/Gaerlan%27s_Citadel#Items\" title=\"Gaerlan&#39;s Citadel\">Modified Gaerlan Weapons</a>\n</td>\n<td width=\"8\">\n</td>\n<td align=\"left\">\n</td>\n<td align=\"left\">\n</td></tr></tbody></table>\n</td>\n<td align=\"right\">\n</td>\n<td align=\"right\">\n</td>\n<td align=\"right\">\n</td></tr></tbody></table>\n</td></tr></tbody></table>\n<table border=\"0\" cellpadding=\"0\" cellspacing=\"3\" style=\"width:100%\">\n\n<tbody><tr valign=\"top\">\n<td>\n<table border=\"1\" cellspacing=\"0\" cellpadding=\"5\" width=\"300\" style=\"background:#F0F0F0\">\n<tbody><tr>\n<td colspan=\"2\" align=\"center\"><b>Weapon Upgrade Kit</b>\n</td></tr>\n<tr>\n<td align=\"center\">Value: 5<br />10 Burden Units\n</td>\n<td width=\"40\" align=\"center\"><span class=\"mw-default-size\" typeof=\"mw:File\"><a href=\"/wiki/File:Weapon_Upgrade_Kit_Icon.png\" class=\"mw-file-description\"><img src=\"/wiki/images/8/8a/Weapon_Upgrade_Kit_Icon.png\" decoding=\"async\" width=\"32\" height=\"32\" class=\"mw-file-element\" /></a></span>\n</td></tr>\n<tr>\n<td colspan=\"2\">\n<p>A weapon upgrade kit.<br /><br />Use this upgrade kit to enhance various types of non-loot weapons. As time goes on more weapons may be adapted to work with these kits.<br /><br /><br />This item cannot be sold.<br />\n</p>\n</td></tr></tbody></table>\n</td>\n<td width=\"20\">\n</td>\n<td>\n<figure class=\"mw-halign-right\" typeof=\"mw:File/Frame\"><a href=\"/wiki/File:Weapon_Upgrade_Kit_Live.jpg\" class=\"mw-file-description\"><img src=\"/wiki/images/5/5d/Weapon_Upgrade_Kit_Live.jpg\" decoding=\"async\" width=\"300\" height=\"300\" class=\"mw-file-element\" /></a><figcaption>Weapon Upgrade Kit</figcaption></figure>\n</td></tr></tbody></table>\n<h2><span class=\"mw-headline\" id=\"Notes\">Notes</span></h2>\n<ul><li>Obtained by using an <a href=\"/wiki/Weapon_Upgrade_Kit_Containment_Gem\" title=\"Weapon Upgrade Kit Containment Gem\">Weapon Upgrade Kit Containment Gem</a>.</li>\n<li>May be used on:\n<ul><li><a href=\"/wiki/Assault_Weapons\" title=\"Assault Weapons\">Assault Weapons</a></li>\n<li><a href=\"/wiki/Singularity_Weapons\" title=\"Singularity Weapons\">Singularity Weapons</a></li>\n<li><a href=\"/wiki/Quiddity_Weapons\" title=\"Quiddity Weapons\">Quiddity Weapons</a></li>\n<li><a href=\"/wiki/Gaerlan%27s_Citadel#Items\" title=\"Gaerlan&#39;s Citadel\">Modified Gaerlan Weapons</a> - Added during the <a href=\"/wiki/A_Growing_Twilight\" title=\"A Growing Twilight\">A Growing Twilight</a> event.</li></ul></li></ul></div>",
+  "categories": [
+   {
+    "sortkey": "",
+    "category": "Upgrade_Item"
+   }
+  ],
+  "links": [
+   {
+    "ns": 0,
+    "title": "A Growing Twilight",
+    "exists": true
+   },
+   {
+    "ns": 0,
+    "title": "Assault Weapons",
+    "exists": true
+   },
+   {
+    "ns": 0,
+    "title": "Gaerlan's Citadel",
+    "exists": true
+   },
+   {
+    "ns": 0,
+    "title": "Gaining Ground",
+    "exists": true
+   },
+   {
+    "ns": 0,
+    "title": "Quiddity Weapons",
+    "exists": true
+   },
+   {
+    "ns": 0,
+    "title": "Singularity Weapons",
+    "exists": true
+   },
+   {
+    "ns": 0,
+    "title": "Weapon Upgrade Kit Containment Gem",
+    "exists": true
+   }
+  ],
+  "images": [],
+  "wikitext": "{{Intro\n | Patch Introduced = [[Gaining Ground]]\n |   Related Quests = [[Assault Weapons]], [[Singularity Weapons]], [[Quiddity Weapons]], [[Gaerlan%27s_Citadel#Items|Modified Gaerlan Weapons]]\n |          Updated = \n}}\n{{Item\n |               Name = Weapon Upgrade Kit\n |         Icon Image = Weapon Upgrade Kit Icon.png\n |         Live Image = Weapon Upgrade Kit Live.jpg\n | Live Image Caption = Weapon Upgrade Kit\n |              Value = 5\n |             Burden = 10\n |        Description = A weapon upgrade kit.\n | Special Properties = \n |    Description Two = Use this upgrade kit to enhance various types of non-loot weapons. As time goes on more weapons may be adapted to work with these kits.\n |     Cannot Be Sold = True\n}}\n== Notes ==\n* Obtained by using an [[Weapon Upgrade Kit Containment Gem]].\n* May be used on:\n** [[Assault Weapons]]\n** [[Singularity Weapons]]\n** [[Quiddity Weapons]]\n** [[Gaerlan%27s_Citadel#Items|Modified Gaerlan Weapons]] - Added during the [[A Growing Twilight]] event.\n\n[[Category:Upgrade Item]]"
+ }
+}

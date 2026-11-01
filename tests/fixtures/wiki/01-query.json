@@ -1,0 +1,19 @@
+{
+ "batchcomplete": true,
+ "query": {
+  "pages": [
+   {
+    "pageid": 6534,
+    "ns": 0,
+    "title": "Bow of the Quiddity",
+    "contentmodel": "wikitext",
+    "pagelanguage": "en",
+    "pagelanguagehtmlcode": "en",
+    "pagelanguagedir": "ltr",
+    "touched": "2012-10-26T22:23:34Z",
+    "lastrevid": 36797,
+    "length": 1906
+   }
+  ]
+ }
+}

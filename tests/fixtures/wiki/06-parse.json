@@ -1,0 +1,47 @@
+{
+ "parse": {
+  "title": "Enhanced Bow of the Quiddity",
+  "pageid": 11240,
+  "revid": 70779,
+  "text": "<div class=\"mw-parser-output\"><table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" style=\"float:none; width:100%; padding: 0px 0px 5px 0px;\">\n<tbody><tr>\n<td align=\"left\">\n<table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" class=\"toccolours\" style=\"float:none; width:100%; padding: 6px 6px 6px 6px;\">\n<tbody><tr>\n<td>\n<table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" style=\"background-color:#F9F9F9\">\n\n<tbody><tr valign=\"top\">\n<td align=\"left\"><b><font color=\"#606060\">Introduced:&#160;</font></b>\n</td>\n<td align=\"left\"><a href=\"/wiki/Gaining_Ground\" title=\"Gaining Ground\">Gaining Ground</a>\n</td>\n<td width=\"8\">\n</td>\n<td align=\"left\"><b><font color=\"#606060\">Related&#160;Quests:&#160;</font></b>\n</td>\n<td align=\"left\"><a href=\"/wiki/Quiddity_Weapons\" title=\"Quiddity Weapons\">Quiddity Weapons</a>, <a href=\"/wiki/Weapon_Upgrade_Kit\" title=\"Weapon Upgrade Kit\">Weapon Upgrade Kit</a>\n</td>\n<td width=\"8\">\n</td>\n<td align=\"left\">\n</td>\n<td align=\"left\">\n</td></tr></tbody></table>\n</td>\n<td align=\"right\">\n</td>\n<td align=\"right\">\n</td>\n<td align=\"right\">\n</td></tr></tbody></table>\n</td></tr></tbody></table>\n<table border=\"0\" cellpadding=\"0\" cellspacing=\"3\" style=\"width:100%\">\n\n<tbody><tr valign=\"top\">\n<td>\n<table border=\"1\" cellspacing=\"0\" cellpadding=\"5\" width=\"300\" style=\"background:#F0F0F0\">\n<tbody><tr>\n<th colspan=\"2\">Enhanced Bow of the Quiddity\n</th></tr>\n<tr>\n<td align=\"center\">Value: 20,000<br />550 Burden Units\n</td>\n<td width=\"40\" align=\"center\"><span class=\"mw-default-size\" typeof=\"mw:File\"><a href=\"/wiki/File:Enhanced_Bow_of_the_Quiddity_Icon.png\" class=\"mw-file-description\"><img src=\"/wiki/images/d/d8/Enhanced_Bow_of_the_Quiddity_Icon.png\" decoding=\"async\" width=\"32\" height=\"32\" class=\"mw-file-element\" /></a></span>\n</td></tr>\n<tr>\n<td colspan=\"2\">\n<p><a href=\"/wiki/Special_Properties\" class=\"mw-redirect\" title=\"Special Properties\">Special Properties</a>: <a href=\"/wiki/Resistance_Cleaving:_Piercing\" class=\"mw-redirect\" title=\"Resistance Cleaving: Piercing\">Resistance Cleaving: Piercing</a><br /><br />Skill: Missile Weapons (Bow)<br />Damage Bonus: 8<b><font color=\"green\"> (28)</font></b><br />Damage Modifier: +130%<br />Speed: Slow (50)<b><font color=\"green\"> (0)</font></b><br />Range: 75 yds<br />Uses arrows as ammunition.<br />Bonus to Melee Defense: +14.0%<b><font color=\"green\"> (+27.0%)</font></b><br /><br />Your base Missile Weapons must be at least 335 to wield this item.<br /><br />Casts the following spells: <a href=\"/wiki/Aura_of_Defender_V\" class=\"mw-redirect\" title=\"Aura of Defender V\">Aura of Defender V</a>, <a href=\"/wiki/Aura_of_Blood_Drinker_VI\" class=\"mw-redirect\" title=\"Aura of Blood Drinker VI\">Aura of Blood Drinker VI</a>, <a href=\"/wiki/Aura_of_Swift_Killer_V\" class=\"mw-redirect\" title=\"Aura of Swift Killer V\">Aura of Swift Killer V</a>, <a href=\"/wiki/Aura_of_Heart_Seeker_V\" class=\"mw-redirect\" title=\"Aura of Heart Seeker V\">Aura of Heart Seeker V</a><br /><br />Activation Requirements: Arcane Lore: 1, Bow: 200<br /><br />Spellcraft: 400<br />Mana: 1000<br />Mana Cost: 1 point per 40 seconds.<br />\n</p>\n</td></tr>\n</tbody></table>\n</td>\n<td width=\"20\">\n</td>\n<td>\n</td></tr></tbody></table>\n<h2><span class=\"mw-headline\" id=\"Notes\">Notes</span></h2>\n<ul><li>Obtained by adding a <a href=\"/wiki/Weapon_Upgrade_Kit\" title=\"Weapon Upgrade Kit\">Weapon Upgrade Kit</a> to a <a href=\"/wiki/Bow_of_the_Quiddity\" title=\"Bow of the Quiddity\">Bow of the Quiddity</a>.</li></ul></div>",
+  "categories": [
+   {
+    "sortkey": "",
+    "category": "Weapon"
+   },
+   {
+    "sortkey": "",
+    "category": "Missile_Weapon"
+   },
+   {
+    "sortkey": "",
+    "category": "Bow"
+   },
+   {
+    "sortkey": "",
+    "category": "Resistance_Cleaving"
+   }
+  ],
+  "links": [
+   {
+    "ns": 0,
+    "title": "Bow of the Quiddity",
+    "exists": true
+   },
+   {
+    "ns": 0,
+    "title": "Quiddity Weapons",
+    "exists": true
+   },
+   {
+    "ns": 0,
+    "title": "Weapon Upgrade Kit",
+    "exists": true
+   }
+  ],
+  "images": [
+   "Enhanced_Bow_of_the_Quiddity_Icon.png"
+  ],
+  "wikitext": "{{Intro\n | Patch Introduced = [[Gaining Ground]]\n |   Related Quests = [[Quiddity Weapons]], [[Weapon Upgrade Kit]]\n |          Updated = \n}}\n{{Missile Weapon\n |            Weapon Type = Bow\n |           Weapon Skill = Missile Weapons\n |                   Name = Enhanced Bow of the Quiddity\n |             Icon Image = Enhanced Bow of the Quiddity Icon.png\n |             Live Image =  Live.jpg\n |     Live Image Caption = \n | \n |                  Value = 20,000\n |                 Burden = 550\n |            Description = \n |     Special Properties = [[Resistance Cleaving: Piercing]]\n | \n |           Damage Bonus = 8\n |    Buffed Damage Bonus = 28\n | Elemental Damage Bonus = \n |                Element = \n |        Damage Modifier = 130\n |                  Speed = Slow (50)\n |           Buffed Speed = 0\n |                  Range = 75\n |             Ammunition = arrows\n |       Bonus to Defense = 14.0\n |         Buffed Defense = 27.0\n | \n |        Base Weapon Req = 335\n | \n |                 Spells = [[Aura of Defender V]], [[Aura of Blood Drinker VI]], [[Aura of Swift Killer V]], [[Aura of Heart Seeker V]]\n |        Activation Reqs = Arcane Lore: 1, Bow: 200 \n |             Spellcraft = 400\n |                   Mana = 1000\n |              Mana Cost = 40\n |         Cannot Be Sold = False\n}}\n== Notes ==\n* Obtained by adding a [[Weapon Upgrade Kit]] to a [[Bow of the Quiddity]].\n\n[[Category:Resistance Cleaving]]"
+ }
+}

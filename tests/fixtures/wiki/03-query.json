@@ -1,0 +1,49 @@
+{
+ "batchcomplete": true,
+ "query": {
+  "redirects": [
+   {
+    "from": "Aura of Defender IV",
+    "to": "Defender (Spell)"
+   }
+  ],
+  "pages": [
+   {
+    "pageid": 8916,
+    "ns": 0,
+    "title": "Crafter of Bows",
+    "contentmodel": "wikitext",
+    "pagelanguage": "en",
+    "pagelanguagehtmlcode": "en",
+    "pagelanguagedir": "ltr",
+    "touched": "2012-05-15T02:30:01Z",
+    "lastrevid": 53113,
+    "length": 938
+   },
+   {
+    "pageid": 9805,
+    "ns": 0,
+    "title": "Defender (Spell)",
+    "contentmodel": "wikitext",
+    "pagelanguage": "en",
+    "pagelanguagehtmlcode": "en",
+    "pagelanguagedir": "ltr",
+    "touched": "2014-01-28T04:53:57Z",
+    "lastrevid": 59965,
+    "length": 6547
+   },
+   {
+    "pageid": 11240,
+    "ns": 0,
+    "title": "Enhanced Bow of the Quiddity",
+    "contentmodel": "wikitext",
+    "pagelanguage": "en",
+    "pagelanguagehtmlcode": "en",
+    "pagelanguagedir": "ltr",
+    "touched": "2012-10-26T22:28:38Z",
+    "lastrevid": 70779,
+    "length": 1427
+   }
+  ]
+ }
+}

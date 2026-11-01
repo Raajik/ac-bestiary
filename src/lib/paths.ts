@@ -36,3 +36,9 @@ export const PORTAL_DAT = fromEnv(
 
 /** The output directory of the build. */
 export const DIST_DIR = fromEnv('AC_DIST_DIR', join(import.meta.dirname, '../../dist'));
+
+/** The MediaWiki API of the ACCPP Wiki on lohk (LAN only). Only the snapshot tool reads it. */
+export const WIKI_API = fromEnv('AC_WIKI_API', 'http://10.0.0.10:8095/wiki/api.php');
+
+/** The wiki snapshot: `wiki.sqlite` and `images/`. Kept out of git. */
+export const SNAPSHOT_DIR = fromEnv('AC_SNAPSHOT_DIR', join(import.meta.dirname, '../../data/snapshot'));
