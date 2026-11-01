@@ -69,8 +69,8 @@ e6cfed8 that wrote it into `ac-bestiary.md`.
   the DAT, like the bestiary build) writes the records the pages need into the snapshot's SQLite file:
   - for each item page, the weenies of the same name (not creatures) as variants, lowest class id first and default:
     model ids, icon id and the values the appraisal panel compares;
-  - for each creature page, the bestiary's creature record (the same build code). First slice: the Tusker family
-    only, so other creature pages show their text only.
+  - for each creature page, the bestiary's creature record (from the bestiary build's `dist/data.json`). First
+    slice: the Tusker family only, so other creature pages show their text only.
 - **First run:** asks for the AC install folder (a text box for the path), checks `client_portal.dat` is there, and
   remembers it in the app's config folder.
 - **Search:** one box, titles first, then full text, from the snapshot.

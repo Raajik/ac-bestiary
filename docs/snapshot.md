@@ -28,3 +28,17 @@ Facts about the ACCPP Wiki on lohk as `tools/wiki-snapshot.ts` reads it (spec: `
 - A redirect can point to another redirect; the snapshot stores each source with its final page. **Verified:**
   `tests/snapshot.test.ts`.
 - The snapshot lives in `data/snapshot/` (`wiki.sqlite`, `images/`). Git ignores it; Syncthing shares it.
+
+## The game records
+
+- `tools/build-app-data.ts` reads 43,916 retail weenies (patch files over base files). In the slice's snapshot,
+  59 item pages match weenies by name; one, "Tusker (Town Network Painting)", has none. 37 of the 49 creature pages
+  have a bestiary record (the Tusker family). **Observed:** a run on zahir, 2026-10-31, in 10 s.
+- "Bow of the Quiddity" matches one weenie, 9597; "Chimeric Bow of the Quiddity" (36381) is another name, so no
+  variant. **Observed:** the ACE patch SQL under `MissileLauncher/MissileWeapon/`.
+- The weenie's values in the wiki's form: Damage Modifier is `(DamageMod − 1) × 100` (2.13 gives 113), Speed is
+  WeaponTime (int 49; int 48 is the weapon skill), a bonus to attack or defense is `(multiplier − 1) × 100`, and a
+  melee damage range is `max × (1 − variance)` to `max` (18 and 0.5 give "9 - 18", as on Axe of the Quiddity).
+  **Verified:** `tests/game-records.test.ts`, against the Bow's and the Axe's template and weenie values.
+- The game names self spells "Aura of Defender Self IV" where the wiki writes "Aura of Defender IV", so the panel
+  compares the spell count, not the names. **Observed:** 09597's spell book and the Bow's template.
