@@ -1,0 +1,18 @@
+[package]
+name = "ac-wiki"
+version = "0.1.0"
+description = "The AC wiki app: wiki pages with the game's models and stats beside them"
+license = "AGPL-3.0-or-later"
+repository = "https://github.com/Raajik/ac-bestiary"
+edition = "2024"
+rust-version = "1.90"
+
+[lib]
+name = "ac_wiki_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2.7.4", features = [] }
+
+[dependencies]
+tauri = { version = "2.12.5", features = [] }
