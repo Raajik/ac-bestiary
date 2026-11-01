@@ -24,8 +24,8 @@ Facts about the AC wiki app's shell (spec: `specs/wiki-app.md`).
   calls `ATTACH` read-only, so the connection's attached-database limit is 0. **Verified:** `cargo test` in
   `src-tauri`; the case came from the Codex adversarial review, 2026-10-31.
 - The bundled SQLite of rusqlite 0.37 has FTS5 and `json_each`. **Verified:** `cargo test` in `src-tauri`.
-- The image protocol serves plain file names of the images folder only (no `/`, `\` or leading `.` after
-  decoding). **Verified:** `cargo test` in `src-tauri`.
+- The image protocol serves plain file names of the images folder only (one plain path part, no `/`, `\`, `:` or
+  leading `.` after decoding; on Windows `images.join("C:x")` would leave the folder). **Verified:** `cargo test` in `src-tauri`.
 - The install folder is saved in the app's config folder as `settings.json` (`installFolder`).
 
 ## The pages
