@@ -136,7 +136,7 @@ chance(skill, difficulty, factor) = 1 - 1 / (1 + exp(factor * (skill - difficult
 4. A test checks the hit-chance formula: equal skills give 50%, and +73 (factor 0.03) gives about 90%.
 5. A test compares computed defense skills to ACPedia (Observed): Male Tusker Melee/Missile/Magic Defense
    83/76/63, and Tusker Guard 417/350/268. If a value does not match, record why in `docs/`.
-6. Claude reviews the work against this spec and runs `/ponytail-review`.
+6. Claude reviews the work against this spec and runs the `code-review` skill.
 
 ## Later (not in this prototype)
 
