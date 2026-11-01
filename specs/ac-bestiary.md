@@ -87,6 +87,10 @@ the attack they need to hit it, and what it drops.
     (if the data has them), a link to the ACPedia page.
   - Trophies: icon from the DAT, name, drop chance from the weenie's death treasure list, link to its ACPedia
     page.
+  - The trophy icons have no white outline (user, 2026-10-31). The retail icon textures carry opaque pure white
+    pixels where the item meets the transparent background; the client hides them under an underlay. The build
+    makes the pure white pixels that touch the transparent background, or the border, through pure white only,
+    transparent. White inside the item stays. The wiki app's item icons use the same icon writer.
 
 ### Theme
 
