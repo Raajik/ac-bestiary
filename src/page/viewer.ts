@@ -21,11 +21,12 @@ import { installMirrorAwareCulling } from '../../vendor/asheron-web/packages/ren
 
 import type { CreatureModelSpec, CreatureModels } from '../lib/creature-model.js';
 import { attackMotion, motionButtons, type MotionButton, type MotionName } from './motions.js';
+import { zoomAfterWheel, zoomedPosition } from './zoom.js';
 
 /** The share of the idle pose's size added on each side of the framed box. */
 const FRAME_MARGIN = 0.12;
 
-/** The live model view. The drag turns the model, the motion table plays it. */
+/** The live model view. The drag turns the model, the wheel zooms, the motion table plays it. */
 export class ModelViewer {
   private readonly canvas: HTMLCanvasElement;
   private readonly renderer: THREE.WebGLRenderer;
@@ -36,6 +37,7 @@ export class ModelViewer {
   private buttons: MotionButton[] = [];
   private playing: MotionName = 'idle';
   private dragging = false;
+  private zoom = 1;
   private lastX = 0;
   private frame = 0;
   private lastTime = 0;
@@ -57,6 +59,16 @@ export class ModelViewer {
       this.model.rotation.y -= (event.clientX - this.lastX) * 0.01;
       this.lastX = event.clientX;
     });
+    // Not passive: the wheel over the view zooms it and must not scroll the page behind it.
+    canvas.addEventListener(
+      'wheel',
+      (event) => {
+        event.preventDefault();
+        this.zoom = zoomAfterWheel(this.zoom, event.deltaY, event.deltaMode);
+        this.frameModel();
+      },
+      { passive: false },
+    );
     const stop = (event: PointerEvent) => {
       this.dragging = false;
       if (canvas.hasPointerCapture(event.pointerId)) canvas.releasePointerCapture(event.pointerId);
@@ -68,6 +80,7 @@ export class ModelViewer {
   /** Show a model. The model is built by the caller from the bundle. */
   setModel(model: THREE.Group | null): void {
     this.model = model;
+    this.zoom = 1;
     if (!model) return;
 
     setCellLighting(model, false, true);
@@ -177,8 +190,9 @@ export class ModelViewer {
     box.expandByVector(box.getSize(new THREE.Vector3()).multiplyScalar(FRAME_MARGIN));
     const { min, max } = threeBoxToAc(box);
 
+    const centre: [number, number, number] = [(min[0] + max[0]) / 2, (min[1] + max[1]) / 2, (min[2] + max[2]) / 2];
     this.camera = buildCreatureModeCamera(
-      examineCameraPosition(min, max, width, height),
+      zoomedPosition(examineCameraPosition(min, max, width, height), centre, this.zoom),
       width,
       height,
       CREATURE_MODE_FOV_DEGREES,

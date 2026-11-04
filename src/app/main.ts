@@ -198,7 +198,7 @@ function renderListGrid(page: WikiPage): HTMLElement {
 
 function renderCreatureSide(side: HTMLElement, creature: Creature): () => void {
   side.innerHTML = `
-    <div class="viewer"><canvas></canvas><div class="motions"></div><p class="hint">Drag to turn the model.</p></div>
+    <div class="viewer"><canvas></canvas><div class="motions"></div><p class="hint">Drag to turn the model, scroll to zoom.</p></div>
     <div class="panel"></div>`;
   const view = new OpenView(
     {

@@ -42,7 +42,7 @@ export function renderItemSide(
 
   const viewerBox = element('div', 'viewer');
   const canvas = element('canvas');
-  const hint = element('p', 'hint', 'Drag to turn the model.');
+  const hint = element('p', 'hint', 'Drag to turn the model, scroll to zoom.');
   viewerBox.append(canvas, hint);
   const panel = element('div', 'appraisal item-appraisal');
   side.append(viewerBox, panel);
