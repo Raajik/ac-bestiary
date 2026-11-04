@@ -97,7 +97,8 @@ export function renderGrid(
     tile.className = 'tile';
 
     const image = document.createElement('img');
-    image.alt = creature.name;
+    // The name is written under the picture, so the picture is decorative.
+    image.alt = '';
     image.loading = 'lazy';
     still(variant, image);
     tile.append(image);

@@ -4,7 +4,7 @@ import { join } from 'node:path';
 import type { DatabaseSync } from 'node:sqlite';
 import { beforeAll, describe, expect, it } from 'vitest';
 
-import { ftsQuery, loadPage, search, type QueryFn } from '../src/app/pages.js';
+import { describeTitles, ftsQuery, loadAllItems, loadCategory, loadPage, loadStats, search, type QueryFn } from '../src/app/pages.js';
 import { openSnapshot, resetGameRecords, runSnapshot } from '../src/lib/snapshot.js';
 import { FakeWikiApi } from './fake-wiki-api.js';
 
@@ -63,5 +63,31 @@ describe('loadPage', () => {
     expect((await loadPage(query, 'Aura of Defender IV'))?.title).toBe('Defender (Spell)');
     expect((await loadPage(query, 'Crafter of Bows'))?.kind).toBe('text');
     expect(await loadPage(query, 'No such page')).toBeNull();
+  });
+});
+
+describe('browse queries', () => {
+  it('describes a hit as an item or a plain page, with a label', async () => {
+    const info = await describeTitles(query, ['Bow of the Quiddity', 'Quiddity Weapons', 'Nothing here']);
+    expect(info.get('Bow of the Quiddity')).toMatchObject({ kind: 'item', label: 'Item' });
+    expect(info.get('Quiddity Weapons')?.kind).toBe('page');
+    expect(info.has('Nothing here')).toBe(false);
+    expect((await describeTitles(query, [])).size).toBe(0);
+  });
+
+  it('counts pages and records for the start page', async () => {
+    const stats = await loadStats(query);
+    expect(stats.pages).toBeGreaterThan(0);
+    expect(stats.items).toBe(3);
+    expect(stats.creatures).toBe(0);
+    expect(stats.categories.every((c) => c.count > 0)).toBe(true);
+  });
+
+  it('lists a category A to Z and every item', async () => {
+    const stats = await loadStats(query);
+    const titles = await loadCategory(query, stats.categories[0].name);
+    expect(titles.length).toBe(stats.categories[0].count);
+    expect(titles).toEqual([...titles].sort());
+    expect((await loadAllItems(query)).map((i) => i.title)).toEqual(['Axe of the Quiddity', 'Bow of the Quiddity', 'Enhanced Bow of the Quiddity']);
   });
 });

@@ -12,7 +12,22 @@ const ATTRIBUTE_LABELS: [key: string, string][] = [
   ['self', 'Self'],
 ];
 
-const RESISTANCE_LABELS: [string, string][] = [
+/** A variant's name: its number, and how it looks next to the first one (same model, recoloured, another model). */
+function variantName(index: number, candidate: Variant, first: Variant): HTMLElement {
+  const name = element('span', 'variant-name', `Variant ${index + 1}`);
+  if (index > 0) {
+    const looks =
+      candidate.setup !== first.setup
+        ? 'another model'
+        : candidate.palette !== first.palette || candidate.clothing !== first.clothing || candidate.shade !== first.shade
+          ? 'recoloured'
+          : 'same look';
+    name.append(element('small', undefined, ` ${looks}`));
+  }
+  return name;
+}
+
+export const RESISTANCE_LABELS: [string, string][] = [
   ['slash', 'Slash'],
   ['pierce', 'Pierce'],
   ['bludgeon', 'Bludgeon'],
@@ -120,9 +135,11 @@ export function renderPanel(
     const bar = element('div', `bar ${kind}`);
     const track = element('div', 'track');
     const fill = element('div', 'fill');
-    fill.style.width = '100%';
+    // The bar shows the pool against this creature's largest one, so the three lengths mean something.
+    fill.style.width = `${Math.max(4, Math.round((value / Math.max(variant.health, variant.stamina, variant.mana, 1)) * 100))}%`;
     track.append(fill);
     bar.append(element('span', undefined, label), track, element('b', undefined, String(value)));
+    bar.title = `${label}: ${value}. Bars are drawn against this creature's largest pool.`;
     bars.append(bar);
   }
   panel.append(bars);
@@ -233,17 +250,22 @@ export function renderPanel(
     const section = element('div', 'section');
     section.append(element('h3', undefined, 'Variants'));
     const list = element('div', 'variants');
+    const head = element('div', 'variant-head');
+    for (const text of ['Variant', 'Level', 'Health', 'XP', '']) head.append(element('span', undefined, text));
+    list.append(head);
 
-    for (const candidate of creature.variants) {
+    for (const [index, candidate] of creature.variants.entries()) {
       const button = element('button', 'variant');
       button.type = 'button';
       if (candidate.classId === variant.classId) button.setAttribute('aria-current', 'true');
       button.append(
-        element('span', undefined, `Level ${candidate.level}`),
-        element('span', undefined, `Health ${candidate.health}`),
-        element('span', 'class-id', `class ${candidate.classId}`),
-        element('span', undefined, 'Show'),
+        variantName(index, candidate, creature.variants[0]),
+        element('span', 'num', String(candidate.level)),
+        element('span', 'num', String(candidate.health)),
+        element('span', 'num', candidate.xp.toLocaleString('en')),
+        element('span', 'variant-state', candidate.classId === variant.classId ? 'Viewing' : 'View'),
       );
+      button.title = `Weenie class ${candidate.classId} of the ACE world database`;
       button.addEventListener('click', () => onVariant(candidate));
       list.append(button);
     }
@@ -271,27 +293,29 @@ export function renderPanel(
   armorSection.append(resistanceList);
   panel.append(armorSection);
 
-  // The Wiki section: the data the retail panel does not show.
+  // The ACPedia section: the data the retail panel does not show, and where ACPedia differs from the game data.
   const wikiSection = element('div', 'section wiki');
-  wikiSection.append(element('h3', undefined, 'Wiki'));
+  wikiSection.append(element('h3', undefined, 'ACPedia'));
   const wikiRows = element('dl', 'rows');
-  addRow(wikiRows, 'XP award', String(variant.xp));
-  if (creature.acpediaXp !== null && creature.acpediaXp !== variant.xp) {
-    addRow(wikiRows, 'XP award on ACPedia', String(creature.acpediaXp));
-  }
-  if (creature.acpediaHealth !== null && creature.acpediaHealth !== variant.health) {
-    addRow(wikiRows, 'Health on ACPedia', String(creature.acpediaHealth));
-  }
-  if (creature.acpediaLevel !== null && creature.acpediaLevel !== variant.level) {
-    addRow(wikiRows, 'Level on ACPedia', String(creature.acpediaLevel));
-  }
+  /** A row with the game's value and, when ACPedia says something else, ACPedia's beside it. */
+  const differences: string[] = [];
+  const compare = (label: string, game: number, acpedia: number | null): void => {
+    if (acpedia !== null && acpedia !== game) differences.push(`${label} ${acpedia.toLocaleString('en')} (game: ${game.toLocaleString('en')})`);
+  };
+  // The numbers are above already: this section says only where ACPedia disagrees with the game data.
+  if (creature.acpediaLevel !== null && creature.acpediaLevel !== variant.level) compare('Level', variant.level, creature.acpediaLevel);
+  if (creature.acpediaHealth !== null && creature.acpediaHealth !== variant.health) compare('Health', variant.health, creature.acpediaHealth);
+  if (creature.acpediaXp !== null && creature.acpediaXp !== variant.xp) compare('XP award', variant.xp, creature.acpediaXp);
   const wikiLinkRow = element('dl', 'rows');
   const wikiLink = document.createElement('a');
   wikiLink.href = creature.acpedia;
   wikiLink.rel = 'noreferrer';
   wikiLink.textContent = creature.name;
   addRow(wikiLinkRow, 'ACPedia page', wikiLink);
-  wikiSection.append(wikiRows, wikiLinkRow);
+  if (differences.length > 0) {
+    wikiSection.append(element('p', 'sources-differ', `ACPedia lists different numbers: ${differences.join(', ')}. The game data is shown here.`));
+  }
+  wikiSection.append(wikiLinkRow);
   panel.append(wikiSection);
 
   // The trophies.
@@ -307,7 +331,10 @@ export function renderPanel(
 
       const image = document.createElement('img');
       image.src = `icons/${trophy.classId}.png`;
-      image.alt = trophy.name;
+      // The name sits beside the picture, so the picture needs no alt text (a broken one would show it).
+      image.alt = '';
+      if (trophy.icon) image.dataset.icon = String(trophy.icon);
+      image.addEventListener('error', () => image.classList.add('missing'));
       image.loading = 'lazy';
       item.append(image);
 

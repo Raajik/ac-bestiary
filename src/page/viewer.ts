@@ -187,12 +187,47 @@ export class ModelViewer {
   }
 
   /** Point the camera at the model, the way the retail portrait does. */
+  /**
+   * Zoom so the model itself (not the room the examine frame leaves around it) fills `share` of the window's
+   * smaller side. An item is small in the examine frame, and a thin one more so.
+   */
+  /** Frame the model alone, not the model plus the point it stands on. */
+  centreOnModel = false;
+
+  fitModel(share = 0.72): void {
+    if (!this.model) return;
+    this.centreOnModel = true;
+    this.zoom = 1;
+    this.frameModel();
+    this.camera.updateMatrixWorld(true);
+    this.camera.updateProjectionMatrix();
+    const box = new THREE.Box3().setFromObject(this.model);
+    if (box.isEmpty()) return;
+    let reach = 0;
+    for (const x of [box.min.x, box.max.x]) {
+      for (const y of [box.min.y, box.max.y]) {
+        for (const z of [box.min.z, box.max.z]) {
+          const point = new THREE.Vector3(x, y, z).project(this.camera);
+          reach = Math.max(reach, Math.abs(point.x), Math.abs(point.y));
+        }
+      }
+    }
+    if (reach > 0) this.setZoom(Math.min(4, Math.max(0.6, share / reach)));
+  }
+
+  /** Zoom in or out and frame the model again (an item is small in the examine frame). */
+  setZoom(zoom: number): void {
+    this.zoom = zoom;
+    this.frameModel();
+  }
+
   frameModel(): void {
     if (!this.model) return;
 
     const width = this.canvas.width;
     const height = this.canvas.height;
-    const box = new THREE.Box3().setFromObject(this.model).expandByPoint(new THREE.Vector3(0, 0, 0));
+    const box = new THREE.Box3().setFromObject(this.model);
+    if (!this.centreOnModel) box.expandByPoint(new THREE.Vector3(0, 0, 0));
     // Room around the idle pose, so the arms of an attack and the fall of a death stay in the frame.
     box.expandByVector(box.getSize(new THREE.Vector3()).multiplyScalar(FRAME_MARGIN));
     const { min, max } = threeBoxToAc(box);
@@ -230,9 +265,17 @@ export class ModelViewer {
     this.renderer.render(this.scene, this.camera);
   }
 
+  /** The game's glow and sparkle on a model; off, the model shows plain (a glow can hide a thin weapon). */
+  effectsOn = true;
+
+  setEffects(on: boolean): void {
+    this.effectsOn = on;
+    if (this.frame) this.startEffects();
+  }
+
   private startEffects(): void {
     this.dropEffects();
-    if (!this.model || !this.source) return;
+    if (!this.effectsOn || !this.model || !this.source) return;
     this.effects = ModelEffects.create(this.source.models, this.source.spec.setupId, this.model, () => this.camera, !this.entity);
   }
 

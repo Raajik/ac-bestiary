@@ -2,55 +2,205 @@
 
 @import '../page/style.css';
 
+:root {
+  --text-dim: #a8a091;
+  --accent-strong: #e0bc72;
+  --radius: 6px;
+  --shadow: 0 6px 24px rgba(0, 0, 0, 0.35);
+  --content: 1480px;
+  --header-h: 56px;
+  /* The retail serif stays for titles and prose; controls, labels and numbers use a plain UI face. */
+  --font-ui: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+::selection {
+  background: rgba(201, 164, 92, 0.35);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+.skip {
+  position: absolute;
+  left: 8px;
+  top: -48px;
+  z-index: 50;
+  padding: 8px 14px;
+  background: var(--accent);
+  color: #15181d;
+  border-radius: var(--radius);
+}
+
+.skip:focus {
+  top: 8px;
+  text-decoration: none;
+}
+
+/* ---- header ---- */
+
 .app-header {
   position: sticky;
   top: 0;
   z-index: 10;
   display: flex;
   align-items: center;
-  gap: var(--gap);
-  padding: 10px var(--gap);
-  background: var(--surface);
+  gap: 22px;
+  padding: 0 var(--gap);
+  min-height: var(--header-h);
+  background: rgba(21, 24, 29, 0.94);
+  backdrop-filter: blur(8px);
   border-bottom: 1px solid var(--border);
 }
 
 .brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
   font-family: var(--font-display);
   font-size: 22px;
-  color: var(--accent);
+  letter-spacing: 0.02em;
+  color: var(--accent-strong);
+  white-space: nowrap;
+}
+
+.brand:hover {
+  text-decoration: none;
+  color: var(--accent-strong);
+}
+
+.brand-mark {
+  width: 14px;
+  height: 14px;
+  background: linear-gradient(135deg, #f0d28c, #9c7430);
+  transform: rotate(45deg);
+  border-radius: 2px;
+  box-shadow: 0 0 10px rgba(201, 164, 92, 0.45);
+}
+
+.nav {
+  display: flex;
+  align-self: stretch;
+  gap: 4px;
+}
+
+.nav a {
+  display: flex;
+  align-items: center;
+  padding: 0 12px;
+  color: var(--text-dim);
+  border-bottom: 2px solid transparent;
+  font-size: 15px;
+}
+
+.nav a:hover {
+  color: var(--text);
+  text-decoration: none;
+}
+
+.nav a[aria-current='page'] {
+  color: var(--accent-strong);
+  border-bottom-color: var(--accent);
 }
 
 #search-form {
+  position: relative;
   flex: 1 1 auto;
-  max-width: 520px;
+  max-width: 460px;
+  margin-left: auto;
 }
 
 #search,
-.setup input {
+.setup input,
+.big-search input,
+.toolbar input,
+.toolbar select {
   width: 100%;
-  padding: 7px 10px;
+  padding: 8px 12px;
   background: var(--bg);
   color: var(--text);
   border: 1px solid var(--border);
-  border-radius: 3px;
+  border-radius: var(--radius);
   font: inherit;
 }
 
+#search {
+  padding-right: 34px;
+}
+
+.search-key {
+  position: absolute;
+  right: 9px;
+  top: 50%;
+  transform: translateY(-50%);
+  min-width: 20px;
+  padding: 0 5px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--text-dim);
+  font: 12px/18px var(--font-number);
+  text-align: center;
+  pointer-events: none;
+}
+
+#search:focus ~ .search-key {
+  display: none;
+}
+
 #search:focus,
-.setup input:focus {
+.setup input:focus,
+.big-search input:focus,
+.toolbar input:focus,
+.toolbar select:focus {
   border-color: var(--accent);
   outline: none;
+  box-shadow: 0 0 0 3px rgba(201, 164, 92, 0.18);
 }
+
+.progress {
+  position: fixed;
+  top: var(--header-h);
+  left: 0;
+  right: 0;
+  z-index: 11;
+  height: 2px;
+  opacity: 0;
+  background: linear-gradient(90deg, transparent, var(--accent), transparent);
+  background-size: 40% 100%;
+  background-repeat: no-repeat;
+  transition: opacity 0.2s 0.15s;
+}
+
+body.loading .progress {
+  opacity: 1;
+  animation: slide 1s linear infinite;
+}
+
+@keyframes slide {
+  from { background-position: -40% 0; }
+  to { background-position: 140% 0; }
+}
+
+/* ---- common parts ---- */
 
 #view {
-  padding: var(--gap);
-}
-
-.home,
-.setup,
-.search-results,
-.missing {
-  max-width: 760px;
+  max-width: var(--content);
+  margin: 0 auto;
+  padding: 22px var(--gap) 40px;
+  outline: none;
+  min-height: 70vh;
 }
 
 h1,
@@ -61,72 +211,601 @@ h3 {
   color: var(--accent);
 }
 
+h1 {
+  font-size: 32px;
+  line-height: 1.15;
+  margin: 0 0 8px;
+}
+
+.lead {
+  max-width: 62ch;
+  margin: 0 0 18px;
+  color: var(--text-dim);
+  font-size: 16px;
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius);
+  padding: 22px 24px;
+}
+
+.notice {
+  padding: 10px 14px;
+  background: rgba(169, 140, 196, 0.08);
+  border: 1px solid rgba(169, 140, 196, 0.3);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-size: 14px;
+}
+
+button.primary,
+.setup button {
+  padding: 8px 18px;
+  background: linear-gradient(#d3b06a, #b18c45);
+  color: #17140c;
+  border: 1px solid #e0bc72;
+  border-radius: var(--radius);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+button.primary:hover,
+.setup button:hover {
+  filter: brightness(1.1);
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 5px 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  color: var(--text);
+  font: inherit;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.chip small {
+  color: var(--text-dim);
+  font-size: 12px;
+}
+
+.chip:hover,
+.chip[aria-pressed='true'] {
+  border-color: var(--accent);
+  color: var(--accent-strong);
+  text-decoration: none;
+}
+
+.chip[aria-pressed='true'] {
+  background: rgba(201, 164, 92, 0.12);
+}
+
+.chip.strong {
+  background: var(--surface-raised);
+  color: var(--accent-strong);
+}
+
+.chips.small .chip {
+  padding: 2px 10px;
+  font-size: 12px;
+  color: var(--text-dim);
+}
+
+.badge {
+  display: inline-block;
+  padding: 1px 8px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--text-dim);
+  font-family: var(--font-body);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  vertical-align: middle;
+}
+
+.badge-item {
+  color: #7fc4b3;
+  border-color: rgba(127, 196, 179, 0.45);
+}
+
+.badge-creature {
+  color: #d98b6f;
+  border-color: rgba(217, 139, 111, 0.45);
+}
+
+.breadcrumb ol {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin: 0 0 10px;
+  padding: 0;
+  list-style: none;
+  font-size: 13px;
+  color: var(--text-dim);
+}
+
+.breadcrumb li + li::before {
+  content: '›';
+  margin-right: 4px;
+  color: var(--border);
+}
+
+.empty-state {
+  color: var(--text-dim);
+}
+
+/* ---- start page ---- */
+
+.home {
+  display: grid;
+  gap: 36px;
+}
+
+.hero {
+  padding: 44px 36px 30px;
+  text-align: center;
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(201, 164, 92, 0.16), transparent 65%),
+    var(--surface);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius);
+}
+
+.eyebrow {
+  margin: 0 0 8px;
+  font-size: 12px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.hero h1 {
+  text-wrap: balance;
+  font-size: 44px;
+}
+
+.hero .lead {
+  margin: 0 auto 22px;
+}
+
+.big-search {
+  display: flex;
+  gap: 10px;
+  max-width: 620px;
+  margin: 0 auto;
+}
+
+.big-search input {
+  padding: 12px 16px;
+  font-size: 17px;
+}
+
+.numbers {
+  display: flex;
+  justify-content: center;
+  gap: 44px;
+  margin: 28px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.numbers li {
+  display: grid;
+  gap: 2px;
+}
+
+.numbers b {
+  font-family: var(--font-display);
+  font-size: 30px;
+  font-weight: 400;
+  color: var(--accent-strong);
+}
+
+.numbers span {
+  font-size: 13px;
+  color: var(--text-dim);
+}
+
+.features {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+  gap: var(--gap);
+}
+
+.feature {
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  overflow: hidden;
+  color: var(--text);
+  transition: border-color 0.15s, transform 0.15s;
+}
+
+.feature:hover {
+  border-color: var(--accent);
+  text-decoration: none;
+  transform: translateY(-2px);
+}
+
+.feature-strip {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  background: radial-gradient(circle at 50% 40%, #1b2027 0%, #0c0e11 75%);
+}
+
+.feature-still {
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+}
+
+.feature-still img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.feature-text {
+  padding: 16px 20px 18px;
+}
+
+.feature-text h2 {
+  margin: 0 0 4px;
+  font-size: 24px;
+}
+
+.feature-text p {
+  margin: 0 0 10px;
+  color: var(--text-dim);
+}
+
+.feature-count {
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.browse-row h2 {
+  font-size: 22px;
+}
+
+.browse-row h3 {
+  margin: 20px 0 10px;
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+/* ---- setup and missing ---- */
+
+.setup,
+.missing {
+  max-width: 640px;
+  margin: 40px auto;
+}
+
 .setup form {
   display: flex;
   gap: 10px;
 }
 
-.setup button {
-  padding: 7px 14px;
-  background: var(--surface-raised);
-  color: var(--text);
-  border: 1px solid var(--border);
-  border-radius: 3px;
-  font: inherit;
-  cursor: pointer;
+.setup-note {
+  color: #d9705f;
 }
 
-.setup button:hover {
+.missing .big-search {
+  margin: 16px 0 0;
+}
+
+/* ---- search results ---- */
+
+.search-results {
+  max-width: 860px;
+}
+
+.filter-chips {
+  display: flex;
+  gap: 8px;
+  margin: 12px 0 4px;
+}
+
+.results h2 {
+  margin: 22px 0 8px;
+  font-size: 13px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  font-family: var(--font-body);
+}
+
+.result-list {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.result {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  padding: 10px 14px;
+  background: var(--surface);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius);
+  transition: border-color 0.15s;
+}
+
+.result:hover,
+.result:focus-within {
   border-color: var(--accent);
 }
 
-.setup-note {
-  color: var(--health);
+.result-thumb {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 52px;
+  height: 52px;
+  background: var(--bg);
+  border: 1px solid var(--border-soft);
+  border-radius: 4px;
+  overflow: hidden;
 }
 
-.text-hits li,
-.title-hits li {
-  margin-bottom: 8px;
+.result-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  image-rendering: pixelated;
+}
+
+.result-thumb.creature img {
+  image-rendering: auto;
+}
+
+.result-thumb.glyph {
+  font-family: var(--font-display);
+  font-size: 22px;
+  color: var(--text-dim);
+}
+
+.result-body {
+  min-width: 0;
+}
+
+.result-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 17px;
+}
+
+.result-facts {
+  margin: 2px 0 0;
+  font-size: 13px;
+  color: var(--text-dim);
 }
 
 .snippet {
-  margin: 2px 0 0;
+  margin: 4px 0 0;
   color: var(--text-dim);
   font-size: 13px;
 }
 
 mark {
   background: none;
-  color: var(--accent);
+  color: var(--accent-strong);
+  font-weight: 700;
 }
 
-/* A page: the wiki text, with the item or creature side beside it. */
+/* ---- browse, categories, grids ---- */
+
+.category-list {
+  columns: 3 260px;
+  margin: 0;
+  padding: 0 0 0 18px;
+}
+
+.category-list li {
+  padding: 3px 0;
+  break-inside: avoid;
+}
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 14px;
+  margin: 4px 0 6px;
+}
+
+.toolbar .search-field {
+  flex: 1 1 260px;
+  max-width: 380px;
+}
+
+.toolbar .sort-field {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.toolbar select {
+  width: auto;
+}
+
+.browser .grid,
+.list-grid .grid {
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: 14px;
+  padding: 12px 0;
+}
+
+.browser .grid,
+.list-grid .grid {
+  align-items: stretch;
+}
+
+.tile {
+  display: flex;
+  flex-direction: column;
+  transition: border-color 0.15s, transform 0.15s;
+}
+
+.tile .tile-name {
+  flex: 1;
+}
+
+.grid-title {
+  margin: 26px 0 2px;
+  font-size: 22px;
+}
+
+.list-grid > .grid-title:first-child,
+.list-grid > .notice + .grid-title {
+  margin-top: 6px;
+}
+
+@media (min-width: 861px) {
+  .detail .viewer {
+    position: sticky;
+    top: 0;
+    align-self: flex-start;
+  }
+}
+
+.tile:hover {
+  transform: translateY(-2px);
+}
+
+.tile img {
+  height: 190px;
+}
+
+/* A tile with no picture yet shows a soft shimmer, and one with no model a plain dark panel. */
+.tile img:not([src]) {
+  background: linear-gradient(100deg, #12151a 30%, #1b2027 50%, #12151a 70%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s linear infinite;
+  visibility: visible;
+}
+
+.tile img.no-model {
+  animation: none;
+}
+
+@keyframes shimmer {
+  from { background-position: 100% 0; }
+  to { background-position: -100% 0; }
+}
+
+a.tile {
+  text-decoration: none;
+}
+
+.tile .tile-name {
+  padding: 8px 10px 10px;
+  font-size: 14px;
+}
+
+.count {
+  margin-left: auto;
+  font-size: 13px;
+  color: var(--text-dim);
+}
+
+/* ---- a page ---- */
+
+.page-head {
+  margin-bottom: 16px;
+}
+
+.title-line {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.title-line h1 {
+  margin: 0;
+}
+
+.page-head .chips {
+  margin-top: 10px;
+}
+
+.page-tabs {
+  display: flex;
+  gap: 4px;
+  margin: 0 0 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+.page-tab {
+  padding: 8px 18px;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  color: var(--text-dim);
+  font: inherit;
+  cursor: pointer;
+}
+
+.page-tab:hover {
+  color: var(--text);
+}
+
+.page-tab[aria-selected='true'] {
+  color: var(--accent-strong);
+  border-bottom-color: var(--accent);
+}
 
 .page-layout {
   display: flex;
-  gap: 24px;
+  gap: 28px;
   align-items: flex-start;
 }
 
 .wiki-text {
   flex: 1 1 auto;
   min-width: 0;
-  max-width: 900px;
+  max-width: 920px;
 }
 
 .side {
   position: sticky;
-  top: 70px;
-  flex: 0 0 420px;
+  top: calc(var(--header-h) + 16px);
+  flex: 0 0 440px;
   display: flex;
   flex-direction: column;
   gap: 14px;
-  max-height: calc(100vh - 90px);
-  overflow: auto;
   padding: 14px;
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 4px;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
 }
 
 .side .viewer {
@@ -140,31 +819,93 @@ mark {
   .side {
     position: static;
     width: 100%;
+    flex: none;
     max-height: none;
+  }
+  .nav a {
+    padding: 0 8px;
   }
 }
 
-/* The wiki's own tables, in the app's dark panels. */
+/* ---- the wiki's own text ---- */
 
+.wiki-body {
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+.wiki-body > :first-child {
+  margin-top: 0;
+}
+
+.wiki-body h2 {
+  margin: 28px 0 10px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--border-soft);
+  font-size: 24px;
+}
+
+.wiki-body h3 {
+  font-size: 19px;
+}
+
+.wiki-body ul {
+  padding-left: 22px;
+}
+
+.wiki-body li {
+  margin: 3px 0;
+}
+
+/* Layout tables carry no borders of their own; the dark panel around them does the framing. */
 .wiki-text table {
   border-collapse: collapse;
   margin: 8px 0;
-  background: var(--surface);
   color: var(--text);
   max-width: 100%;
+  background: none;
+}
+
+.wiki-text table table {
+  margin: 0;
 }
 
 .wiki-text td,
 .wiki-text th {
   padding: 4px 8px;
-  border: 1px solid var(--border-soft);
+  border: none;
   vertical-align: top;
 }
 
 .wiki-text th {
-  background: var(--surface-raised);
   color: var(--accent);
   font-weight: 400;
+  text-align: left;
+}
+
+.wiki-text table.wikitable {
+  width: 100%;
+  background: var(--surface);
+  font-size: 14px;
+}
+
+.wiki-text table.wikitable td,
+.wiki-text table.wikitable th {
+  border: 1px solid var(--border-soft);
+}
+
+.wiki-text table.wikitable th {
+  background: var(--surface-raised);
+}
+
+.wiki-text table.wikitable tr:hover td {
+  background: rgba(201, 164, 92, 0.05);
+}
+
+/* The infobox of an item page: the stats as a framed card. */
+.wiki-text table[width='300'],
+.wiki-text td > table > tbody > tr > td > table {
+  background: var(--surface);
 }
 
 .wiki-text img {
@@ -182,17 +923,49 @@ mark {
   color: var(--text-dim);
 }
 
-/* The item panel */
+.wiki-text hr {
+  border: none;
+  border-top: 1px solid var(--border-soft);
+}
+
+.wiki-infobox {
+  margin: 8px 0;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+.wiki-infobox > summary {
+  padding: 8px 12px;
+  color: var(--text-dim);
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.wiki-infobox > summary:hover {
+  color: var(--text);
+}
+
+.wiki-infobox[open] > summary {
+  border-bottom: 1px solid var(--border-soft);
+}
+
+/* ---- the item panel and the creature panel in the side ---- */
 
 .item-head {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
+}
+
+.item-head h2 {
+  margin: 0;
+  font-size: 24px;
 }
 
 .item-icon {
-  width: 32px;
-  height: 32px;
+  width: 36px;
+  height: 36px;
   image-rendering: pixelated;
 }
 
@@ -201,14 +974,36 @@ mark {
   font-style: italic;
 }
 
+/* Label, value and the game's tag in three aligned columns. */
+.appraisal-rows {
+  grid-template-columns: max-content 1fr;
+  gap: 4px 18px;
+}
+
+.appraisal-rows dt {
+  white-space: nowrap;
+}
+
+.appraisal-rows dd {
+  display: flex;
+  justify-content: flex-end;
+  align-items: baseline;
+  gap: 8px;
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+
 .appraisal-rows dd .game {
-  margin-left: 6px;
+  flex: none;
+  min-width: 64px;
+  margin-left: 0;
   font-size: 12px;
   color: var(--text-dim);
+  text-align: left;
 }
 
 .appraisal-rows dd .game.differs {
-  color: var(--health);
+  color: #e0a25f;
   font-weight: 700;
 }
 
@@ -217,18 +1012,53 @@ mark {
   color: var(--wiki);
 }
 
-/* The list page's grid */
-
-.list-grid .grid {
-  padding: var(--gap) 0;
+.side .viewer canvas,
+.detail .viewer canvas {
+  border-radius: var(--radius);
 }
 
-a.tile {
+.motions button {
+  border-radius: var(--radius);
+}
+
+.trophy img.missing {
+  visibility: hidden;
+}
+
+.trophy a {
   text-decoration: none;
 }
 
+/* ---- the open view ---- */
+
+.detail {
+  backdrop-filter: blur(3px);
+}
+
+.detail-inner {
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+@media (max-width: 860px) {
+  .detail {
+    padding: 0;
+  }
+  .detail-inner {
+    flex-direction: column;
+    height: 100%;
+    border-radius: 0;
+  }
+  .detail-inner .viewer {
+    flex: none;
+  }
+}
+
 .app-credit {
-  padding: var(--gap);
+  max-width: var(--content);
+  margin: 0 auto;
+  padding: 18px var(--gap) 30px;
+  border-top: 1px solid var(--border-soft);
 }
 
 /* The hidden canvas the grid stills are drawn on. */
@@ -238,4 +1068,2232 @@ a.tile {
   top: 0;
   width: 280px;
   height: 280px;
+}
+
+@media (max-width: 700px) {
+  .app-header {
+    gap: 10px;
+    padding: 0 10px;
+  }
+  .hero {
+    padding: 28px 16px 22px;
+  }
+  .hero h1 {
+    font-size: 30px;
+  }
+  .numbers {
+    gap: 20px;
+  }
+  .big-search {
+    flex-direction: column;
+  }
+  .features {
+    grid-template-columns: 1fr;
+  }
+  h1 {
+    font-size: 26px;
+  }
+}
+
+/* ---- readable UI text ---- */
+
+.nav,
+.chip,
+.badge,
+.toolbar,
+.breadcrumb,
+.count,
+.numbers span,
+.result-facts,
+.snippet,
+.tile .tile-level,
+.tile-note,
+.page-tab,
+.appraisal .rows,
+.appraisal .level,
+.appraisal .bar,
+.appraisal .skill,
+.appraisal .resistances,
+.appraisal .variants,
+.appraisal .spells,
+.appraisal .section h3,
+.appraisal .tab,
+.motions button,
+.hint,
+.meta-strip,
+.feature-count,
+.wiki-infobox > summary {
+  font-family: var(--font-ui);
+}
+
+.appraisal {
+  font-size: 15px;
+}
+
+.rows dt,
+.rows dd {
+  font-size: 14px;
+}
+
+.appraisal .rows dd,
+.appraisal .bar b,
+.appraisal .skill .skill-value {
+  font-variant-numeric: tabular-nums;
+}
+
+.hint {
+  font-size: 13px;
+}
+
+/* ---- the panel: the wiki's rows in the page's own colours, and a clear variant picker ---- */
+
+.wiki .rows dd,
+.wiki a {
+  color: var(--text);
+}
+
+.wiki a {
+  color: var(--link);
+}
+
+.wiki h3 {
+  color: var(--text-dim);
+}
+
+.variant {
+  grid-template-columns: 1fr auto auto auto 64px;
+}
+
+.variant .variant-state {
+  color: var(--text-dim);
+  font-size: 12px;
+  text-align: right;
+}
+
+.variant[aria-current='true'] .variant-state {
+  color: var(--accent-strong);
+  font-weight: 700;
+}
+
+/* ---- the wiki article: the title strip, screenshots and the folded infobox ---- */
+
+.meta-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 10px;
+  margin: 0 0 14px;
+}
+
+.meta-strip > div {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px;
+  padding: 5px 12px;
+  background: var(--surface);
+  border: 1px solid var(--border-soft);
+  border-radius: 999px;
+  font-size: 14px;
+}
+
+.meta-strip dt {
+  color: var(--text-dim);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.meta-strip dd {
+  margin: 0;
+}
+
+.wiki-shots {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  float: right;
+  max-width: 300px;
+  margin: 0 0 14px 22px;
+}
+
+.wiki-shots figure {
+  margin: 0;
+  padding: 6px;
+  background: var(--surface);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius);
+}
+
+.wiki-shots img {
+  display: block;
+  max-width: 100%;
+  border-radius: 3px;
+}
+
+.wiki-text td,
+.wiki-text th {
+  text-align: left;
+}
+
+.wiki-text table.wikitable th {
+  text-align: center;
+}
+
+.wiki-body table:not(.wikitable) th[colspan] {
+  text-align: left;
+}
+
+.wiki-body h2 {
+  overflow: hidden;
+}
+
+.wiki-infobox {
+  clear: both;
+  margin-top: 24px;
+}
+
+.wiki-infobox table {
+  margin: 8px;
+}
+
+/* ---- search: two columns on a wide screen, and tiles that tell the kinds apart ---- */
+
+.search-results {
+  max-width: none;
+}
+
+.result-list {
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 440px), 1fr));
+}
+
+.result-group {
+  margin-bottom: 6px;
+}
+
+.result-thumb.glyph {
+  font-family: var(--font-display);
+  color: hsl(var(--hue, 40) 55% 72%);
+  background: hsl(var(--hue, 40) 35% 14%);
+  border-color: hsl(var(--hue, 40) 30% 28%);
+}
+
+.result-title a {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ---- the grid: a note on a base weapon, and a checkbox in the toolbar ---- */
+
+.tile-note {
+  padding: 0 10px 10px;
+  color: var(--accent);
+  font-size: 12px;
+}
+
+.check-field {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-dim);
+  font-family: var(--font-ui);
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.check-field input {
+  accent-color: var(--accent);
+}
+
+/* ---- a narrow screen: the header takes two rows, with the search at full width ---- */
+
+@media (max-width: 700px) {
+  :root {
+    --header-h: 98px;
+  }
+  .app-header {
+    flex-wrap: wrap;
+    align-content: center;
+    gap: 6px 10px;
+    padding: 6px 12px;
+  }
+  .brand {
+    font-size: 20px;
+    gap: 8px;
+  }
+  .nav {
+    align-self: auto;
+    margin-left: auto;
+  }
+  .nav a {
+    padding: 6px 8px;
+    border-bottom: none;
+    border-radius: var(--radius);
+  }
+  .nav a[aria-current='page'] {
+    background: rgba(201, 164, 92, 0.14);
+  }
+  #search-form {
+    flex: 1 0 100%;
+    max-width: none;
+    order: 3;
+    margin-left: 0;
+  }
+  .wiki-shots {
+    float: none;
+    max-width: none;
+    margin: 0 0 14px;
+  }
+}
+
+/* ---- round 3 ---- */
+
+.wiki-shots {
+  max-width: 240px;
+}
+
+.wiki-body,
+.wiki-text table {
+  font-family: var(--font-ui);
+}
+
+.wiki-body {
+  font-size: 15.5px;
+  line-height: 1.65;
+}
+
+.wiki-body h2,
+.wiki-body h3 {
+  font-family: var(--font-display);
+}
+
+.toolbar .check-field {
+  flex: none;
+  white-space: nowrap;
+}
+
+.tile {
+  position: relative;
+}
+
+.tile-note {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  padding: 2px 8px;
+  background: rgba(21, 24, 29, 0.88);
+  border: 1px solid rgba(201, 164, 92, 0.5);
+  border-radius: 999px;
+  color: var(--accent-strong);
+  font-size: 11px;
+  letter-spacing: 0.03em;
+}
+
+.compare {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.compare .vs {
+  padding: 0 6px;
+  border: 1px solid rgba(224, 162, 95, 0.5);
+  border-radius: 4px;
+  color: #e0a25f;
+  font-family: var(--font-ui);
+  font-size: 12px;
+}
+
+.open-page {
+  display: inline-block;
+  margin: 6px 0 0;
+  padding: 3px 12px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  font-family: var(--font-ui);
+  font-size: 13px;
+}
+
+.open-page:hover {
+  border-color: var(--accent);
+  text-decoration: none;
+}
+
+.jump {
+  display: none;
+  gap: 8px;
+  margin: 0 0 12px;
+}
+
+@media (max-width: 1000px) {
+  .jump {
+    display: flex;
+  }
+}
+
+
+@media (max-width: 700px) {
+  .side .viewer canvas {
+    aspect-ratio: 4 / 3;
+    max-height: 300px;
+  }
+}
+
+/* ---- round 4 ---- */
+
+body.on-home #search-form:not(:focus-within) {
+  opacity: 0;
+}
+
+.layers {
+  display: grid;
+  max-width: 300px;
+}
+
+.layers > img {
+  grid-area: 1 / 1;
+  width: 100%;
+  height: auto;
+}
+
+.wiki-shots {
+  max-width: 200px;
+}
+
+/* The model stays a short window so the stats show above the fold. */
+.side .viewer canvas {
+  aspect-ratio: 4 / 3;
+}
+
+.tile-note {
+  background: transparent;
+  border-color: transparent;
+  color: var(--text-dim);
+  font-size: 11px;
+}
+
+.variant .class-id {
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+.variant:hover .class-id,
+.variant:focus-visible .class-id {
+  opacity: 1;
+}
+
+.appraisal .game {
+  color: var(--text-dim);
+  cursor: help;
+}
+
+.appraisal .game.differs {
+  color: #e0a25f;
+}
+
+.close {
+  top: 10px;
+  right: 12px;
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  color: var(--text);
+  font-size: 22px;
+}
+
+.close:hover {
+  border-color: var(--accent);
+}
+
+.meta-strip > div {
+  flex: 0 1 auto;
+}
+
+.search-hit-count {
+  color: var(--text-dim);
+}
+
+/* One numeric face in the panels. */
+.rows dd,
+.bar b,
+.skill .skill-value,
+.resistance b,
+.variant .class-id,
+.trophy .trophy-chance {
+  font-family: var(--font-ui);
+}
+
+.appraisal h2,
+.appraisal .level {
+  font-family: var(--font-display);
+}
+
+/* ---- round 5 ---- */
+
+.tile {
+  position: static;
+}
+
+.tile-note {
+  position: static;
+  padding: 0 10px 10px;
+  color: var(--accent);
+  font-size: 12px;
+}
+
+.variant {
+  grid-template-columns: 1fr auto auto auto 64px;
+}
+
+.variant .variant-xp {
+  color: var(--text-dim);
+  font-size: 12px;
+}
+
+.compare .vs {
+  border-color: var(--border);
+  color: var(--text-dim);
+}
+
+.appraisal .game.differs {
+  color: var(--text-dim);
+}
+
+/* ---- round 7 ---- */
+
+/* Larger, calmer secondary text. */
+:root {
+  --text-dim: #b4ab9b;
+}
+
+.tile .tile-level,
+.tile-note,
+.hint,
+.result-facts,
+.breadcrumb ol,
+.count,
+.variant,
+.variant .class-id,
+.variant .variant-xp,
+.bar,
+.resistance,
+.appraisal .level {
+  font-size: 14px;
+}
+
+.rows dt,
+.rows dd,
+.skill .skill-targets {
+  font-size: 15px;
+}
+
+.section h3,
+.meta-strip dt,
+.feature-count {
+  font-size: 13px;
+}
+
+.variant .class-id {
+  opacity: 0.8;
+}
+
+.variant .variant-n {
+  color: var(--text-dim);
+  font-size: 12px;
+}
+
+/* A view switch and the compact creature table. */
+.view-switch {
+  display: inline-flex;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  font-family: var(--font-ui);
+}
+
+.view-switch button {
+  padding: 6px 14px;
+  background: var(--surface);
+  color: var(--text-dim);
+  border: none;
+  font: inherit;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.view-switch button + button {
+  border-left: 1px solid var(--border);
+}
+
+.view-switch button[aria-pressed='true'] {
+  background: rgba(201, 164, 92, 0.16);
+  color: var(--accent-strong);
+}
+
+.creature-table {
+  margin-top: 14px;
+  overflow-x: auto;
+  font-family: var(--font-ui);
+}
+
+.creature-table table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 15px;
+}
+
+.creature-table th {
+  padding: 0;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  text-align: right;
+  position: sticky;
+  top: var(--header-h);
+}
+
+.creature-table th:first-child {
+  text-align: left;
+}
+
+.creature-table th button {
+  width: 100%;
+  padding: 10px 12px;
+  background: none;
+  border: none;
+  color: var(--text-dim);
+  font: inherit;
+  font-size: 13px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-align: inherit;
+  cursor: pointer;
+}
+
+.creature-table th[aria-sort='ascending'] button,
+.creature-table th[aria-sort='descending'] button {
+  color: var(--accent-strong);
+}
+
+.creature-table td {
+  padding: 9px 12px;
+  border-bottom: 1px solid var(--border-soft);
+}
+
+.creature-table td.num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.creature-table td.name {
+  font-family: var(--font-display);
+  font-size: 16px;
+}
+
+.creature-table td.name small {
+  color: var(--text-dim);
+  font-family: var(--font-ui);
+  font-size: 12px;
+}
+
+.creature-table tbody tr {
+  cursor: pointer;
+}
+
+.creature-table tbody tr:hover,
+.creature-table tbody tr:focus-visible {
+  background: rgba(201, 164, 92, 0.08);
+  outline: none;
+}
+
+/* Under the model in the creature pop-up. */
+.quick-facts {
+  display: grid;
+  gap: 1px;
+  margin: 14px 0 0;
+  background: var(--border-soft);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius);
+  overflow: hidden;
+  font-family: var(--font-ui);
+}
+
+.quick-facts > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 12px;
+  background: var(--surface-raised);
+  font-size: 15px;
+}
+
+.quick-facts dt {
+  color: var(--text-dim);
+}
+
+.quick-facts dd {
+  margin: 0;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+/* The jump bar shows where you are. */
+.jump {
+  position: sticky;
+  top: var(--header-h);
+  z-index: 4;
+  padding: 8px 0;
+  background: var(--bg);
+}
+
+.jump .chip[aria-pressed='true'] {
+  background: rgba(201, 164, 92, 0.2);
+  border-color: var(--accent);
+  color: var(--accent-strong);
+}
+
+/* No empty band under the mobile header on the start page. */
+@media (max-width: 700px) {
+  body.on-home #search-form {
+    display: none;
+  }
+  body.on-home {
+    --header-h: 56px;
+  }
+}
+
+/* ---- round 8 ---- */
+
+/* The model window is shorter and its button sits on it, so the stats start higher. */
+.side .viewer {
+  position: relative;
+  gap: 0;
+}
+
+.side .viewer .motions {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 8px;
+  padding: 0 8px;
+  justify-content: flex-end;
+  pointer-events: none;
+}
+
+.side .viewer .motions button {
+  pointer-events: auto;
+  background: rgba(21, 24, 29, 0.85);
+}
+
+.side .viewer .hint {
+  margin-top: 6px;
+}
+
+.side .viewer canvas {
+  aspect-ratio: 16 / 10;
+}
+
+/* creatures: motion buttons stay below the model, as they are the way to see it move */
+.side .viewer .motions:has(button:nth-child(2)) {
+  position: static;
+  padding: 8px 0 0;
+  justify-content: center;
+}
+
+/* The wiki screenshot is a thumbnail until it is clicked. */
+.wiki-shots {
+  max-width: 150px;
+}
+
+.wiki-shots figure {
+  cursor: zoom-in;
+}
+
+.wiki-shots figure.zoomed {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  padding: 24px;
+  background: rgba(4, 5, 7, 0.9);
+  border: none;
+  border-radius: 0;
+  cursor: zoom-out;
+}
+
+.wiki-shots figure.zoomed img {
+  max-height: 85vh;
+  width: auto;
+  max-width: 92vw;
+}
+
+.wiki-shots figure.zoomed figcaption {
+  color: var(--text-dim);
+  font-size: 13px;
+}
+
+.tile .tile-name {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 12px;
+  color: var(--text);
+  font-family: var(--font-ui);
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.tile .tile-name .tile-icon {
+  width: 28px;
+  height: 28px;
+  image-rendering: pixelated;
+  flex: none;
+  border: none;
+  background: none;
+  height: 28px;
+  object-fit: contain;
+}
+
+.tile .tile-level {
+  font-size: 14px;
+  color: var(--text-dim);
+}
+
+.tile-note {
+  font-family: var(--font-ui);
+}
+
+.bars-note {
+  margin: 4px 0 0;
+  color: var(--text-dim);
+  font-family: var(--font-ui);
+  font-size: 12px;
+}
+
+.creature-table {
+  scroll-margin-top: calc(var(--header-h) + 8px);
+}
+
+/* An item or creature page: the title and key numbers sit beside the model, so both start at the top. */
+.page.has-side {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 440px;
+  grid-template-rows: auto auto 1fr;
+  grid-template-areas:
+    'head side'
+    'jump side'
+    'text side';
+  column-gap: 28px;
+  align-items: start;
+}
+
+.page.has-side > .page-head {
+  grid-area: head;
+}
+
+.page.has-side > .jump {
+  grid-area: jump;
+}
+
+.page.has-side > .page-layout {
+  display: contents;
+}
+
+.page.has-side .wiki-text {
+  grid-area: text;
+  max-width: none;
+}
+
+.page.has-side .side {
+  grid-area: side;
+  align-self: start;
+}
+
+@media (max-width: 1000px) {
+  .page.has-side {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto;
+    grid-template-areas:
+      'head'
+      'jump'
+      'side'
+      'text';
+  }
+}
+
+/* ---- round 9 ---- */
+
+.creature-table {
+  overflow-x: clip;
+}
+
+.creature-table th {
+  z-index: 3;
+  background: var(--bg);
+  box-shadow: 0 1px 0 var(--border);
+}
+
+.creature-table table {
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+/* Spells as a list, not a ragged right edge. */
+.rows dd.spell-list {
+  display: grid;
+  justify-items: end;
+  gap: 2px;
+  text-align: right;
+}
+
+/* The side panel fades where it scrolls on. */
+
+
+/* Cards read left to right: icon, then the name, and a plain note. */
+.tile {
+  text-align: left;
+}
+
+.tile .tile-name {
+  justify-content: flex-start;
+  text-align: left;
+}
+
+.tile .tile-level {
+  text-align: left;
+  padding: 0 12px 12px;
+}
+
+.tile-note {
+  margin: 0 12px 12px;
+  padding: 2px 10px;
+  align-self: flex-start;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  color: var(--accent);
+  font-size: 12px;
+}
+
+.tile-badge {
+  margin-left: 0;
+}
+
+.compare .vs {
+  border: none;
+  padding: 0;
+  color: var(--text-dim);
+}
+
+/* The start page: numbers that link, and category tiles. */
+.numbers a,
+.numbers .plain {
+  display: grid;
+  gap: 2px;
+  justify-items: center;
+  color: inherit;
+}
+
+.numbers a:hover {
+  text-decoration: none;
+}
+
+.numbers a:hover b {
+  color: var(--accent-strong);
+  text-decoration: underline;
+}
+
+.category-tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: 10px;
+}
+
+.category-tile {
+  display: grid;
+  gap: 2px;
+  padding: 14px 16px;
+  background: var(--surface);
+  border: 1px solid var(--border-soft);
+  border-left: 3px solid var(--accent);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-family: var(--font-ui);
+}
+
+.category-tile:hover {
+  border-color: var(--accent);
+  background: var(--surface-raised);
+  text-decoration: none;
+}
+
+.category-tile .category-name {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.category-tile small {
+  color: var(--text-dim);
+  font-size: 13px;
+}
+
+.enhanced-star {
+  margin-left: auto;
+  color: var(--accent);
+  font-size: 14px;
+  cursor: help;
+}
+
+/* ---- round 10 ---- */
+
+:root {
+  --font-body: var(--font-ui);
+  --font-number: var(--font-ui);
+}
+
+body {
+  font-family: var(--font-ui);
+}
+
+.tries {
+  margin: 14px 0 0;
+  color: var(--text-dim);
+  font-size: 14px;
+}
+
+.tries a {
+  margin: 0 4px;
+  padding: 2px 10px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+}
+
+.tile {
+  position: relative;
+}
+
+.tile-lv {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  padding: 2px 9px;
+  background: rgba(21, 24, 29, 0.92);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  font-family: var(--font-ui);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.tile-lv[data-tier='1'] { color: #9fc88a; border-color: rgba(159, 200, 138, 0.5); }
+.tile-lv[data-tier='2'] { color: #e0bc72; border-color: rgba(224, 188, 114, 0.5); }
+.tile-lv[data-tier='3'] { color: #e0a25f; border-color: rgba(224, 162, 95, 0.55); }
+.tile-lv[data-tier='4'] { color: #e07a6b; border-color: rgba(224, 122, 107, 0.55); }
+
+img.icon-fallback {
+  object-fit: contain;
+  padding: 56px;
+  image-rendering: pixelated;
+}
+
+.result-list.collapsed > .later {
+  display: none;
+}
+
+.more {
+  margin-top: 10px;
+}
+
+.result-thumb.glyph {
+  font-size: 24px;
+}
+
+.variant > span {
+  white-space: nowrap;
+}
+
+/* ---- round 11 ---- */
+
+.tries a {
+  white-space: nowrap;
+  display: inline-block;
+  margin: 3px 3px;
+}
+
+/* The three vital pools as plain numbers: no bar to misread. */
+.bars {
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.bars .bar {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0;
+  padding: 8px 12px;
+  background: var(--surface-raised);
+  border-radius: var(--radius);
+  border-top: 3px solid var(--border);
+}
+
+.bars .bar.health { border-top-color: var(--health); }
+.bars .bar.stamina { border-top-color: var(--stamina); }
+.bars .bar.mana { border-top-color: var(--mana); }
+
+.bars .bar .track {
+  display: none;
+}
+
+.bars .bar span {
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.bars .bar b {
+  font-size: 22px;
+  text-align: left;
+  font-variant-numeric: tabular-nums;
+}
+
+.compare .vs {
+  color: #e0a25f;
+}
+
+.tile-weak {
+  display: block;
+  margin-top: 2px;
+  color: var(--text-dim);
+}
+
+.creature-table td.name {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-ui);
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.row-still {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+  background: radial-gradient(circle at 50% 40%, #1b2027 0%, #0c0e11 70%);
+  border-radius: 4px;
+  flex: none;
+}
+
+/* ---- round 12 ---- */
+
+img.row-still:not([src]),
+.tile img:not([src]),
+.result-thumb img:not([src]) {
+  visibility: hidden;
+}
+
+.tile {
+  justify-content: flex-start;
+}
+
+.tile .tile-name {
+  flex: 0 0 auto;
+  align-items: flex-start;
+  min-height: 3.4em;
+}
+
+.tile .tile-name .tile-icon {
+  margin-top: 1px;
+}
+
+.side .appraisal > h2,
+.side .item-head h2 {
+  display: none;
+}
+
+.side .item-head {
+  margin-bottom: 4px;
+}
+
+.compare .vs {
+  color: var(--text-dim);
+}
+
+.badge-item,
+.badge-creature {
+  color: var(--accent);
+  border-color: rgba(201, 164, 92, 0.45);
+}
+
+.hero {
+  padding: 30px 36px 22px;
+}
+
+.hero .lead {
+  margin-bottom: 14px;
+}
+
+.numbers {
+  margin-top: 16px;
+}
+
+.feature-still {
+  aspect-ratio: 5 / 4;
+}
+
+.variant .class-id {
+  opacity: 0.55;
+}
+
+/* ---- round 13 ---- */
+
+@media (min-width: 1280px) {
+  .page.has-side {
+    grid-template-columns: minmax(0, 1fr) 520px;
+  }
+}
+
+/* grouped appraisal rows */
+.appraisal-rows .group {
+  margin-top: 14px;
+}
+
+.appraisal-rows .group:first-child {
+  margin-top: 4px;
+}
+
+.appraisal-rows .group h3 {
+  margin: 0 0 4px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--border-soft);
+  font-family: var(--font-ui);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+/* variants as a table */
+.variant-head,
+.variant {
+  display: grid;
+  grid-template-columns: 1fr 60px 70px 90px 70px;
+  gap: 8px;
+  align-items: baseline;
+}
+
+.variant-head {
+  padding: 0 6px 4px;
+  color: var(--text-dim);
+  font-family: var(--font-ui);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.variant-head span:nth-child(n + 2),
+.variant .num {
+  text-align: right;
+}
+
+.variant .num {
+  font-variant-numeric: tabular-nums;
+}
+
+.variant .variant-name {
+  font-weight: 600;
+}
+
+.variant-head span:last-child {
+  text-align: right;
+}
+
+.compare .vs {
+  padding: 1px 8px;
+  border: 1px solid rgba(201, 164, 92, 0.4);
+  border-radius: 4px;
+  color: var(--accent-strong);
+}
+
+
+/* the start page's other categories */
+.more-categories {
+  margin-top: 14px;
+}
+
+.more-categories summary {
+  cursor: pointer;
+  padding: 8px 0;
+  color: var(--accent-strong);
+  font-family: var(--font-ui);
+  font-size: 14px;
+}
+
+.more-categories .category-tiles {
+  margin-top: 8px;
+}
+
+/* a narrow screen shows one part at a time */
+
+@media (max-width: 700px) {
+  .page.has-side[data-tab='model'] .side .viewer canvas {
+    aspect-ratio: 1 / 1;
+    max-height: none;
+  }
+}
+
+/* ---- round 14 ---- */
+
+/* The item panel's head is a framed header, like the game's appraisal window. */
+.side .item-head {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  padding: 12px 14px;
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.side .item-head .item-icon {
+  width: 48px;
+  height: 48px;
+  flex: none;
+  padding: 4px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  image-rendering: pixelated;
+}
+
+.side .item-head h2,
+.side .appraisal > h2 {
+  display: block;
+  margin: 0;
+  font-size: 22px;
+}
+
+.side .item-titles {
+  min-width: 0;
+}
+
+.side .item-description {
+  margin: 4px 0 0;
+  color: var(--text-dim);
+  font-style: italic;
+  font-size: 14px;
+}
+
+.appraisal .level {
+  font-family: var(--font-ui);
+}
+
+.sources-differ {
+  margin: 8px 0 0;
+  color: var(--text-dim);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.wiki-infobox {
+  margin-top: 12px;
+}
+
+.wiki-infobox > summary {
+  font-size: 14px;
+}
+
+.wiki-infobox table {
+  font-size: 13px;
+}
+
+.enhanced-star {
+  margin-left: auto;
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 400;
+  white-space: nowrap;
+}
+
+.browser .tile img,
+.list-grid .tile img {
+  height: 210px;
+}
+
+.result.no-thumb {
+  padding-left: 18px;
+}
+
+@media (max-width: 1000px) {
+  .page.has-side[data-tab='model'] .wiki-text,
+  .page.has-side[data-tab='article'] .side {
+    display: none;
+  }
+  .page.has-side[data-tab='model'] .side > *,
+  .page.has-side[data-tab='model'] .side .viewer {
+    display: revert;
+  }
+  .wiki-shots {
+    float: none;
+    max-width: 150px;
+  }
+}
+
+@media (max-width: 700px) {
+  .page.has-side[data-tab='model'] .side .viewer canvas {
+    aspect-ratio: 4 / 3;
+    max-height: 300px;
+  }
+}
+
+/* ---- round 15 ---- */
+
+.detail-inner {
+  background:
+    linear-gradient(var(--surface) 30%, rgba(21, 24, 29, 0)) top / 100% 40px no-repeat local,
+    linear-gradient(rgba(21, 24, 29, 0), var(--surface) 70%) bottom / 100% 40px no-repeat local,
+    radial-gradient(farthest-side at 50% 0, rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0)) top / 100% 14px no-repeat scroll,
+    radial-gradient(farthest-side at 50% 100%, rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0)) bottom / 100% 14px no-repeat scroll,
+    var(--surface);
+}
+
+.variant .variant-name small {
+  color: var(--text-dim);
+  font-weight: 400;
+  font-size: 12px;
+}
+
+.legend {
+  margin: 0 0 6px;
+  color: var(--text-dim);
+  font-size: 12px;
+}
+
+.row-still {
+  width: 56px;
+  height: 56px;
+}
+
+.creature-table td {
+  padding: 6px 12px;
+}
+
+@media (max-width: 1000px) {
+  .wiki-shots {
+    float: right;
+    max-width: 110px;
+    margin: 0 0 8px 12px;
+  }
+}
+
+/* ---- round 16 ---- */
+
+/* The tick has a column of its own, so the numbers share one right edge. */
+.appraisal-rows dd {
+  position: relative;
+  padding-right: 24px;
+}
+
+.appraisal-rows dd .game:not(.differs) {
+  position: absolute;
+  right: 2px;
+}
+
+.appraisal-rows dd:not(.spell-list) {
+  white-space: nowrap;
+}
+
+/* The bar of a gallery stays whole under the header. */
+.browser .toolbar {
+  position: sticky;
+  top: var(--header-h);
+  z-index: 6;
+  padding: 10px 0;
+  background: var(--bg);
+}
+
+.creature-table th {
+  position: static;
+}
+
+.creature-table {
+  scroll-margin-top: calc(var(--header-h) + 70px);
+}
+
+.list-grid,
+.browser .grid {
+  scroll-margin-top: calc(var(--header-h) + 70px);
+}
+
+.creature-table td.name {
+  min-width: 260px;
+}
+
+.creature-table td.name,
+.creature-table th:first-child {
+  width: 34%;
+}
+
+/* A creature page has its model; the wiki's picture of the same creature and the panel's second heading go. */
+.page.is-creature .wiki-shots {
+  display: none;
+}
+
+.jump-row {
+  cursor: pointer;
+}
+
+.jump-row:hover dd {
+  color: var(--accent-strong);
+}
+
+.related .grid-title {
+  margin-top: 28px;
+}
+
+.detail-inner {
+  padding-bottom: 28px;
+}
+
+@media (max-width: 1000px) {
+  .wiki-shots {
+    float: none;
+    max-width: 140px;
+    margin: 0 0 12px;
+  }
+}
+
+/* ---- round 17 ---- */
+
+.creature-table td.name {
+  display: table-cell;
+  min-width: 0;
+  width: 40%;
+}
+
+.creature-table .name-inner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.creature-table .name-text {
+  display: grid;
+  gap: 1px;
+}
+
+.creature-table .name-text b {
+  font-weight: 600;
+}
+
+.creature-table .name-text small {
+  color: var(--text-dim);
+  font-size: 12px;
+}
+
+.appraisal-rows dd {
+  padding-right: 28px;
+}
+
+.appraisal-rows dd .game:not(.differs) {
+  right: 0;
+  width: 20px;
+  text-align: center;
+}
+
+.category-tiles {
+  grid-template-columns: repeat(4, 1fr);
+}
+
+@media (max-width: 800px) {
+  .category-tiles {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1400px) {
+  .page.has-side {
+    grid-template-columns: minmax(0, 1fr) 580px;
+  }
+}
+
+@media (max-width: 1000px) {
+  .wiki-body {
+    display: flex;
+    flex-direction: column;
+  }
+  .wiki-body > .meta-strip {
+    order: 90;
+    margin-top: 16px;
+  }
+  .wiki-body > .wiki-shots {
+    order: 91;
+  }
+}
+
+/* ---- round 18 ---- */
+
+.appraisal-rows dd:not(.spell-list) {
+  display: flex;
+  justify-content: flex-end;
+  align-items: baseline;
+  gap: 8px;
+  padding-right: 0;
+}
+
+.appraisal-rows dd .game,
+.appraisal-rows dd .game:not(.differs) {
+  position: static;
+  flex: none;
+  min-width: 18px;
+  width: auto;
+  text-align: center;
+}
+
+.appraisal-rows dd .game:not(.differs) {
+  width: 18px;
+}
+
+.appraisal-rows dd.spell-list {
+  padding-right: 26px;
+}
+
+@media (max-width: 1000px) {
+  .wiki-body > div {
+    display: flex;
+    flex-direction: column;
+  }
+  .wiki-body .meta-strip {
+    order: 90;
+    margin-top: 16px;
+  }
+  .wiki-body .wiki-shots {
+    order: 91;
+    align-self: flex-start;
+  }
+}
+
+/* ---- round 19 ---- */
+
+.creature-table td.weak {
+  color: var(--text-dim);
+  font-size: 14px;
+  padding-left: 24px;
+}
+
+.creature-table th:last-child {
+  text-align: left;
+  padding-left: 12px;
+}
+
+/* An item is small: its model window is wide and short, so the stats start higher. */
+@media (min-width: 1001px) {
+  .page.has-side:not(.is-creature) .side .viewer canvas {
+    aspect-ratio: 4 / 3;
+  }
+}
+
+/* Home: no counts, a lighter hero, the feature cards sooner. */
+.hero {
+  padding: 26px 36px 20px;
+}
+
+.feature-still {
+  aspect-ratio: 16 / 9;
+}
+
+.home {
+  gap: 28px;
+}
+
+/* On a phone the header scrolls away; the tabs and filters stay. */
+@media (max-width: 700px) {
+  :root,
+  body.on-home {
+    --header-h: 0px;
+  }
+  .app-header {
+    position: static;
+  }
+  .progress {
+    top: 0;
+  }
+  .jump {
+    top: 0;
+  }
+}
+
+.tile .tile-name {
+  min-height: 0;
+}
+
+.tile .tile-name + .tile-level {
+  padding-top: 0;
+}
+
+.creature-table td.weak.common {
+  color: var(--border);
+}
+
+.creature-table td.weak:not(.common) {
+  color: var(--accent-strong);
+}
+
+.category-tile .category-name {
+  white-space: pre-wrap;
+}
+
+.recent {
+  margin-top: -6px;
+}
+
+/* ---- round 20 ---- */
+
+.creature-table td.weak,
+.creature-table td.weak:not(.common) {
+  color: var(--text);
+}
+
+.source {
+  color: var(--text-dim);
+}
+
+.tile .tile-name {
+  font-size: 17px;
+}
+
+.filter-chips .chip small {
+  color: inherit;
+  opacity: 0.85;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.jump {
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+  margin: 0 -18px 12px;
+  padding: 10px 18px;
+}
+
+@media (max-width: 700px) {
+  .nav {
+    order: 2;
+    flex: 1 0 100%;
+    margin-left: 0;
+    overflow-x: auto;
+    gap: 2px;
+  }
+  .nav a {
+    white-space: nowrap;
+  }
+  #search-form {
+    order: 3;
+  }
+  .app-header {
+    row-gap: 4px;
+  }
+}
+
+.setup button {
+  white-space: nowrap;
+}
+
+/* ---- round 21 ---- */
+
+body {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+#view {
+  flex: 1 0 auto;
+  width: 100%;
+}
+
+.app-credit {
+  margin-top: auto;
+}
+
+.related-pages {
+  margin-top: 28px;
+  clear: both;
+}
+
+.related-pages .result-list {
+  grid-template-columns: 1fr;
+}
+
+.category-note {
+  margin: 20px 0 0;
+  color: var(--text-dim);
+  font-size: 14px;
+  max-width: 70ch;
+}
+
+.eyebrow {
+  display: none;
+}
+
+.feature-still {
+  aspect-ratio: 3 / 2;
+}
+
+@media (max-width: 700px) {
+  .search-key {
+    display: none;
+  }
+}
+
+.side .quick-facts {
+  margin-bottom: 4px;
+}
+
+/* ---- round 22 ---- */
+
+:root {
+  /* One colour for things you can click: a warm cream-gold, so links sit with the gold headings, not against them. */
+  --link: #e0c98f;
+}
+
+a {
+  text-decoration-color: rgba(224, 201, 143, 0.35);
+}
+
+a:hover {
+  color: #f2dfae;
+}
+
+.wiki-body a,
+.result-title a,
+.related-pages a {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+
+.result-title a,
+.tile {
+  text-decoration: none;
+}
+
+body.on-setup .nav,
+body.on-setup #search-form {
+  visibility: hidden;
+}
+
+.creature-table td.name {
+  width: 30%;
+}
+
+.creature-table td.name,
+.creature-table th:first-child {
+  width: 30%;
+}
+
+@media (max-width: 700px) {
+  .breadcrumb {
+    display: none;
+  }
+}
+
+/* ---- round 23 ---- */
+
+/* A dotted rule runs across every appraisal row, so the eye can follow a label to its value. */
+.appraisal-rows .rows dt,
+.appraisal-rows .rows dd {
+  padding-top: 3px;
+  padding-bottom: 3px;
+  border-bottom: 1px dotted var(--border-soft);
+}
+
+.appraisal-rows .rows {
+  gap: 0;
+}
+
+.related-pages {
+  display: flow-root;
+  clear: none;
+  margin-top: 20px;
+}
+
+.feature-still {
+  aspect-ratio: 4 / 3;
+}
+
+.jump .chip[aria-pressed='true'] {
+  background: linear-gradient(#d3b06a, #b18c45);
+  border-color: #e0bc72;
+  color: #17140c;
+  font-weight: 700;
+}
+
+@media (max-width: 700px) {
+  .page.has-side .page-head .chips {
+    display: none;
+  }
+  .page.has-side .jump {
+    margin-top: -4px;
+  }
+}
+
+/* ---- round 24 ---- */
+
+:root {
+  --link: #cdbe96;
+}
+
+a:hover {
+  color: #eadbb2;
+}
+
+.wiki-body a,
+.related-pages a {
+  text-decoration-color: rgba(205, 190, 150, 0.35);
+}
+
+.wiki-shots figcaption {
+  display: none;
+}
+
+.tile img.tile-corner-icon {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 34px;
+  height: 34px;
+  padding: 3px;
+  background: rgba(12, 14, 17, 0.88);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  image-rendering: pixelated;
+  object-fit: contain;
+}
+
+.tile img.tile-corner-icon[hidden] {
+  display: none;
+}
+
+.meta-strip > div {
+  background: transparent;
+}
+
+/* ---- round 25 ---- */
+
+/* Pills are for actions. Tags are plain small labels, and the page's facts read as a line of text. */
+.page-head .chips.small {
+  gap: 4px 0;
+}
+
+.page-head .chips.small .chip {
+  padding: 0;
+  background: none;
+  border: none;
+  color: var(--text-dim);
+  font-size: 13px;
+  letter-spacing: 0.02em;
+}
+
+.page-head .chips.small .chip + .chip::before {
+  content: '·';
+  margin: 0 8px;
+  color: var(--border);
+}
+
+.page-head .chips.small .chip:hover {
+  color: var(--accent-strong);
+  background: none;
+}
+
+.meta-strip {
+  gap: 6px 28px;
+}
+
+.meta-strip > div {
+  padding: 0;
+  border: none;
+  border-radius: 0;
+  background: none;
+}
+
+.creature-table th.weak-head {
+  text-align: left;
+  padding-left: 12px;
+}
+
+.creature-table th:last-child:not(.weak-head) {
+  text-align: right;
+  padding-left: 0;
+}
+
+/* A creature page gets the same appraisal header card an item page has: the name, with its level as a badge. */
+.page.is-creature .side .appraisal > h2 {
+  display: inline-block;
+  margin: 0 10px 0 0;
+  font-size: 22px;
+}
+
+.side .appraisal > .level {
+  display: inline-block;
+  padding: 2px 10px;
+  border: 1px solid rgba(201, 164, 92, 0.5);
+  border-radius: 999px;
+  color: var(--accent-strong);
+  font-size: 13px;
+  font-weight: 700;
+  vertical-align: 3px;
+}
+
+.setup-hint {
+  margin: 12px 0 0;
+  color: var(--text-dim);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+/* ---- round 27 ---- */
+
+/* The header search stays in one place on every page. */
+body.on-home #search-form:not(:focus-within) {
+  opacity: 1;
+}
+
+/* The wiki screenshot says what it is. */
+.wiki-shots:not(:has(.zoomed))::after {
+  content: 'Wiki screenshot · click to enlarge';
+  display: block;
+  margin-top: 6px;
+  color: var(--text-dim);
+  font-size: 12px;
+  line-height: 1.3;
+}
+
+/* Small uppercase labels: a little larger and brighter. */
+.meta-strip dt,
+.meta-strip > div > :first-child,
+.appraisal-rows .group h3,
+.side .appraisal .group > h3,
+.category-tiles small,
+.tile-sub,
+.source {
+  color: #b4ad9d;
+}
+.meta-strip dt,
+.meta-strip > div > :first-child {
+  font-size: 12.5px;
+}
+
+/* The creature table reads as a table: tighter rows, a name column that does not swallow the rest. */
+@media (min-width: 1001px) {
+  .creature-table .name-text small {
+    display: inline;
+    margin-left: 8px;
+  }
+  .creature-table .name-text {
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+  }
+  .creature-table td {
+    padding-top: 5px;
+    padding-bottom: 5px;
+  }
+  .creature-table td.name,
+  .creature-table th:first-child {
+    width: 34%;
+  }
+}
+
+/* A model stands in a soft pool of light, so a dark model does not sink into a dark tile. */
+.tile img[src]:not(.tile-corner-icon):not(.no-model) {
+  background:
+    radial-gradient(ellipse 52% 46% at 50% 46%, rgba(110, 150, 230, 0.26), rgba(110, 150, 230, 0.07) 65%, transparent 100%),
+    linear-gradient(#171b22, #10131a);
+  filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.55));
+}
+
+/* The wiki screenshot lives in the side panel of an item page; the article keeps one clean column. */
+.side .wiki-shots {
+  float: none;
+  max-width: 150px;
+  margin: 18px 0 0;
+}
+
+@media (min-width: 1001px) {
+  .related-pages .result-list {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* The best match is a card of its own, above the lists. */
+.top-hit {
+  margin: 0 0 22px;
+}
+
+.top-hit h2 {
+  margin: 0 0 8px;
+  font-size: 13px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #b4ad9d;
+  font-family: var(--font-ui);
+}
+
+.top-hit .result {
+  padding: 16px 20px;
+  border-color: rgba(201, 164, 92, 0.55);
+  background: linear-gradient(100deg, rgba(201, 164, 92, 0.1), var(--surface) 60%);
+}
+
+.top-hit .result-thumb {
+  width: 72px;
+  height: 72px;
+}
+
+.top-hit .result-title {
+  font-size: 20px;
+}
+
+.search-results .filter-chips {
+  margin-bottom: 20px;
+}
+
+/* A category tile has a symbol, so the tiles are told apart by shape before they are read. */
+.category-tile:has(.category-glyph) {
+  grid-template-columns: 34px 1fr;
+  column-gap: 12px;
+  align-items: center;
+}
+
+.category-tile .category-glyph {
+  grid-row: 1 / span 2;
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  background: rgba(201, 164, 92, 0.14);
+  color: var(--accent-strong);
+  font-size: 18px;
+}
+
+.wiki-extras {
+  display: flex;
+  align-items: flex-start;
+  gap: 24px;
+  margin-top: 28px;
+}
+
+.wiki-extras .wiki-infobox {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.wiki-extras .wiki-shots {
+  float: none;
+  flex: 0 0 160px;
+  max-width: 160px;
+  margin: 0;
+}
+
+@media (max-width: 1000px) {
+  .wiki-extras {
+    flex-direction: column;
+  }
+}
+
+/* ---- setup: a folder picker ---- */
+
+.setup button.browse {
+  width: 100%;
+  padding: 12px 18px;
+  font-size: 16px;
+  margin-top: 6px;
+}
+
+.setup button:disabled,
+.setup input:disabled {
+  opacity: 0.55;
+  cursor: progress;
+}
+
+.setup .setup-or {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 18px 0 14px;
+  color: var(--text-dim);
+  font-size: 13px;
+}
+
+.setup .setup-or::before,
+.setup .setup-or::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+.setup form {
+  align-items: flex-end;
+}
+
+.setup .setup-field {
+  flex: 1;
+  display: grid;
+  gap: 6px;
+  font-size: 13px;
+  color: #b4ad9d;
+}
+
+.setup button.secondary {
+  background: transparent;
+  color: var(--accent-strong);
+  border: 1px solid var(--accent);
+}
+
+.setup button.secondary:hover {
+  background: rgba(201, 164, 92, 0.12);
+  filter: none;
+}
+
+.setup-note:empty {
+  display: none;
+}
+
+.setup-note.ok {
+  color: #8fc98a;
+}
+
+.setup-note.error {
+  color: #e8806f;
+}
+
+.setup-note {
+  margin: 14px 0 0;
+  padding: 10px 12px;
+  border-radius: var(--radius);
+  background: rgba(255, 255, 255, 0.04);
+  line-height: 1.45;
+}
+
+.setup .setup-skip {
+  display: inline-block;
+  margin-top: 16px;
+  color: var(--text-dim);
+  font-size: 14px;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.setup .setup-skip:hover {
+  color: var(--accent-strong);
 }

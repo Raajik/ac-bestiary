@@ -10,7 +10,8 @@ use std::sync::Mutex;
 
 use rusqlite::{Connection, OpenFlags, limits::Limit, types::ValueRef};
 use serde_json::{Map, Value};
-use tauri::{Manager, State, http};
+use tauri::{AppHandle, Manager, State, http};
+use tauri_plugin_dialog::DialogExt;
 
 const PORTAL_DAT: &str = "client_portal.dat";
 /** The largest DAT range one call serves; RangedDat asks for far less. */
@@ -77,6 +78,24 @@ fn set_install_folder(state: State<AppState>, folder: String) -> Result<String, 
     fs::write(&state.settings_file, Value::Object(settings).to_string()).map_err(|e| e.to_string())?;
     *state.portal.lock().unwrap() = None;
     Ok(dir.to_string_lossy().into_owned())
+}
+
+/// Ask for the install folder with the system's folder dialog. `None` when the dialog is closed without a choice.
+/// An async command, so the dialog does not block the thread that draws the window.
+#[tauri::command]
+async fn pick_install_folder(app: AppHandle, start: Option<String>) -> Result<Option<String>, String> {
+    let mut dialog = app.dialog().file().set_title("Choose the Asheron's Call folder (the one with client_portal.dat)");
+    if let Some(dir) = start.map(PathBuf::from).filter(|dir| dir.is_dir()) {
+        dialog = dialog.set_directory(dir);
+    }
+    let picked = dialog.blocking_pick_folder();
+    match picked {
+        None => Ok(None),
+        Some(path) => path
+            .into_path()
+            .map(|dir| Some(dir.to_string_lossy().into_owned()))
+            .map_err(|e| e.to_string()),
+    }
 }
 
 /// `length` bytes of client_portal.dat from `offset` (fewer only at the end of the file).
@@ -194,6 +213,7 @@ fn serve_image(images: &Path, request: &http::Request<Vec<u8>>) -> http::Respons
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
+        .plugin(tauri_plugin_dialog::init())
         .setup(|app| {
             let snapshot_dir = find_snapshot_dir(app);
             let settings_file = app.path().app_config_dir()?.join("settings.json");
@@ -209,7 +229,7 @@ pub fn run() {
             let state = ctx.app_handle().state::<AppState>();
             serve_image(&state.snapshot_dir.join("images"), &request)
         })
-        .invoke_handler(tauri::generate_handler![install_folder, set_install_folder, read_dat_range, snapshot_query])
+        .invoke_handler(tauri::generate_handler![install_folder, set_install_folder, pick_install_folder, read_dat_range, snapshot_query])
         .run(tauri::generate_context!())
         .expect("error while running the AC wiki app");
 }

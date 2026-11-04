@@ -154,3 +154,105 @@ export async function loadImageFiles(query: QueryFn): Promise<Map<string, string
   const rows = await query('select name, file from images');
   return new Map(rows.map((row) => [String(row.name), String(row.file)]));
 }
+
+export type HitKind = 'item' | 'creature' | 'page';
+
+/** What a search hit is: a page with game records, or a plain page, with its first category as the label. */
+export interface HitInfo {
+  title: string;
+  kind: HitKind;
+  /** "Item", "Creature", or the page's first category. */
+  label: string;
+  categories: string[];
+  /** A short fact line: a creature's level and health, an item's skill. */
+  detail: string;
+  item: ItemRecord | null;
+  creature: Creature | null;
+}
+
+/** Describe the titles of search hits: their kind, categories and key facts, in one statement. */
+export async function describeTitles(query: QueryFn, titles: string[]): Promise<Map<string, HitInfo>> {
+  const result = new Map<string, HitInfo>();
+  if (titles.length === 0) return result;
+  const rows = await query(
+    `select p.title, p.categories, i.data as idata, c.data as cdata
+     from json_each(?) j join pages p on p.title = j.value
+     left join items i on i.title = p.title left join creatures c on c.title = p.title`,
+    [JSON.stringify(titles)],
+  );
+  for (const row of rows) {
+    const categories = (JSON.parse(String(row.categories)) as string[]).filter((name) => !name.startsWith('Pages with '));
+    const item = row.idata ? (JSON.parse(String(row.idata)) as ItemRecord) : null;
+    const creature = row.cdata ? (JSON.parse(String(row.cdata)) as Creature) : null;
+    let detail = '';
+    if (creature) {
+      const levels = creature.variants.map((v) => v.level);
+      const low = Math.min(...levels);
+      const high = Math.max(...levels);
+      detail = `Level ${low === high ? low : `${low}–${high}`} · ${Math.max(...creature.variants.map((v) => v.health)).toLocaleString('en')} health`;
+    }
+    result.set(String(row.title), {
+      title: String(row.title),
+      kind: creature ? 'creature' : item ? 'item' : 'page',
+      label: creature ? 'Creature' : item ? 'Item' : (categories[0] ?? 'Page'),
+      categories,
+      detail,
+      item,
+      creature,
+    });
+  }
+  return result;
+}
+
+export interface SnapshotStats {
+  pages: number;
+  items: number;
+  creatures: number;
+  /** The most used categories of the wiki, with their page counts. */
+  categories: { name: string; count: number }[];
+}
+
+/** The numbers the start page shows. */
+export async function loadStats(query: QueryFn, categoryLimit = 14): Promise<SnapshotStats> {
+  const [counts] = await query(
+    'select (select count(*) from pages) as pages, (select count(*) from items) as items, (select count(*) from creatures) as creatures',
+  );
+  const categories = await query(
+    `select j.value as name, count(*) as n from pages, json_each(pages.categories) j
+     where j.value not like 'Pages with %' and j.value <> 'Patch'
+     group by j.value order by n desc, j.value limit ?`,
+    [categoryLimit],
+  );
+  return {
+    pages: Number(counts.pages),
+    items: Number(counts.items),
+    creatures: Number(counts.creatures),
+    categories: categories.map((row) => ({ name: String(row.name), count: Number(row.n) })),
+  };
+}
+
+/** The titles of the pages in a category, A to Z. */
+export async function loadCategory(query: QueryFn, name: string): Promise<string[]> {
+  const rows = await query(
+    'select p.title from pages p, json_each(p.categories) j where j.value = ? order by p.title',
+    [name],
+  );
+  return rows.map((row) => String(row.title));
+}
+
+/** Every item page with game records, and every creature page, for the browse screens. */
+export async function loadAllItems(query: QueryFn): Promise<ItemRecord[]> {
+  const rows = await query('select data from items order by title');
+  return rows.map((row) => JSON.parse(String(row.data)) as ItemRecord);
+}
+
+export async function loadAllCreatures(query: QueryFn): Promise<Creature[]> {
+  const rows = await query('select data from creatures order by title');
+  return rows.map((row) => JSON.parse(String(row.data)) as Creature);
+}
+
+/** The categories of a page, for its header chips. */
+export async function loadCategories(query: QueryFn, title: string): Promise<string[]> {
+  const rows = await query('select categories from pages where title = ?', [title]);
+  return rows[0] ? (JSON.parse(String(rows[0].categories)) as string[]) : [];
+}

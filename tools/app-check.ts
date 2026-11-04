@@ -30,7 +30,11 @@ function invoke(cmd: string, args: Record<string, unknown>): unknown {
     case 'install_folder':
       return dirname(PORTAL_DAT);
     case 'set_install_folder':
+      // The real command rejects a folder with no client_portal.dat in it.
+      if (String(args.folder).includes('nowhere')) throw new Error(`${args.folder} has no client_portal.dat`);
       return args.folder;
+    case 'pick_install_folder':
+      return dirname(PORTAL_DAT);
     case 'read_dat_range': {
       const bytes = Buffer.alloc(Number(args.length));
       const n = readSync(dat, bytes, 0, bytes.length, Number(args.offset));
@@ -71,18 +75,26 @@ async function visit(page: Page, hash: string): Promise<void> {
   await page.waitForTimeout(300);
 }
 
-/** Wait until `count` images in `selector` have a data URL (the stills), or the time runs out. */
+/**
+ * Scroll through the page until every picture in `selector` has a data URL (the stills render when a tile nears the
+ * screen), or the time runs out. Gives how many are drawn.
+ */
 async function stillsDrawn(page: Page, selector: string, timeout = 300_000): Promise<number> {
   const started = Date.now();
   let drawn = 0;
   let total = 0;
   while (Date.now() - started < timeout) {
-    [drawn, total] = await page.$$eval(selector, (imgs) => [
-      imgs.filter((img) => (img as HTMLImageElement).src.startsWith('data:')).length,
-      imgs.length,
-    ]);
+    [drawn, total] = await page.$$eval(selector, (imgs) => {
+      for (const img of imgs) {
+        if (!(img as HTMLImageElement).src.startsWith('data:')) {
+          img.scrollIntoView({ block: 'center' });
+          break;
+        }
+      }
+      return [imgs.filter((img) => (img as HTMLImageElement).src.startsWith('data:')).length, imgs.length];
+    });
     if (total > 0 && drawn === total) break;
-    await page.waitForTimeout(1000);
+    await page.waitForTimeout(500);
   }
   return drawn;
 }
@@ -120,20 +132,21 @@ try {
 
   // Search "quiddity" lists Quiddity Weapons.
   await page.fill('#search', 'quiddity');
-  await page.waitForSelector('.title-hits li');
-  const titles = await page.$$eval('.title-hits a', (as) => as.map((a) => a.textContent));
+  await page.waitForSelector('.result');
+  const titles = await page.$$eval('.result-title a', (as) => as.map((a) => a.textContent));
   check('search "quiddity" lists Quiddity Weapons', titles.includes('Quiddity Weapons'), titles.slice(0, 4).join(', '));
   await page.screenshot({ path: join(out, '1-search.png') });
 
   // Quiddity Weapons: its table with icons, and the model grid.
   await visit(page, '#/page/Quiddity%20Weapons');
-  await page.waitForSelector('.wiki-text table');
+  await page.waitForSelector('.wiki-text table', { state: 'attached' });
   const icons = await page.$$eval('.wiki-text table img', (imgs) =>
     imgs.filter((img) => (img as HTMLImageElement).complete && (img as HTMLImageElement).naturalWidth > 0).length,
   );
   check('Quiddity Weapons shows its table with icons', icons >= 20, `${icons} icons drawn`);
   const itemStills = await stillsDrawn(page, '.list-grid .tile img');
-  check('Quiddity Weapons shows a model grid', itemStills >= 20, `${itemStills} stills`);
+  // The grid shows each Enhanced weapon with its base weapon (13 tiles of the 25 pages) until the box is unticked.
+  check('Quiddity Weapons shows a model grid', itemStills >= 12, `${itemStills} stills`);
   await page.screenshot({ path: join(out, '2-quiddity-weapons.png'), fullPage: true });
 
   // Bow of the Quiddity: model, appraisal panel with the template's stats, and its notes.
@@ -147,7 +160,7 @@ try {
   check('Bow: Range 75', rows['Range']?.startsWith('75') ?? false, rows['Range']);
   check(
     'Bow: its three spells',
-    /Aura of Defender IV, Aura of Blood Drinker V, Aura of Swift Killer IV/.test(rows['Spells'] ?? ''),
+    /Aura of Defender IV\s*,?\s*Aura of Blood Drinker V\s*,?\s*Aura of Swift Killer IV/.test(rows['Spells'] ?? ''),
     rows['Spells'],
   );
   const notes = await page.$eval('.wiki-text', (el) => (el as HTMLElement).innerText);
@@ -168,6 +181,7 @@ try {
   check('Bow: its model draws', modelPixels > 500, `${modelPixels} pixels`);
   // The Bow's setup runs a default script (the glow): the picture changes while nothing else moves.
   // (A string, because tsx adds a helper to named functions that the page does not have.)
+  await page.click('.side .motions button');
   const glow = await page.evaluate(`(async () => {
     const canvas = document.querySelector('.side .viewer canvas');
     const read = () => new Promise((resolve) => requestAnimationFrame(() => {
@@ -193,7 +207,9 @@ try {
 
   // Tusker: the wiki's text with the creature grid; a Tusker opens the bestiary's view.
   await visit(page, '#/page/Tusker');
-  await page.waitForSelector('.list-grid .tile');
+  await page.waitForSelector('.list-grid .tile', { state: 'attached' });
+  // A family of this size opens as a table; the models are one click away.
+  await page.click('.view-switch button:first-child');
   const creatureStills = await stillsDrawn(page, '.list-grid .tile img');
   check('Tusker shows the creature grid', creatureStills >= 30, `${creatureStills} stills`);
   await page.screenshot({ path: join(out, '4-tusker.png'), fullPage: true });
@@ -211,6 +227,23 @@ try {
   check('Tusker Guard shows the bestiary view beside its text', true);
   await page.waitForTimeout(3000);
   await page.screenshot({ path: join(out, '6-tusker-guard.png') });
+
+  // The setup page: a wrong folder says what is wrong, the Browse button picks the install and opens the app.
+  await visit(page, '#/setup');
+  await page.waitForSelector('.setup button.browse');
+  await page.fill('.setup input', 'C:\\nowhere');
+  await page.click('.setup button.secondary');
+  await page.waitForSelector('.setup-note.error');
+  const refusal = await page.$eval('.setup-note', (el) => (el as HTMLElement).innerText);
+  check('setup: a folder with no client_portal.dat is refused with a reason', /client_portal\.dat/.test(refusal), refusal);
+  await page.click('.setup button.browse');
+  await page.waitForFunction(() => location.hash === '#/' || location.hash === '');
+  check('setup: Browse picks the install folder and opens the app', true);
+  await visit(page, '#/setup');
+  await page.waitForSelector('.setup .setup-skip');
+  await page.click('.setup .setup-skip');
+  await page.waitForSelector('.hero');
+  check('setup: “Continue without models” opens the start page', true);
 
   check('no page errors', errors.length === 0, errors.slice(0, 3).join(' | '));
 } catch (error) {

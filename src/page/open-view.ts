@@ -37,7 +37,7 @@ export class OpenView {
     /** The model builder that holds the files of the variant's model. */
     private readonly models: (variant: Variant) => Promise<CreatureModels>,
     /** Runs after each panel render (the app turns the panel's links into app links). */
-    private readonly afterPanel: (panel: HTMLElement) => void = () => {},
+    private readonly afterPanel: (panel: HTMLElement, creature: Creature, variant: Variant) => void = () => {},
   ) {
     this.viewer = new ModelViewer(parts.canvas);
   }
@@ -45,7 +45,7 @@ export class OpenView {
   show(creature: Creature, variant: Variant): void {
     const show = ++this.shown;
     renderPanel(this.parts.panel, creature, variant, (next) => this.show(creature, next));
-    this.afterPanel(this.parts.panel);
+    this.afterPanel(this.parts.panel, creature, variant);
     if (this.parts.scrollBox) this.parts.scrollBox.scrollTop = 0;
 
     this.models(variant)
