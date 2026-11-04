@@ -215,3 +215,10 @@ packages/shared/src/types.ts
 packages/shared/src/util/round.ts
 packages/shared/src/vcs5/vcs5.ts
 packages/shared/src/weenie-types.ts
+packages/renderer/src/effects/EmitterSprite.ts
+packages/renderer/src/effects/ObjectLights.ts
+packages/renderer/src/effects/ParticleGfx.ts
+packages/renderer/src/effects/ParticleSystem.ts
+packages/renderer/src/effects/PhysicsScriptPlayer.ts
+packages/renderer/src/effects/SpellEffects.ts
+packages/renderer/src/world/StaticAnimationDriver.ts

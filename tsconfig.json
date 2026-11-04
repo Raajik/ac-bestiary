@@ -18,6 +18,7 @@
       "node"
     ],
     "baseUrl": ".",
+    "rootDirs": ["vendor/asheron-web/packages/renderer/src", "vendor-stubs"],
     "paths": {
       "@ac/shared": ["vendor/asheron-web/packages/shared/src/index.ts"],
       "@ac/shared/*": ["vendor/asheron-web/packages/shared/src/*"],
