@@ -166,6 +166,29 @@ try {
     resolve(drawn);
   })));
   check('Bow: its model draws', modelPixels > 500, `${modelPixels} pixels`);
+  // The Bow's setup runs a default script (the glow): the picture changes while nothing else moves.
+  // (A string, because tsx adds a helper to named functions that the page does not have.)
+  const glow = await page.evaluate(`(async () => {
+    const canvas = document.querySelector('.side .viewer canvas');
+    const read = () => new Promise((resolve) => requestAnimationFrame(() => {
+      const copy = document.createElement('canvas');
+      copy.width = canvas.width;
+      copy.height = canvas.height;
+      const context = copy.getContext('2d');
+      context.drawImage(canvas, 0, 0);
+      resolve(context.getImageData(0, 0, copy.width, copy.height).data);
+    }));
+    const first = await read();
+    await new Promise((resolve) => setTimeout(resolve, 700));
+    const second = await read();
+    let changed = 0;
+    for (let i = 0; i < first.length; i += 4) {
+      const d = Math.abs(first[i] - second[i]) + Math.abs(first[i + 1] - second[i + 1]) + Math.abs(first[i + 2] - second[i + 2]) + Math.abs(first[i + 3] - second[i + 3]);
+      if (d > 24) changed++;
+    }
+    return changed;
+  })()`) as number;
+  check('Bow: its glow animates', glow > 100, `${glow} pixels changed in 0.7 s`);
   await page.screenshot({ path: join(out, '3-bow-of-the-quiddity.png') });
 
   // Tusker: the wiki's text with the creature grid; a Tusker opens the bestiary's view.

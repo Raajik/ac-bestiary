@@ -20,6 +20,7 @@ import { setCellLighting } from '../../vendor/asheron-web/packages/renderer/src/
 import { installMirrorAwareCulling } from '../../vendor/asheron-web/packages/renderer/src/scene/WorldMirror.js';
 
 import type { CreatureModelSpec, CreatureModels } from '../lib/creature-model.js';
+import { ModelEffects } from './effects.js';
 import { attackMotion, motionButtons, type MotionButton, type MotionName } from './motions.js';
 import { zoomAfterWheel, zoomedPosition } from './zoom.js';
 
@@ -38,6 +39,8 @@ export class ModelViewer {
   private playing: MotionName = 'idle';
   private dragging = false;
   private zoom = 1;
+  private source: { models: CreatureModels; spec: CreatureModelSpec } | null = null;
+  private effects: ModelEffects | null = null;
   private lastX = 0;
   private frame = 0;
   private lastTime = 0;
@@ -81,6 +84,8 @@ export class ModelViewer {
   setModel(model: THREE.Group | null): void {
     this.model = model;
     this.zoom = 1;
+    this.source = null;
+    this.dropEffects();
     if (!model) return;
 
     setCellLighting(model, false, true);
@@ -97,6 +102,7 @@ export class ModelViewer {
   setCreature(models: CreatureModels, spec: CreatureModelSpec): void {
     const model = models.build(spec);
     this.setModel(model);
+    this.source = { models, spec };
 
     this.entity = model ? models.animate(model, spec) : null;
     this.buttons = motionButtons(this.entity?.motionManager.activeMotionTable ?? null);
@@ -106,6 +112,7 @@ export class ModelViewer {
     // shows and not the rest pose.
     this.entity?.update(0);
     this.frameModel();
+    if (this.frame) this.startEffects();
   }
 
   /**
@@ -223,8 +230,21 @@ export class ModelViewer {
     this.renderer.render(this.scene, this.camera);
   }
 
+  private startEffects(): void {
+    this.dropEffects();
+    if (!this.model || !this.source) return;
+    this.effects = ModelEffects.create(this.source.models, this.source.spec.setupId, this.model, () => this.camera, !this.entity);
+  }
+
+  private dropEffects(): void {
+    this.effects?.dispose();
+    this.effects = null;
+  }
+
   /** Draw the model on every frame, until the viewer is closed. */
   start(): void {
+    if (this.frame) cancelAnimationFrame(this.frame);
+    this.startEffects();
     this.lastTime = performance.now();
     const loop = () => {
       this.frame = requestAnimationFrame(loop);
@@ -234,6 +254,7 @@ export class ModelViewer {
       this.lastTime = now;
 
       this.entity?.update(delta);
+      this.effects?.update(delta);
       this.draw();
     };
     this.frame = requestAnimationFrame(loop);
@@ -243,5 +264,6 @@ export class ModelViewer {
   stop(): void {
     if (this.frame) cancelAnimationFrame(this.frame);
     this.frame = 0;
+    this.dropEffects();
   }
 }

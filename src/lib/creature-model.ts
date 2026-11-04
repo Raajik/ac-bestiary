@@ -8,6 +8,7 @@ import * as THREE from 'three';
 
 import { DatReader } from '../../vendor/asheron-web/packages/dat-parser/src/DatReader.js';
 import { ClothingTable } from '../../vendor/asheron-web/packages/dat-parser/src/file-types/ClothingTable.js';
+import { SetupModel } from '../../vendor/asheron-web/packages/dat-parser/src/file-types/SetupModel.js';
 import { Palette } from '../../vendor/asheron-web/packages/dat-parser/src/file-types/Palette.js';
 import { PaletteSet } from '../../vendor/asheron-web/packages/dat-parser/src/file-types/PaletteSet.js';
 import { DatFileSubset } from '../../vendor/asheron-web/packages/dat-parser/src/RangedDat.js';
@@ -171,6 +172,11 @@ export class CreatureModels {
     const entity = new AnimatedEntity(group, db);
     entity.initFromMotionTable(spec.motionTableId);
     return entity;
+  }
+
+  /** What the effects of a model read: the files, the textures and the parsed setup (null when its file is missing). */
+  effectSources(setupId: number): { db: DatDatabase; textures: TextureManager; setup: SetupModel | null } {
+    return { db: this.files as unknown as DatDatabase, textures: this.textures, setup: this.setups.loadSetupModel(setupId) };
   }
 
   /** The model of a creature, in the rest pose. */

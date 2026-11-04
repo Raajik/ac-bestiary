@@ -7,9 +7,14 @@
 // names.
 
 import { DatReader } from '../../vendor/asheron-web/packages/dat-parser/src/DatReader.js';
+import { Animation } from '../../vendor/asheron-web/packages/dat-parser/src/file-types/Animation.js';
+import { AnimationHookType, type AnimationHook, type CallPESHookData, type CreateParticleHookData } from '../../vendor/asheron-web/packages/dat-parser/src/file-types/AnimationHook.js';
 import { ClothingTable } from '../../vendor/asheron-web/packages/dat-parser/src/file-types/ClothingTable.js';
 import { GfxObj } from '../../vendor/asheron-web/packages/dat-parser/src/file-types/GfxObj.js';
+import { GfxObjDegradeInfo } from '../../vendor/asheron-web/packages/dat-parser/src/file-types/GfxObjDegradeInfo.js';
 import { MotionTable, type MotionData } from '../../vendor/asheron-web/packages/dat-parser/src/file-types/MotionTable.js';
+import { ParticleEmitterInfo } from '../../vendor/asheron-web/packages/dat-parser/src/file-types/ParticleEmitterInfo.js';
+import { PhysicsScript } from '../../vendor/asheron-web/packages/dat-parser/src/file-types/PhysicsScript.js';
 import { SetupModel } from '../../vendor/asheron-web/packages/dat-parser/src/file-types/SetupModel.js';
 import { Surface } from '../../vendor/asheron-web/packages/dat-parser/src/file-types/Surface.js';
 import { SurfaceTexture } from '../../vendor/asheron-web/packages/dat-parser/src/file-types/SurfaceTexture.js';
@@ -35,18 +40,54 @@ export function modelRoots(model: ModelSpec): number[] {
   );
 }
 
+/** The files a hook names: the particle emitter it creates and the script it calls. */
+function hookFiles(hooks: AnimationHook[]): number[] {
+  const out: number[] = [];
+  for (const hook of hooks) {
+    if (hook?.hookType === AnimationHookType.CreateParticle) out.push((hook as CreateParticleHookData).emitterInfoId);
+    else if (hook?.hookType === AnimationHookType.CallPES) out.push((hook as CallPESHookData).pes);
+  }
+  return out.filter((x) => !!x);
+}
+
 /**
  * The files one file names, by its type (the top byte of the id). Clothing
  * names files for each setup; only the model's own setup counts.
+ *
+ * With `effects`, the setup's default script and default animation count too, with the particle emitters
+ * they create (the glow of a Quiddity weapon). The build's bundle leaves them out.
  */
-export function modelDependencies(setupId: number): (id: number, data: ArrayBuffer) => number[] {
+export function modelDependencies(setupId: number, effects = false): (id: number, data: ArrayBuffer) => number[] {
+  // The emitters' own models: only those get their degrade chain read.
+  const emitterModels = new Set<number>();
   return (id, data) => {
     const reader = new DatReader(data);
     switch (id >>> 24) {
-      case 0x02:
-        return new SetupModel(reader).parts;
-      case 0x01:
-        return new GfxObj(reader).surfaces;
+      case 0x02: {
+        const setup = new SetupModel(reader);
+        return effects ? [...setup.parts, setup.defaultScript, setup.defaultAnimation].filter((x) => !!x) : setup.parts;
+      }
+      case 0x33:
+        return effects ? hookFiles(PhysicsScript.read(reader).steps.map((step) => step.hook!)) : [];
+      case 0x03:
+        return effects ? hookFiles(new Animation(reader).partFrames.flatMap((frame) => frame.hooks)) : [];
+      case 0x32: {
+        if (!effects) return [];
+        const emitter = new ParticleEmitterInfo(reader);
+        const models = [emitter.gfxObjId, emitter.hwGfxObjId].filter((x) => !!x);
+        models.forEach((model) => emitterModels.add(model));
+        return models;
+      }
+      case 0x11:
+        return effects
+          ? GfxObjDegradeInfo.read(reader)
+              .degrades.map((level) => level.gfxObjId)
+              .filter((x) => !!x && x !== 0xffffffff)
+          : [];
+      case 0x01: {
+        const gfx = new GfxObj(reader);
+        return emitterModels.has(id) && gfx.didDegrade ? [...gfx.surfaces, gfx.didDegrade] : gfx.surfaces;
+      }
       case 0x08: {
         const surface = Surface.read(reader);
         return [surface.origPaletteId, surface.origTextureId].filter((x) => !!x);

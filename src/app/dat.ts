@@ -21,7 +21,7 @@ export class AppDat {
   }
 
   private async read(roots: number[], setupId: number): Promise<void> {
-    const read = await this.dat.readSubset(roots, modelDependencies(setupId));
+    const read = await this.dat.readSubset(roots, modelDependencies(setupId, true));
     for (const id of read.fileIds) this.files.set(id, read.getFileData(id)!);
   }
 

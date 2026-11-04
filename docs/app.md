@@ -53,3 +53,22 @@ Facts about the AC wiki app's shell (spec: `specs/wiki-app.md`).
   exe's import table (pefile), 2026-10-31.
 - A non-bundled exe finds the snapshot in `snapshot/` beside it (Tauri's resource folder on Windows is the exe's
   folder). **Unknown:** not yet run on Windows.
+
+## Item effects
+
+- A Setup has a DefaultScript (0x33…) and a DefaultAnimation (0x03…). The game plays the script from the start
+  (`CPhysicsObj::InitDefaults`). The Bow of the Quiddity's setup 0x02000A77 has the script 0x33000B11, whose
+  CreateParticle hooks make the blue glow, and no default animation. **Observed:** `SetupModel` read from the
+  retail `client_portal.dat`, 2026-11-03.
+- The app plays them with asheron-web's own `PhysicsScriptPlayer`, `SpellEffects` and `StaticAnimationDriver`
+  (vendored, with `ParticleSystem` and `EmitterSprite`), in `src/page/effects.ts`. The views play no sound.
+  **Observed:** the Bow's glow changes between frames in `tools/app-check.ts`, 2026-11-03.
+- A model with a motion table is posed by it, so the default animation only plays for models without one.
+  **Unknown:** no item with a default animation has been looked at yet.
+- The files come with `modelDependencies(setupId, true)`: the script, the emitters it creates, their models and
+  degrade chains. The build's bundle and the stills leave them out. **Verified:** `tests/model-effects-files.test.ts`.
+- The canvas has alpha and the page shows through it, so an additive particle that also added alpha painted its
+  black corners opaque. The particles' additive materials leave the canvas alpha alone. **Observed:** app-check
+  screenshot of the Bow, 2026-11-03.
+- `PhysicsScriptPlayer` imports two types from files the app does not vendor (`SoundPlayer`, `SkyObjectFrame`);
+  `vendor-stubs/` holds them for `tsc`, through `rootDirs`. **Verified:** `npx tsc --noEmit`.
