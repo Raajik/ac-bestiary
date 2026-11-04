@@ -22,6 +22,7 @@ import {
   search,
   type HitInfo,
   type WikiPage,
+  familyRoot,
 } from './pages.js';
 import { pageHref, sanitizeWikiHtml } from './sanitize.js';
 import { StillRenderer } from './stills.js';
@@ -102,6 +103,19 @@ function overlayLinks(root: HTMLElement, creature: Creature, variant: Variant): 
 function quickFacts(root: HTMLElement, creature: Creature, variant: Variant): void {
   const column = root.closest('.detail-inner, .side')?.querySelector('.viewer');
   if (!column) return;
+  // The head is the same framed card an item's panel has: a picture, the name, and the level under it.
+  const name = root.querySelector('.appraisal > h2');
+  const level = root.querySelector('.appraisal > .level');
+  if (name && level && !root.querySelector('.item-head')) {
+    const head = element('div', 'item-head creature-head');
+    const icon = element('img', 'item-icon');
+    icon.alt = '';
+    creatureStill(variant, icon);
+    const titles = element('div', 'item-titles');
+    titles.append(name, level);
+    head.append(icon, titles);
+    root.querySelector('.appraisal')?.prepend(head);
+  }
   column.querySelector('.quick-facts')?.remove();
   root.querySelector('.quick-facts')?.remove();
   const box = element('dl', 'quick-facts');
@@ -494,12 +508,16 @@ function kindGlyph(categories: string[]): string {
   const text = categories.join(' ').toLowerCase();
   const table: [RegExp, string][] = [
     [/npc|vendor/, '☺'],
+    [/quest item|reward|token/, '◈'],
     [/quest|event/, '❖'],
+    [/currency|trade/, '◎'],
+    [/armor|clothing|jewelry|cloak/, '⛨'],
+    [/dye|alchemy|ingredient|crafting/, '⚗'],
     [/spell|enchant/, '✦'],
     [/town|geographic|dungeon|landscape|area/, '⌂'],
     [/creature|monster/, '☠'],
     [/patch/, '⟳'],
-    [/weapon|armor|item|currency|token/, '⚔'],
+    [/weapon|item/, '⚔'],
   ];
   return table.find(([pattern]) => pattern.test(text))?.[1] ?? '❡';
 }
@@ -548,10 +566,35 @@ function resultRow(title: string, info: HitInfo | undefined, snippet?: string): 
     }
     body.append(p);
   }
-  if (info?.kind === 'page') li.classList.add('no-thumb');
-  else li.append(thumb);
+  li.append(thumb);
   li.append(body);
   return li;
+}
+
+/** How many pages link to this one. */
+async function linkedFrom(title: string): Promise<number> {
+  const rows = await query('select count(*) as n from pages where links like ?', [`%${JSON.stringify(title)}%`]);
+  return Number(rows[0]?.n ?? 0);
+}
+
+/**
+ * The title that is what was typed, or else the root of the family of titles that start with it ("Quiddity Weapons",
+ * which "Quiddity Weapons Quest" extends), or else the page others link to most.
+ */
+async function pickBestMatch(typed: string, titles: string[]): Promise<string | undefined> {
+  const exact = titles.find((title) => title.toLowerCase() === typed);
+  if (exact) return exact;
+  const starts = titles.filter((title) => title.toLowerCase().startsWith(typed)).slice(0, 8);
+  if (starts.length < 2) return starts[0];
+  const root = familyRoot(starts);
+  if (root) return root;
+  let best = starts[0]!;
+  let bestCount = -1;
+  for (const title of starts) {
+    const count = await linkedFrom(title);
+    if (count > bestCount) [best, bestCount] = [title, count];
+  }
+  return best;
 }
 
 async function showSearch(words: string, current: () => boolean): Promise<void> {
@@ -614,12 +657,16 @@ async function showSearch(words: string, current: () => boolean): Promise<void> 
   };
   // A title that is what was typed (or starts with it) is the best match: it gets a card of its own above the lists.
   const typed = words.trim().toLowerCase();
-  const best = hits.titles.find((title) => title.toLowerCase() === typed) ?? hits.titles.find((title) => title.toLowerCase().startsWith(typed));
+  const best = await pickBestMatch(typed, hits.titles);
   if (best && total > 3) {
     const card = element('section', 'top-hit');
     card.append(element('h2', undefined, 'Best match'));
     const list = element('ul', 'result-list');
-    list.append(resultRow(best, info.get(best)));
+    const row = resultRow(best, info.get(best));
+    row.classList.add('best');
+    const links = await linkedFrom(best);
+    if (links > 1) row.querySelector('.result-body')?.append(element('p', 'snippet', `Linked from ${links} pages in the wiki.`));
+    list.append(row);
     card.append(list);
     box.append(card);
   }
@@ -662,22 +709,23 @@ function itemTile(item: ItemRecord, label?: string, common?: string): HTMLElemen
   image.alt = '';
   // The inventory icon beside the name: the model can be an odd shape, the icon is how the game shows the item.
   const name = element('div', 'tile-name');
-  name.append(element('span', undefined, label ?? item.title));
-  tile.append(image, name);
-  // The game's own icon in the corner: the model can be an odd shape, the icon is how the game shows the item.
-  const corner = element('img', 'tile-corner-icon');
-  corner.alt = '';
-  corner.hidden = true;
+  // The game's own icon sits before the name: the model can be an odd shape, the icon is how the game shows the item.
+  const icon = element('span', 'tile-name-icon');
+  icon.hidden = true;
   itemIcon(variant, (url) => {
-    corner.src = url;
-    corner.hidden = false;
+    icon.style.backgroundImage = `url("${url}")`;
+    icon.hidden = false;
   });
-  tile.append(corner);
-  // What kind of weapon it is ("Missile Weapon · Bow"), and the one number that is not the same on every card.
+  name.append(icon, element('span', undefined, label ?? item.title));
+  tile.append(image, name);
+  // What kind of weapon it is ("Missile Weapon · Bow"), the number that is not the same on every card, and its damage or mana.
   const kinds = (itemInfo.get(item.title)?.categories ?? []).filter((name) => name !== 'Weapon').slice(0, 2);
   const facts = [variant?.values.arcaneLore && `Arcane Lore ${variant.values.arcaneLore}` !== common ? `Arcane Lore ${variant.values.arcaneLore}` : ''].filter(Boolean);
   const line = [...kinds, ...facts].join(' · ');
   if (line) tile.append(element('div', 'tile-level', line));
+  const values = variant?.values;
+  const stat = values?.damage ? `Damage ${values.damage}` : values?.damageMod ? `Modifier ×${values.damageMod.toFixed(2)}` : values?.spellcraft ? `Spellcraft ${values.spellcraft}` : '';
+  if (stat) tile.append(element('div', 'tile-level tile-stats', stat));
   itemStill(variant, image);
   return tile;
 }
@@ -765,14 +813,14 @@ function creatureBrowser(creatures: Creature[]): HTMLElement {
   const toolbar = gridToolbar('creatures', draw, [['level', 'Level'], ['name', 'Name'], ['health', 'Health']]);
   const table = element('div', 'creature-table');
   /** The compact view: one row a creature with the numbers to compare, sorted by a click on a column head. */
-  let column: 'name' | 'level' | 'health' | 'stamina' | 'xp' | 'armor' | 'weak' = 'level';
+  let column: 'name' | 'level' | 'health' | 'stamina' | 'xp' | 'armor' | 'weak' | 'resists' = 'level';
   let descending = false;
   const drawTable = (): void => {
     const { search } = toolbar.state();
     const rows = visibleCreatures(creatures, { search, minLevel: null, maxLevel: null, trophyOnly: false, sort: 'name' });
     const value = (c: Creature): number | string => {
       const v = defaultVariant(c);
-      return column === 'name' ? c.name : column === 'armor' ? v.armorLevel : column === 'weak' ? weakness(v) : v[column];
+      return column === 'name' ? c.name : column === 'armor' ? v.armorLevel : column === 'weak' ? weakness(v) : column === 'resists' ? strength(v) : v[column];
     };
     rows.sort((a, b) => {
       const x = value(a);
@@ -781,24 +829,30 @@ function creatureBrowser(creatures: Creature[]): HTMLElement {
       return (descending ? -order : order) || a.name.localeCompare(b.name);
     });
     toolbar.count(rows.length, creatures.length);
-    const weakTally = new Map<string, number>();
-    for (const c of creatures) weakTally.set(weakness(defaultVariant(c)), (weakTally.get(weakness(defaultVariant(c))) ?? 0) + 1);
-    const commonWeak = [...weakTally.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] ?? '';
-    // A column that says the same on nearly every row says nothing; the cards and the pop-up still show the weakness.
-    const showWeak = (weakTally.get(commonWeak) ?? 0) < creatures.length * 0.55;
+    const commonCell = new Map<string, number>();
+    for (const c of creatures) for (const text of [weakness(defaultVariant(c)), strength(defaultVariant(c))]) commonCell.set(text, (commonCell.get(text) ?? 0) + 1);
     table.textContent = '';
+    // What the level colours mean, and what nearly every row shares, said once above the table.
+    const legend = element('p', 'table-legend');
+    for (const [tier, text] of [['1', 'Level 1–30'], ['2', '31–80'], ['3', '81–100'], ['4', '101+']] as const) {
+      const chip = element('span', 'tile-lv level-chip', text);
+      chip.dataset.tier = tier;
+      legend.append(chip, ' ');
+    }
+    const [sharedWeak] = [...commonCell.entries()].sort((x, y) => y[1] - x[1]);
+    if (sharedWeak) legend.append(element('span', 'legend-note', 'Gold text marks a creature that differs from most of the family.'));
+    table.append(legend);
     const t = element('table');
     const head = element('tr');
-    for (const [key, text] of [['name', 'Creature'], ['level', 'Level'], ['health', 'Health'], ['stamina', 'Stamina'], ['xp', 'XP'], ['armor', 'Armor'], ['weak', 'Weak to']] as const) {
-      if (key === 'weak' && !showWeak) continue;
+    for (const [key, text] of [['name', 'Creature'], ['level', 'Level'], ['health', 'Health'], ['stamina', 'Stamina'], ['xp', 'XP'], ['armor', 'Armor'], ['weak', 'Weak to'], ['resists', 'Resists']] as const) {
       const th = element('th');
       th.scope = 'col';
-      if (key === 'weak') th.className = 'weak-head';
+      if (key === 'weak' || key === 'resists') th.className = 'weak-head';
       const button = element('button', undefined, text + (column === key ? (descending ? ' ▼' : ' ▲') : ''));
       button.type = 'button';
       th.setAttribute('aria-sort', column === key ? (descending ? 'descending' : 'ascending') : 'none');
       button.addEventListener('click', () => {
-        descending = column === key ? !descending : key !== 'name' && key !== 'weak';
+        descending = column === key ? !descending : key !== 'name' && key !== 'weak' && key !== 'resists';
         column = key;
         drawTable();
       });
@@ -824,8 +878,19 @@ function creatureBrowser(creatures: Creature[]): HTMLElement {
       inner.append(thumb, label);
       nameCell.append(inner);
       tr.append(nameCell);
-      for (const n of [v.level, v.health, v.stamina, v.xp, v.armorLevel]) tr.append(element('td', 'num', n.toLocaleString('en')));
-      if (showWeak) tr.append(element('td', 'weak', weakness(v) || '—'));
+      const levelCell = element('td', 'num');
+      const chip = element('span', 'tile-lv level-chip', String(v.level));
+      chip.dataset.tier = v.level <= 30 ? '1' : v.level <= 80 ? '2' : v.level <= 100 ? '3' : '4';
+      levelCell.append(chip);
+      tr.append(levelCell);
+      for (const n of [v.health, v.stamina, v.xp, v.armorLevel]) tr.append(element('td', 'num', n.toLocaleString('en')));
+      for (const text of [weakness(v), strength(v)]) {
+        const cell = element('td', 'weak', text || '—');
+        // The same words on nearly every row are quiet; the creature that differs stands out.
+        if (text && (commonCell.get(text) ?? 0) >= creatures.length * 0.55) cell.classList.add('common');
+        else if (text) cell.classList.add('odd');
+        tr.append(cell);
+      }
       tr.addEventListener('click', () => openOverlay(creature));
       tr.addEventListener('keydown', (event) => {
         if (event.key === 'Enter') openOverlay(creature);
@@ -878,6 +943,15 @@ function creatureBrowser(creatures: Creature[]): HTMLElement {
 const ENHANCED = /^Enhanced /;
 
 /** The damage types a variant takes the most from, as text; empty when they all take the same. */
+/** The damage types a creature takes least from: its best defence. */
+function strength(variant: Variant): string {
+  const list = RESISTANCE_LABELS.filter(([key]) => variant.resistances[key] !== undefined).map(([key, label]) => [label, variant.resistances[key]] as const);
+  if (list.length === 0) return '';
+  const low = Math.min(...list.map(([, n]) => n));
+  if (low === Math.max(...list.map(([, n]) => n))) return '';
+  return list.filter(([, n]) => n === low).map(([k]) => k).join(', ');
+}
+
 function weakness(variant: Variant): string {
   const list = RESISTANCE_LABELS.filter(([key]) => variant.resistances[key] !== undefined).map(([key, label]) => [label, variant.resistances[key]] as const);
   if (list.length === 0) return '';
@@ -1238,10 +1312,9 @@ async function showPage(title: string, current: () => boolean): Promise<void> {
     const shots = body.querySelector('.wiki-shots');
     if (page.kind === 'item') {
       // On an item page the wiki's own stats and its screenshot close the article, so both columns end together.
-      if (infobox || shots) {
+      if (infobox) {
         const extras = element('section', 'wiki-extras');
-        if (infobox) extras.append(infobox);
-        if (shots) extras.append(shots);
+        extras.append(infobox);
         article.append(extras);
       }
     } else if (infobox) side.append(infobox);

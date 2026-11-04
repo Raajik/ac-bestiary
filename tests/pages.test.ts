@@ -4,7 +4,7 @@ import { join } from 'node:path';
 import type { DatabaseSync } from 'node:sqlite';
 import { beforeAll, describe, expect, it } from 'vitest';
 
-import { describeTitles, ftsQuery, loadAllItems, loadCategory, loadPage, loadStats, search, type QueryFn } from '../src/app/pages.js';
+import { describeTitles, familyRoot, ftsQuery, loadAllItems, loadCategory, loadPage, loadStats, search, type QueryFn } from '../src/app/pages.js';
 import { openSnapshot, resetGameRecords, runSnapshot } from '../src/lib/snapshot.js';
 import { FakeWikiApi } from './fake-wiki-api.js';
 
@@ -89,5 +89,20 @@ describe('browse queries', () => {
     expect(titles.length).toBe(stats.categories[0].count);
     expect(titles).toEqual([...titles].sort());
     expect((await loadAllItems(query)).map((i) => i.title)).toEqual(['Axe of the Quiddity', 'Bow of the Quiddity', 'Enhanced Bow of the Quiddity']);
+  });
+});
+
+describe('familyRoot', () => {
+  it('picks the page the others extend, not the shortest title', () => {
+    expect(familyRoot(['Quiddity Ingot', 'Quiddity Weapons', 'Quiddity Weapons Quest'])).toBe('Quiddity Weapons');
+  });
+
+  it('prefers the title with the larger family, then the shorter one', () => {
+    expect(familyRoot(['Tusker', 'Tusker Guard', 'Tusker Guard Kill Task', 'Tusker Guard Tusks'])).toBe('Tusker');
+    expect(familyRoot(['Bow', 'Bow of the Quiddity', 'Bow Tusks'])).toBe('Bow');
+  });
+
+  it('finds nothing when no title extends another', () => {
+    expect(familyRoot(['Quiddity Ingot', 'Quiddity Weapons'])).toBeUndefined();
   });
 });

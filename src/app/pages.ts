@@ -256,3 +256,14 @@ export async function loadCategories(query: QueryFn, title: string): Promise<str
   const rows = await query('select categories from pages where title = ?', [title]);
   return rows[0] ? (JSON.parse(String(rows[0].categories)) as string[]) : [];
 }
+
+/**
+ * Of titles that all start with what was typed, the one the others extend ("Quiddity Weapons" for
+ * "Quiddity Weapons Quest"): the hub of the family. The most extended wins; a tie goes to the shorter title.
+ */
+export function familyRoot(titles: string[]): string | undefined {
+  const extended = (title: string): number => titles.filter((other) => other !== title && other.startsWith(`${title} `)).length;
+  return titles
+    .filter((title) => extended(title) > 0)
+    .sort((a, b) => extended(b) - extended(a) || a.length - b.length)[0];
+}
